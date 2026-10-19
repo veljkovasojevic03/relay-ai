@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+.pnpm-store/
+
+# env & secrets — only .env.example is committed
+.env*
+!.env.example
+
+# Next.js / build output
+.next/
+out/
+build/
+dist/
+next-env.d.ts
+*.tsbuildinfo
+public/widget.js
+public/widget.js.map
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+
+# testing
+coverage/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# n8n local data
+n8n/data/
+
+# misc
+.DS_Store
+Thumbs.db
+*.log
+.vercel
+.idea/
