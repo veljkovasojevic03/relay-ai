@@ -1,0 +1,40 @@
+{
+  "Metadata": {
+    "title": "Relay AI",
+    "description": "Answers first. Humans when it matters. A support chatbot for small web shops."
+  },
+  "Header": {
+    "home": "Relay AI home",
+    "language": "Language"
+  },
+  "Locale": {
+    "en": "English",
+    "sr": "Srpski"
+  },
+  "Home": {
+    "badge": "Under construction",
+    "title": "Answers first. Humans when it matters.",
+    "lead": "Add your FAQ, paste one line of code on your shop, and your visitors get instant answers. When the bot doesn't know, the chat comes to you.",
+    "preview": {
+      "label": "Example conversation",
+      "visitor": "How long do I have to return shoes?",
+      "bot": "You can return unworn shoes within 14 days of delivery. The return label is in your parcel.",
+      "source": "Answered from: Returns policy",
+      "handoff": "Talk to a person"
+    },
+    "steps": {
+      "title": "How it works",
+      "faq": "Write your answers once",
+      "embed": "Paste one script tag",
+      "handoff": "Step in when it matters"
+    }
+  },
+  "Footer": {
+    "note": "Portfolio project. Runs on free tiers, with no real charges."
+  },
+  "NotFound": {
+    "title": "This page doesn't exist",
+    "body": "The link may be old, or the address has a typo.",
+    "back": "Back to the home page"
+  }
+}

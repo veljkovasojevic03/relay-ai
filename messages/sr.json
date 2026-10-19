@@ -1,0 +1,40 @@
+{
+  "Metadata": {
+    "title": "Relay AI",
+    "description": "Prvo odgovor. Čovek kad je bitno. Chatbot za podršku malim internet prodavnicama."
+  },
+  "Header": {
+    "home": "Relay AI početna",
+    "language": "Jezik"
+  },
+  "Locale": {
+    "en": "English",
+    "sr": "Srpski"
+  },
+  "Home": {
+    "badge": "U izradi",
+    "title": "Prvo odgovor. Čovek kad je bitno.",
+    "lead": "Dodaj česta pitanja, nalepi jednu liniju koda na svoju prodavnicu i posetioci odmah dobijaju odgovore. Kad bot ne zna, razgovor stiže do tebe.",
+    "preview": {
+      "label": "Primer razgovora",
+      "visitor": "Koliko imam vremena da vratim cipele?",
+      "bot": "Nenošene cipele možeš da vratiš u roku od 14 dana od isporuke. Nalepnica za povraćaj je u paketu.",
+      "source": "Odgovor iz: Pravila povraćaja",
+      "handoff": "Razgovaraj sa osobom"
+    },
+    "steps": {
+      "title": "Kako radi",
+      "faq": "Napiši odgovore jednom",
+      "embed": "Nalepi jedan script tag",
+      "handoff": "Uključi se kad je bitno"
+    }
+  },
+  "Footer": {
+    "note": "Portfolio projekat. Radi na besplatnim planovima, bez stvarnih naplata."
+  },
+  "NotFound": {
+    "title": "Ova stranica ne postoji",
+    "body": "Link je možda star ili adresa ima grešku.",
+    "back": "Nazad na početnu"
+  }
+}

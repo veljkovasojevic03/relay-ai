@@ -1,4 +1,7 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+const withNextIntl = createNextIntlPlugin();
 
 // Baseline headers for every response. The strict dashboard CSP is added in a later phase,
 // once the pages it has to allow (Supabase, Stripe, Turnstile) exist.
@@ -27,4 +30,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

@@ -4,5 +4,5 @@ title = "Relay AI gitleaks config"
 useDefault = true
 
 [allowlist]
-description = "Documentation and examples contain placeholder values only"
-paths = ['''\.env\.example$''', '''pnpm-lock\.yaml$''']
+description = "Env templates with empty placeholder values (no secrets)"
+paths = ['''\.env\.example$''', '''pnpm-lock\.yaml$''', '''^RELAY_AI_PROMPT\.md$''']
