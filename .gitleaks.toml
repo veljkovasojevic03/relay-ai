@@ -1,0 +1,8 @@
+title = "Relay AI gitleaks config"
+
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Documentation and examples contain placeholder values only"
+paths = ['''\.env\.example$''', '''pnpm-lock\.yaml$''']
