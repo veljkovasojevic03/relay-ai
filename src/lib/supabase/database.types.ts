@@ -763,6 +763,7 @@ export type Database = {
           vector_rank: number;
         }[];
       };
+      plan_bot_limit: { Args: { p_plan: string }; Returns: number };
       plan_conversation_limit: { Args: { p_plan: string }; Returns: number };
       purge_expired_data: { Args: Record<PropertyKey, never>; Returns: Json };
       start_conversation: {
