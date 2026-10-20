@@ -124,14 +124,17 @@
     "faqLimitReached": "A bot can hold up to 300 questions. Delete a few to make room.",
     "embedUnavailable": "Search indexing isn't reachable right now. Your questions are saved; try “Re-index all” in a minute.",
     "importEmpty": "Nothing to import yet. Paste at least one Q:/A: pair.",
-    "importTooMany": "Import up to 100 questions at a time."
+    "importTooMany": "Import up to 100 questions at a time.",
+    "conversationClosed": "This chat is resolved, so it can't take new replies."
   },
   "Dashboard": {
     "nav": {
       "label": "Dashboard",
       "overview": "Overview",
       "account": "Account",
-      "bots": "Bots"
+      "bots": "Bots",
+      "inbox": "Inbox",
+      "unread": "{count} unread"
     },
     "signOut": "Sign out",
     "loading": "Loading your dashboard…",
@@ -402,6 +405,79 @@
       "body": "It answers from the top match when similarity is at least {threshold}, or at least {corroborated} when half or more of the question's keywords also appear in that FAQ. Ranking: {ranking}.",
       "hybrid": "meaning and keywords combined",
       "vector": "meaning only"
+    }
+  },
+  "Inbox": {
+    "metaTitle": "Inbox",
+    "title": "Inbox",
+    "subtitle": "Chats your bots handed to you, and every other conversation, newest first.",
+    "filters": {
+      "label": "Show",
+      "all": "All",
+      "waiting_human": "Waiting for you",
+      "human": "With you",
+      "bot": "Bot only",
+      "resolved": "Resolved"
+    },
+    "status": {
+      "bot": "Bot",
+      "waiting_human": "Waiting",
+      "human": "With you",
+      "resolved": "Resolved"
+    },
+    "unread": "Unread",
+    "roles": {
+      "visitor": "Visitor",
+      "bot": "Bot",
+      "human": "You",
+      "system": "Note"
+    },
+    "anonymous": "Anonymous visitor",
+    "empty": {
+      "all": "No conversations yet. They show up here as soon as someone writes to your bot.",
+      "waiting_human": "Nobody is waiting for you. When the bot hands a chat over, it appears here.",
+      "human": "No chats you're currently handling.",
+      "bot": "No chats the bot is handling on its own.",
+      "resolved": "No resolved chats yet."
+    },
+    "open": "Open the chat with {who}",
+    "live": "Updates live",
+    "back": "Inbox",
+    "detail": {
+      "metaTitle": "Chat",
+      "email": "Visitor email",
+      "noEmail": "No email left",
+      "language": "Language",
+      "rating": "Rating",
+      "ratingUp": "👍 Helpful",
+      "ratingDown": "👎 Not helpful",
+      "resolvedBy": {
+        "bot": "Resolved by the bot",
+        "human": "Resolved by you",
+        "visitor": "Ended by the visitor"
+      },
+      "fromFaq": "From your FAQ",
+      "conversation": "Conversation",
+      "startedLabel": "Started",
+      "handedOffLabel": "Handed to you"
+    },
+    "reply": {
+      "label": "Your reply",
+      "placeholder": "Write your answer. The visitor sees it right away in the chat.",
+      "hint": "If they left an email and have been away for a few minutes, they also get it by email.",
+      "send": "Send reply",
+      "sent": "Sent.",
+      "emailed": "Sent, and emailed to the visitor.",
+      "closed": "This chat is resolved. The visitor can start a new one from the widget."
+    },
+    "resolve": "Mark resolved",
+    "resolved": "Marked resolved.",
+    "delete": {
+      "button": "Delete chat",
+      "title": "Delete this chat?",
+      "body": "The messages, and anything learned from them, are deleted for good. The visitor's widget starts fresh.",
+      "confirm": "Delete",
+      "cancel": "Keep it"
     }
   }
 }

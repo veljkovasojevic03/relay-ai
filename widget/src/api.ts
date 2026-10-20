@@ -13,7 +13,11 @@ export type WidgetConfig = {
   defaultLanguage: Lang;
   available: boolean;
   mode: "sample" | "live";
+  /** Public Supabase URL + browser-safe key for "reply waiting" pings; null = polling only. */
+  realtime?: { url: string; key: string } | null;
 };
+
+export type Status = "bot" | "waiting_human" | "human" | "resolved";
 
 export type Source = { id: string; question: string };
 
@@ -27,21 +31,29 @@ export type HistoryMessage = {
 };
 
 export type History = {
-  status: "bot" | "waiting_human" | "human" | "resolved";
+  status: Status;
   rating: "up" | "down" | null;
+  channel: string;
+  hasEmail: boolean;
   remainingMessages: number;
   messages: HistoryMessage[];
 };
 
 export type StreamEvent =
-  | { event: "meta"; data: { token?: string; mode: "sample" | "live"; language: Lang } }
+  | {
+      event: "meta";
+      data: { token?: string; channel?: string; mode: "sample" | "live"; language: Lang };
+    }
   | { event: "delta"; data: { text: string } }
   | { event: "sources"; data: { faqs: Source[] } }
-  | { event: "handoff"; data: { reason: string } }
+  | {
+      event: "handoff";
+      data: { reason: string; status: "waiting_human"; message: string; messageId: string | null };
+    }
   | {
       event: "done";
       data: {
-        outcome: "answered" | "unknown" | "degraded" | "waiting";
+        outcome: "answered" | "unknown" | "degraded" | "waiting" | "handoff";
         offerHuman: boolean;
         suggestions: string[];
         remainingMessages: number;
@@ -107,6 +119,31 @@ export class Api {
       },
       token,
     );
+  }
+
+  /** New human/system messages since `since` (ISO), plus the current status. */
+  async poll(
+    token: string,
+    since: string | null,
+  ): Promise<{
+    status: Status;
+    messages: { id: string; role: "human" | "system"; text: string; createdAt: string }[];
+  }> {
+    const url = this.url("poll", since ? { since } : {});
+    return (await this.request(url, { method: "GET" }, token)).json();
+  }
+
+  /** "Talk to a person", or the optional email afterwards. */
+  async handoff(
+    token: string,
+    email?: string,
+  ): Promise<{
+    status: Status;
+    message: string | null;
+    messageId: string | null;
+    hasEmail: boolean;
+  }> {
+    return (await this.post("handoff", email ? { email } : {}, token)).json();
   }
 
   async rate(token: string, rating: "up" | "down") {

@@ -5,6 +5,7 @@ import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Wordmark } from "@/components/logo";
 import { Link } from "@/i18n/navigation";
 import { requireUser } from "@/lib/auth/session";
+import { getInboxCounts } from "@/lib/inbox/queries";
 
 import { DashboardNav } from "./dashboard-nav";
 import { DashboardSkeleton } from "./dashboard-skeleton";
@@ -39,12 +40,12 @@ export default function DashboardLayout({ children }: LayoutProps<"/[locale]/das
           </div>
         </div>
       </header>
-      <div className="mx-auto grid w-full max-w-7xl flex-1 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10 lg:py-10">
-        <aside className="lg:sticky lg:top-6 lg:self-start">
+      <div className="mx-auto grid w-full max-w-7xl flex-1 grid-cols-[minmax(0,1fr)] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10 lg:py-10">
+        <aside className="min-w-0 lg:sticky lg:top-6 lg:self-start">
           <Suspense
             fallback={<div className="h-10 rounded-md bg-muted lg:h-32" aria-hidden="true" />}
           >
-            <DashboardNav />
+            <NavWithCounts />
           </Suspense>
         </aside>
         <main className="min-w-0">
@@ -62,4 +63,10 @@ export default function DashboardLayout({ children }: LayoutProps<"/[locale]/das
 async function AuthGate({ children }: { children: React.ReactNode }) {
   await requireUser();
   return children;
+}
+
+/** The nav with the inbox's unread count (read with the owner's session, so dynamic). */
+async function NavWithCounts() {
+  const { unread } = await getInboxCounts();
+  return <DashboardNav unread={unread} />;
 }

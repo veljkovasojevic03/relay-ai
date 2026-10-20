@@ -2,6 +2,7 @@ import type { Language } from "@/lib/bots/schema";
 import type { SearchResult } from "@/lib/faqs/search";
 
 import { BOT_COPY } from "./copy";
+import type { HandoffReason, HandoffResult } from "./handoff";
 import { SAMPLE_CHUNK_DELAY_MS } from "./limits";
 import type { ModeDecision } from "./mode";
 import { chunkText, type Outcome, type WidgetEvent } from "./sse";
@@ -18,7 +19,7 @@ export type ReplyRecord = {
   content: string;
   sourceFaqIds: string[];
   meta: Record<string, string | number | boolean | null>;
-  outcome: Exclude<Outcome, "waiting">;
+  outcome: "answered" | "unknown" | "degraded";
   question: string;
   language: Language;
   firstResponseMs: number;
@@ -26,7 +27,9 @@ export type ReplyRecord = {
 
 export type TurnDeps = {
   search: (botId: string, text: string, language: Language) => Promise<SearchResult>;
-  recordReply: (reply: ReplyRecord) => Promise<void>;
+  /** Saves the reply; returns the conversation's unknown streak after it. */
+  recordReply: (reply: ReplyRecord) => Promise<{ unknownStreak: number }>;
+  handoff: (reason: HandoffReason) => Promise<HandoffResult>;
   sleep: (ms: number) => Promise<void>;
   now: () => number;
 };
@@ -38,6 +41,9 @@ export type TurnInput = {
   language: Language;
   /** Set only when this message started the conversation. */
   token?: string;
+  channel?: string;
+  /** The visitor asked for a person in words ("talk to a human"). */
+  wantsHuman: boolean;
   conversationStatus: "bot" | "waiting_human" | "human" | "resolved";
   remainingMessages: number;
   mode: ModeDecision;
@@ -50,6 +56,7 @@ export async function* runTurn(input: TurnInput, deps: TurnDeps): AsyncGenerator
     event: "meta",
     data: {
       ...(input.token ? { token: input.token } : {}),
+      ...(input.channel ? { channel: input.channel } : {}),
       mode: input.mode.mode,
       language: input.language,
     },
@@ -69,6 +76,15 @@ export async function* runTurn(input: TurnInput, deps: TurnDeps): AsyncGenerator
     return;
   }
 
+  if (input.wantsHuman) {
+    const handed = await tryHandoff(deps, "requested");
+    if (handed) {
+      yield handed;
+      yield done("handoff", false, [], input.remainingMessages);
+      return;
+    }
+  }
+
   let search: SearchResult;
   try {
     search = await deps.search(input.botId, input.text, input.language);
@@ -78,7 +94,7 @@ export async function* runTurn(input: TurnInput, deps: TurnDeps): AsyncGenerator
   }
 
   const copy = BOT_COPY[input.language];
-  let outcome: Exclude<Outcome, "waiting">;
+  let outcome: ReplyRecord["outcome"];
   let reply: string;
   let sources: { id: string; question: string }[] = [];
   let suggestions: string[] = [];
@@ -102,8 +118,9 @@ export async function* runTurn(input: TurnInput, deps: TurnDeps): AsyncGenerator
   }
 
   const latencyMs = Math.max(0, Math.round(deps.now() - input.startedAt));
+  let unknownStreak = 0;
   try {
-    await deps.recordReply({
+    ({ unknownStreak } = await deps.recordReply({
       conversationId: input.conversationId,
       botId: input.botId,
       content: reply,
@@ -119,7 +136,7 @@ export async function* runTurn(input: TurnInput, deps: TurnDeps): AsyncGenerator
       question: input.text,
       language: input.language,
       firstResponseMs: latencyMs,
-    });
+    }));
   } catch {
     yield { event: "error", data: { code: "internal" } };
     return;
@@ -131,13 +148,39 @@ export async function* runTurn(input: TurnInput, deps: TurnDeps): AsyncGenerator
     yield { event: "delta", data: { text } };
   }
   if (sources.length) yield { event: "sources", data: { faqs: sources } };
-  yield {
-    event: "done",
-    data: {
-      outcome,
-      offerHuman: outcome !== "answered",
-      suggestions,
-      remainingMessages: input.remainingMessages,
-    },
-  };
+
+  // Two "I don't know"s in a row: hand the chat to a person (spec §4.4).
+  const handed =
+    outcome === "unknown" && unknownStreak >= 2 && (await tryHandoff(deps, "unknown_twice"));
+  if (handed) yield handed;
+  yield done(outcome, !handed && outcome !== "answered", suggestions, input.remainingMessages);
+}
+
+function done(
+  outcome: Outcome,
+  offerHuman: boolean,
+  suggestions: string[],
+  remainingMessages: number,
+): WidgetEvent {
+  return { event: "done", data: { outcome, offerHuman, suggestions, remainingMessages } };
+}
+
+/** The `handoff` event, or null when nothing changed (already handed off) or it failed. */
+async function tryHandoff(deps: TurnDeps, reason: HandoffReason): Promise<WidgetEvent | null> {
+  try {
+    const result = await deps.handoff(reason);
+    if (result.status !== "handed_off" || !result.message) return null;
+    return {
+      event: "handoff",
+      data: {
+        reason,
+        status: "waiting_human",
+        message: result.message,
+        messageId: result.messageId,
+      },
+    };
+  } catch {
+    // The visitor can still ask again with the button; the bot keeps offering a person.
+    return null;
+  }
 }

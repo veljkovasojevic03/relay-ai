@@ -101,6 +101,9 @@ export type WidgetConversation = {
   language: Language;
   visitorMessageCount: number;
   rating: "up" | "down" | null;
+  /** Realtime channel name; a bearer secret like the token, given only to the token holder. */
+  channel: string;
+  hasEmail: boolean;
   createdAt: string;
 };
 
@@ -117,7 +120,9 @@ export async function findConversation(
   const tokenHash = hashToken(token);
   const { data, error } = await db
     .from("conversations")
-    .select("id, token_hash, status, language, visitor_message_count, rating, created_at")
+    .select(
+      "id, token_hash, status, language, visitor_message_count, rating, realtime_channel, visitor_email, created_at",
+    )
     .eq("bot_id", botId)
     .eq("token_hash", tokenHash)
     .maybeSingle();
@@ -132,6 +137,8 @@ export async function findConversation(
     language: data.language === "sr" ? "sr" : "en",
     visitorMessageCount: data.visitor_message_count,
     rating: data.rating === "up" || data.rating === "down" ? data.rating : null,
+    channel: data.realtime_channel,
+    hasEmail: Boolean(data.visitor_email),
     createdAt: data.created_at,
   };
 }

@@ -8,7 +8,7 @@
  */
 
 export type Mode = "sample" | "live";
-export type Outcome = "answered" | "unknown" | "degraded" | "waiting";
+export type Outcome = "answered" | "unknown" | "degraded" | "waiting" | "handoff";
 
 export type WidgetEvent =
   | {
@@ -16,6 +16,8 @@ export type WidgetEvent =
       data: {
         /** Only on a conversation's first message. The widget stores it; it is never resent. */
         token?: string;
+        /** Realtime channel for "conversation changed" pings; first message only, like the token. */
+        channel?: string;
         mode: Mode;
         language: "en" | "sr";
       };
@@ -23,7 +25,11 @@ export type WidgetEvent =
   | { event: "delta"; data: { text: string } }
   | { event: "sources"; data: { faqs: { id: string; question: string }[] } }
   | { event: "action_card"; data: Record<string, unknown> }
-  | { event: "handoff"; data: { reason: string } }
+  | {
+      event: "handoff";
+      /** The chat now waits for a person; `message` is the system line to show. */
+      data: { reason: string; status: "waiting_human"; message: string; messageId: string | null };
+    }
   | {
       event: "done";
       data: {

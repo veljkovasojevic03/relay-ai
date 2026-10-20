@@ -42,9 +42,14 @@ const input: TurnInput = {
   remainingMessages: 19,
   mode: { mode: "sample", reason: "no_api_key" },
   startedAt: 1000,
+  wantsHuman: false,
 };
 
-function deps(search: SearchResult | Error, record?: Error) {
+function deps(
+  search: SearchResult | Error,
+  record?: Error,
+  opts: { streak?: number; handoff?: "handed_off" | "already" | Error } = {},
+) {
   const log: string[] = [];
   const recorded: ReplyRecord[] = [];
   const d: TurnDeps = {
@@ -56,6 +61,17 @@ function deps(search: SearchResult | Error, record?: Error) {
       log.push("record");
       if (record) throw record;
       recorded.push(reply);
+      return { unknownStreak: opts.streak ?? 0 };
+    }),
+    handoff: vi.fn(async () => {
+      if (opts.handoff instanceof Error) throw opts.handoff;
+      const status = opts.handoff ?? "handed_off";
+      const handed = status === "handed_off";
+      return {
+        status,
+        message: handed ? "A person will reply here." : null,
+        messageId: handed ? "m1" : null,
+      };
     }),
     sleep: async () => {},
     now: () => 1250,
@@ -165,5 +181,55 @@ describe("runTurn", () => {
   it("ends with an error event, and streams nothing, when the reply can't be saved", async () => {
     const events = await collect(runTurn(input, deps(answered, new Error("insert failed")).d));
     expect(events.map((e) => e.event)).toEqual(["meta", "error"]);
+  });
+
+  it("hands off right away when the visitor asks for a person, without searching", async () => {
+    const { d } = deps(answered);
+    const events = await collect(runTurn({ ...input, wantsHuman: true }, d));
+    expect(events.map((e) => e.event)).toEqual(["meta", "handoff", "done"]);
+    expect(events[1]).toEqual({
+      event: "handoff",
+      data: {
+        reason: "requested",
+        status: "waiting_human",
+        message: "A person will reply here.",
+        messageId: "m1",
+      },
+    });
+    expect(events[2]!.data).toMatchObject({ outcome: "handoff", offerHuman: false });
+    expect(d.search).not.toHaveBeenCalled();
+    expect(d.handoff).toHaveBeenCalledWith("requested");
+  });
+
+  it("hands off after the second unknown in a row: reply first, then handoff, then done", async () => {
+    const { d } = deps(unknown, undefined, { streak: 2 });
+    const events = await collect(runTurn(input, d));
+    const names = events.map((e) => e.event);
+    expect(names.at(-2)).toBe("handoff");
+    expect(names.at(-1)).toBe("done");
+    expect(names.slice(1, -2).every((n) => n === "delta")).toBe(true);
+    expect(events.at(-2)!.data).toMatchObject({ reason: "unknown_twice" });
+    expect(events.at(-1)!.data).toMatchObject({ outcome: "unknown", offerHuman: false });
+  });
+
+  it("doesn't hand off after a single unknown", async () => {
+    const { d } = deps(unknown, undefined, { streak: 1 });
+    const events = await collect(runTurn(input, d));
+    expect(events.map((e) => e.event)).not.toContain("handoff");
+    expect(d.handoff).not.toHaveBeenCalled();
+  });
+
+  it("keeps offering a person when the handoff itself fails", async () => {
+    const { d } = deps(unknown, undefined, { streak: 2, handoff: new Error("db down") });
+    const events = await collect(runTurn(input, d));
+    expect(events.map((e) => e.event)).not.toContain("handoff");
+    expect(events.at(-1)!.data).toMatchObject({ outcome: "unknown", offerHuman: true });
+  });
+
+  it("passes the realtime channel along with the token on the first message", async () => {
+    const events = await collect(
+      runTurn({ ...input, token: "tok", channel: "chan" }, deps(answered).d),
+    );
+    expect(events[0]!.data).toMatchObject({ token: "tok", channel: "chan" });
   });
 });

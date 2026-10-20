@@ -6,7 +6,7 @@ An embeddable support chatbot for small web shops. You add your FAQ and paste on
 line on your site. Visitors then get instant answers that cite their source. When the bot
 doesn't know, the chat is handed off to you in a live inbox. Everything runs on free tiers.
 
-> Status: **Phase 5: the widget.** Features land phase by phase; decisions are logged in
+> Status: **Phase 6: handoff, inbox and Realtime.** Features land phase by phase; decisions are logged in
 > [`docs/DECISIONS.md`](docs/DECISIONS.md) and the design system in
 > [`docs/STYLE_GUIDE.md`](docs/STYLE_GUIDE.md).
 
@@ -136,6 +136,18 @@ websites**. Elsewhere it stays hidden and logs a console warning.
 `pnpm build` and `pnpm dev` build the widget first; run `pnpm widget:watch` while working on
 `widget/src`.
 
+## Handoff and inbox
+
+When a visitor asks for a person (the button, or in words), or the bot doesn't know twice in a
+row, the chat moves to **Waiting** and shows up in the dashboard **Inbox**, which updates live.
+Your reply reaches the open widget within a second (Supabase Realtime) or, when sockets are
+blocked, within 5 seconds (polling). If the visitor left an email and has been away for more
+than three minutes, the reply is also queued to be emailed through n8n (delivery arrives with
+the n8n integration). The handoff itself queues an `escalation` email to you the same way.
+
+The Realtime channel carries only "something changed" pings; the widget then fetches the
+messages through its token-protected API, so a channel name on its own reveals nothing.
+
 ## Public widget API
 
 The widget talks to these endpoints (CORS only for the bot's allowed websites):
@@ -147,6 +159,7 @@ The widget talks to these endpoints (CORS only for the bot's allowed websites):
 | `GET /api/widget/poll?bot=&since=`  | New human/system messages (fallback for Realtime)             |
 | `GET /api/widget/conversation?bot=` | The whole conversation, to resume after a refresh             |
 | `POST /api/widget/rate`             | `{bot, rating: "up" \| "down"}`                               |
+| `POST /api/widget/handoff`          | `{bot, email?}`: "Talk to a person", or the email afterwards  |
 | `POST /api/widget/end`              | `{bot}`: the visitor closes the chat                          |
 
 The first message starts a conversation and returns a token once, in the `meta` event. Send it

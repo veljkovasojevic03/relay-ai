@@ -23,6 +23,7 @@ import {
 } from "./context";
 import type { OriginCheck } from "./cors";
 import { MAX_BODY_BYTES, MAX_VISITOR_MESSAGES, WIDGET_RATE_LIMITS } from "./limits";
+import { startHandoff } from "./handoff";
 import { LIVE_MODE_IMPLEMENTED } from "./mode";
 
 /**
@@ -98,6 +99,8 @@ export async function handleConfig(request: Request, db: SupabaseClient): Promis
       // New chats can start. An existing chat may continue while this is false.
       available: bot.active && accepts === true,
       mode: LIVE_MODE_IMPLEMENTED ? "live" : "sample",
+      // Public values (the browser-safe key), so the widget can hear "reply waiting" pings.
+      realtime: realtimeConfig(),
     },
     origin,
     // Short, so settings changes show up quickly; Vary: Origin keeps caches per site.
@@ -156,6 +159,8 @@ export async function handleConversation(request: Request, db: SupabaseClient): 
     {
       status: conversation.status,
       rating: conversation.rating,
+      channel: conversation.channel,
+      hasEmail: conversation.hasEmail,
       remainingMessages: Math.max(0, MAX_VISITOR_MESSAGES - conversation.visitorMessageCount),
       messages: rows.map((m) => ({
         id: m.id,
@@ -172,6 +177,11 @@ export async function handleConversation(request: Request, db: SupabaseClient): 
   );
 }
 
+function realtimeConfig() {
+  const { NEXT_PUBLIC_SUPABASE_URL: url, NEXT_PUBLIC_SUPABASE_ANON_KEY: key } = serverEnv();
+  return url && key ? { url, key } : null;
+}
+
 const pollSince = z.iso.datetime({ offset: true });
 
 /** GET /api/widget/poll?bot=&since=: new human/system messages (Realtime fallback). */
@@ -185,6 +195,13 @@ export async function handlePoll(request: Request, db: SupabaseClient): Promise<
   );
   if (!resolved.ok) return resolved.response;
   const { origin, conversation, bot } = resolved;
+
+  // An open widget counts as a present visitor (decides whether a reply is also emailed).
+  const touched = await db.rpc("touch_visitor_activity", {
+    p_conversation_id: conversation.id,
+    p_bot_id: bot.id,
+  });
+  if (touched.error) log.warn("widget.touch_failed", { code: touched.error.code });
 
   const sinceParam = url.searchParams.get("since");
   const since = sinceParam ? pollSince.safeParse(sinceParam) : null;
@@ -216,20 +233,25 @@ export async function handlePoll(request: Request, db: SupabaseClient): Promise<
   );
 }
 
-const rateSchema = z.object({ bot: z.string(), rating: z.enum(["up", "down"]) });
+/** Just the bot key, read first so later validation errors can carry CORS headers. */
+const botKey = z.object({ bot: z.string() });
+const rateSchema = z.object({ rating: z.enum(["up", "down"]) });
 
 /** POST /api/widget/rate {bot, rating}: 👍/👎 for the conversation. */
 export async function handleRate(request: Request, db: SupabaseClient): Promise<Response> {
-  const parsed = rateSchema.safeParse(await readJsonBody(request, MAX_BODY_BYTES));
-  if (!parsed.success) return widgetError("bad_request", 400);
+  const body = await readJsonBody(request, MAX_BODY_BYTES);
+  const key = botKey.safeParse(body);
+  if (!key.success) return widgetError("bad_request", 400);
   const resolved = await resolveConversation(
     db,
     request,
-    parsed.data.bot,
+    key.data.bot,
     WIDGET_RATE_LIMITS.feedback,
   );
   if (!resolved.ok) return resolved.response;
   const { origin, conversation, bot } = resolved;
+  const parsed = rateSchema.safeParse(body);
+  if (!parsed.success) return widgetError("bad_request", 400, origin);
 
   const { error } = await db
     .from("conversations")
@@ -241,6 +263,57 @@ export async function handleRate(request: Request, db: SupabaseClient): Promise<
     return widgetError("internal", 500, origin);
   }
   return widgetJson({ rating: parsed.data.rating }, origin);
+}
+
+const handoffSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .max(254)
+    .optional()
+    .transform((v) => (v ? v : undefined))
+    .pipe(z.email().optional()),
+});
+
+/**
+ * POST /api/widget/handoff {bot, email?}: "Talk to a person", or the optional email given
+ * after the handoff. Idempotent: a second call only stores the email.
+ */
+export async function handleHandoff(request: Request, db: SupabaseClient): Promise<Response> {
+  const body = await readJsonBody(request, MAX_BODY_BYTES);
+  const key = botKey.safeParse(body);
+  if (!key.success) return widgetError("bad_request", 400);
+  const resolved = await resolveConversation(
+    db,
+    request,
+    key.data.bot,
+    WIDGET_RATE_LIMITS.feedback,
+  );
+  if (!resolved.ok) return resolved.response;
+  const { origin, conversation, bot } = resolved;
+  // Validated after the bot is known, so the widget can read the error (CORS headers).
+  const parsed = handoffSchema.safeParse(body);
+  if (!parsed.success) return widgetError("invalid_email", 400, origin);
+
+  const result = await startHandoff(db, {
+    botId: bot.id,
+    conversationId: conversation.id,
+    reason: "requested",
+    email: parsed.data.email ?? null,
+    language: conversation.language,
+  });
+  if (result.status === "closed") return widgetError("conversation_closed", 409, origin);
+  if (result.status === "not_found") return widgetError("invalid_token", 401, origin);
+
+  return widgetJson(
+    {
+      status: result.status === "handed_off" ? "waiting_human" : conversation.status,
+      message: result.message,
+      messageId: result.messageId,
+      hasEmail: conversation.hasEmail || Boolean(parsed.data.email),
+    },
+    origin,
+  );
 }
 
 const endSchema = z.object({ bot: z.string() });

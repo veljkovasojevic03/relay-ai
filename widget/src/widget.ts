@@ -1,8 +1,9 @@
-import { ApiError, type Api, type Source, type WidgetConfig } from "./api";
+import { ApiError, type Api, type Source, type Status, type WidgetConfig } from "./api";
 import { focusables, h, icon } from "./dom";
 import { format, STRINGS, type ErrorKey, type Lang, type Strings } from "./i18n";
 import { renderMarkdown } from "./markdown";
 import { clearToken, loadToken, saveToken } from "./storage";
+import { LiveChannel } from "./realtime";
 import { CSS } from "./styles";
 
 export type WidgetOptions = {
@@ -17,6 +18,9 @@ type Role = "visitor" | "bot" | "human" | "system";
 
 const MAX_CHARS = 500;
 const LOW_REMAINING = 5;
+/** Polling: every 5 s without a live socket, every 60 s with one (also marks presence). */
+const POLL_MS = 5_000;
+const POLL_IDLE_MS = 60_000;
 
 /** Readable text color on the brand color (same rule as the dashboard's readableForeground). */
 export function foregroundFor(hex: string): string {
@@ -65,6 +69,18 @@ export class RelayWidget {
   private starterChips: HTMLElement | null = null;
   /** What the opening messages were last rendered from; unchanged drafts don't re-render. */
   private startKey = "";
+  private readonly subtitle: HTMLParagraphElement;
+  private status: Status = "bot";
+  private channel: string | null = null;
+  private hasEmail = false;
+  /** Newest human/system message already shown, for polling. */
+  private since: string | null = null;
+  private readonly seen = new Set<string>();
+  private liveChannel: LiveChannel | null = null;
+  private pollTimer: ReturnType<typeof setInterval> | undefined;
+  private socketJoined = false;
+  private lastPoll = 0;
+  private polling = false;
 
   constructor(
     host: HTMLElement,
@@ -80,6 +96,7 @@ export class RelayWidget {
 
     const style = h(doc, "style", { text: CSS });
     this.title = h(doc, "h2");
+    this.subtitle = h(doc, "p", { text: t.subtitle });
     this.avatar = h(doc, "span", { class: "avatar", "aria-hidden": "true" });
     const minimize = h(
       doc,
@@ -136,7 +153,7 @@ export class RelayWidget {
         "div",
         { class: "head" },
         this.avatar,
-        h(doc, "div", { class: "who" }, this.title, h(doc, "p", { text: t.subtitle })),
+        h(doc, "div", { class: "who" }, this.title, this.subtitle),
         minimize,
       ),
       this.log,
@@ -171,6 +188,8 @@ export class RelayWidget {
     if (options.api) this.token = loadToken(options.api.bot);
     // Also renders the greeting and quick questions.
     this.applyConfig(config);
+    // A returning visitor may be waiting for a person: catch up and listen right away.
+    if (this.token) void this.loadHistory();
   }
 
   /** Brand, name, logo, position and greeting; called again when the preview's draft changes. */
@@ -205,6 +224,7 @@ export class RelayWidget {
 
   open() {
     this.panel.hidden = false;
+    this.launcher.classList.remove("has-unread");
     this.launcher.setAttribute("aria-expanded", "true");
     if (!this.options.inline) this.launcher.setAttribute("aria-label", this.t.close);
     void this.loadHistory();
@@ -275,16 +295,29 @@ export class RelayWidget {
     this.historyLoaded = true;
     try {
       const history = await api.history(this.token);
+      this.status = history.status;
+      this.channel = history.channel;
+      this.hasEmail = history.hasEmail;
+      this.updateSubtitle();
       if (history.messages.length === 0) return;
       this.log.replaceChildren();
+      this.starterChips = null;
       this.addMessage("bot", this.config.greeting[this.options.lang]?.trim() || this.t.greeting, {
         lang: this.options.lang,
       });
       for (const m of history.messages) {
-        this.addMessage(m.role, m.text, { sources: m.sources, sample: m.mode === "sample" });
+        this.addMessage(m.role, m.text, {
+          id: m.id,
+          sources: m.sources,
+          sample: m.mode === "sample",
+        });
+        if (m.role === "human" || m.role === "system") this.since = m.createdAt;
       }
       if (history.status === "resolved") this.renderEnded(history.rating);
-      else this.renderRow(history.remainingMessages);
+      else {
+        this.renderRow(history.remainingMessages);
+        if (history.status !== "bot") this.startLive();
+      }
       this.scrollDown();
     } catch (error) {
       if (error instanceof ApiError && error.status === 401) {
@@ -298,8 +331,9 @@ export class RelayWidget {
   private addMessage(
     role: Role,
     text: string,
-    opts: { sources?: Source[]; sample?: boolean; lang?: Lang; error?: boolean } = {},
+    opts: { id?: string; sources?: Source[]; sample?: boolean; lang?: Lang; error?: boolean } = {},
   ): { msg: HTMLDivElement; bubble: HTMLDivElement } {
+    if (opts.id) this.seen.add(opts.id);
     const bubble = h(this.doc, "div", { class: "bubble" });
     if (role === "visitor") bubble.textContent = text;
     else bubble.appendChild(renderMarkdown(this.doc, text));
@@ -310,6 +344,11 @@ export class RelayWidget {
       bubble,
     );
     if (role === "bot") this.addMeta(msg, opts.sources ?? [], Boolean(opts.sample));
+    if (role === "human") {
+      msg.appendChild(
+        h(this.doc, "div", { class: "meta", text: format(this.t.team, { name: this.name() }) }),
+      );
+    }
     this.log.appendChild(msg);
     this.scrollDown();
     return { msg, bubble };
@@ -382,6 +421,15 @@ export class RelayWidget {
       left.textContent = format(this.t.remaining, { count: remaining });
     }
     this.row.appendChild(left);
+    if (this.token && !this.ended && this.options.api && this.status === "bot") {
+      const talk = h(this.doc, "button", {
+        type: "button",
+        class: "link",
+        text: this.t.talkToHuman,
+      });
+      talk.addEventListener("click", () => void this.requestHuman());
+      this.row.appendChild(talk);
+    }
     if (this.token && !this.ended && this.options.api) {
       const end = h(this.doc, "button", { type: "button", class: "link", text: this.t.endChat });
       end.addEventListener("click", () => void this.endChat());
@@ -425,6 +473,8 @@ export class RelayWidget {
     let sources: Source[] = [];
     let sample = false;
     let language: Lang = this.options.lang;
+    /** Formatting and labels are applied once, at handoff or done, whichever comes first. */
+    let finalized = false;
     try {
       for await (const event of api.send(text, this.options.lang, this.token)) {
         switch (event.event) {
@@ -434,6 +484,7 @@ export class RelayWidget {
               saveToken(api.bot, event.data.token);
               this.historyLoaded = true;
             }
+            if (event.data.channel) this.channel = event.data.channel;
             sample = event.data.mode === "sample";
             language = event.data.language;
             break;
@@ -450,9 +501,19 @@ export class RelayWidget {
           case "sources":
             sources = event.data.faqs;
             break;
+          case "handoff":
+            typing.remove();
+            if (reply && !finalized) {
+              finalized = true;
+              reply.bubble.replaceChildren(renderMarkdown(this.doc, replyText));
+              this.addMeta(reply.msg, sources, sample);
+            }
+            this.onHandedOff(event.data.message, event.data.messageId);
+            break;
           case "done": {
             typing.remove();
-            if (reply) {
+            if (reply && !finalized) {
+              finalized = true;
               reply.bubble.replaceChildren(renderMarkdown(this.doc, replyText));
               this.addMeta(reply.msg, sources, sample);
               const label = sources[0]
@@ -462,6 +523,18 @@ export class RelayWidget {
             }
             if (event.data.suggestions.length) {
               this.log.appendChild(this.chips(event.data.suggestions, this.t.suggestions));
+            }
+            if (event.data.offerHuman && this.status === "bot") {
+              const talk = h(this.doc, "button", {
+                type: "button",
+                class: "chip",
+                text: this.t.talkToHuman,
+              });
+              talk.addEventListener("click", () => {
+                talk.remove();
+                void this.requestHuman();
+              });
+              this.log.appendChild(h(this.doc, "div", { class: "chips" }, talk));
             }
             this.renderRow(event.data.remainingMessages);
             this.scrollDown();
@@ -502,6 +575,175 @@ export class RelayWidget {
     }
   }
 
+  private name() {
+    return this.config.name.trim() || "Relay";
+  }
+
+  private updateSubtitle() {
+    this.subtitle.textContent =
+      this.status === "waiting_human"
+        ? this.t.waiting
+        : this.status === "human"
+          ? format(this.t.withHuman, { name: this.name() })
+          : this.t.subtitle;
+  }
+
+  /** The chat now waits for a person: say so, offer the email field, start listening. */
+  private onHandedOff(message: string, id: string | null) {
+    this.status = "waiting_human";
+    this.updateSubtitle();
+    this.addMessage("system", message, { id: id ?? undefined });
+    this.announce(message);
+    if (!this.hasEmail) this.log.appendChild(this.emailForm());
+    this.renderRow();
+    this.startLive();
+    this.scrollDown();
+  }
+
+  private async requestHuman() {
+    const api = this.options.api;
+    if (!api || !this.token || this.status !== "bot") return;
+    try {
+      const result = await api.handoff(this.token);
+      if (result.message) this.onHandedOff(result.message, result.messageId);
+      else {
+        this.status = result.status;
+        this.updateSubtitle();
+        this.renderRow();
+        this.startLive();
+      }
+    } catch (error) {
+      if (error instanceof ApiError && error.code === "conversation_closed") {
+        this.renderEnded(null);
+      } else this.showError("generic");
+    }
+  }
+
+  /** Optional email after a handoff (spec §4.5): validated by the API, never required. */
+  private emailForm(): HTMLElement {
+    const doc = this.doc;
+    const input = h(doc, "input", {
+      type: "email",
+      autocomplete: "email",
+      inputmode: "email",
+      maxlength: 254,
+      "aria-label": this.t.emailLabel,
+      placeholder: "name@example.com",
+    });
+    const note = h(doc, "p", { class: "note", text: this.t.emailHint });
+    const save = h(doc, "button", { type: "submit", class: "primary", text: this.t.emailSend });
+    const skip = h(doc, "button", { type: "button", class: "link", text: this.t.emailSkip });
+    const form = h(
+      doc,
+      "form",
+      { class: "emailform", novalidate: true },
+      h(doc, "label", { text: this.t.emailLabel }),
+      input,
+      note,
+      h(doc, "div", { class: "row" }, skip, save),
+    );
+    skip.addEventListener("click", () => form.remove());
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const api = this.options.api;
+      const email = input.value.trim();
+      if (!api || !this.token || !email) return;
+      save.disabled = true;
+      try {
+        await api.handoff(this.token, email);
+        this.hasEmail = true;
+        form.replaceWith(
+          h(
+            doc,
+            "div",
+            { class: "msg system" },
+            h(doc, "div", { class: "bubble", text: this.t.emailSaved }),
+          ),
+        );
+        this.announce(this.t.emailSaved);
+      } catch (error) {
+        const invalid = error instanceof ApiError && error.code === "invalid_email";
+        note.textContent = invalid ? this.t.errors.invalid_email : this.t.errors.generic;
+        note.classList.add("bad");
+        input.setAttribute("aria-invalid", "true");
+        input.focus();
+      } finally {
+        save.disabled = false;
+      }
+    });
+    return form;
+  }
+
+  /** Live updates while a person handles the chat: socket pings plus polling as fallback. */
+  private startLive() {
+    const api = this.options.api;
+    if (!api || !this.token || this.status === "resolved" || this.pollTimer) return;
+    const rt = this.config.realtime;
+    if (rt && this.channel && !this.liveChannel) {
+      this.liveChannel = new LiveChannel(
+        rt.url,
+        rt.key,
+        this.channel,
+        () => void this.pollNow(),
+        (state) => (this.socketJoined = state === "joined"),
+      );
+      this.liveChannel.start();
+    }
+    this.pollTimer = setInterval(() => {
+      const due = this.socketJoined ? POLL_IDLE_MS : POLL_MS;
+      if (Date.now() - this.lastPoll >= due) void this.pollNow();
+    }, POLL_MS);
+  }
+
+  private stopLive() {
+    this.liveChannel?.stop();
+    this.liveChannel = null;
+    this.socketJoined = false;
+    clearInterval(this.pollTimer);
+    this.pollTimer = undefined;
+  }
+
+  private async pollNow() {
+    const api = this.options.api;
+    if (!api || !this.token || this.polling) return;
+    this.polling = true;
+    this.lastPoll = Date.now();
+    try {
+      const update = await api.poll(this.token, this.since);
+      for (const m of update.messages) {
+        this.since = m.createdAt;
+        if (this.seen.has(m.id)) continue;
+        this.addMessage(m.role, m.text, { id: m.id });
+        if (m.role === "human") {
+          this.announce(`${format(this.t.team, { name: this.name() })}: ${m.text}`);
+          if (this.panel.hidden) {
+            this.launcher.classList.add("has-unread");
+            this.launcher.setAttribute(
+              "aria-label",
+              format(this.t.newReply, { name: this.name() }),
+            );
+          }
+        }
+      }
+      if (update.status !== this.status) {
+        this.status = update.status;
+        this.updateSubtitle();
+        if (update.status === "resolved") this.renderEnded(null);
+        else this.renderRow();
+      }
+    } catch (error) {
+      if (error instanceof ApiError && error.status === 401) {
+        // The owner deleted the chat: start over cleanly.
+        this.stopLive();
+        clearToken(api.bot);
+        this.token = null;
+        this.renderEnded(null, false);
+      }
+    } finally {
+      this.polling = false;
+    }
+  }
+
   private async endChat() {
     const api = this.options.api;
     if (!api || !this.token) return;
@@ -516,6 +758,9 @@ export class RelayWidget {
   /** Ended state: optional 👍/👎, then a way to start over. */
   private renderEnded(rating: "up" | "down" | null, askRating = true) {
     this.ended = true;
+    this.status = "resolved";
+    this.stopLive();
+    this.updateSubtitle();
     this.setComposerEnabled(false);
     this.row.replaceChildren();
     const box = h(
@@ -574,8 +819,15 @@ export class RelayWidget {
 
   private newChat() {
     if (this.options.api) clearToken(this.options.api.bot);
+    this.stopLive();
     this.token = null;
     this.historyLoaded = false;
+    this.status = "bot";
+    this.channel = null;
+    this.hasEmail = false;
+    this.since = null;
+    this.seen.clear();
+    this.updateSubtitle();
     this.renderStart();
     this.input.focus();
   }

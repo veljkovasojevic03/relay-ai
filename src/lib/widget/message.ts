@@ -22,6 +22,8 @@ import {
   type WidgetConversation,
 } from "./context";
 import { corsHeaders } from "./cors";
+import { startHandoff } from "./handoff";
+import { wantsHuman } from "./intent";
 import {
   MAX_BODY_BYTES,
   MAX_MESSAGE_CHARS,
@@ -93,6 +95,7 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
   const tokenHeader = request.headers.get("x-relay-token");
   let conversation: WidgetConversation | null;
   let token: string | undefined;
+  let channel: string | undefined;
   let language: Language;
 
   if (tokenHeader) {
@@ -115,18 +118,21 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
       log.error("widget.start_failed", { code: error.code });
       return widgetError("internal", 500, origin);
     }
-    const started = data as { status: string; conversation_id?: string };
+    const started = data as { status: string; conversation_id?: string; realtime_channel?: string };
     if (started.status === "quota_exceeded") return widgetError("quota_exceeded", 503, origin);
     if (started.status === "bot_inactive") return widgetError("bot_inactive", 503, origin);
     if (started.status !== "ok" || !started.conversation_id) {
       return widgetError("bot_not_found", 404, origin);
     }
+    channel = started.realtime_channel;
     conversation = {
       id: started.conversation_id,
       status: "bot",
       language,
       visitorMessageCount: 0,
       rating: null,
+      channel: started.realtime_channel ?? "",
+      hasEmail: false,
       createdAt: new Date().toISOString(),
     };
     log.info("widget.conversation_started", { botId: bot.id });
@@ -161,6 +167,7 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
     liveImplemented: LIVE_MODE_IMPLEMENTED,
   });
 
+  const conversationId = conversation.id;
   const events = runTurn(
     {
       botId: bot.id,
@@ -168,6 +175,8 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
       text,
       language,
       token,
+      channel,
+      wantsHuman: wantsHuman(text),
       conversationStatus: stored.conversation_status ?? "bot",
       remainingMessages: MAX_VISITOR_MESSAGES - (stored.visitor_message_count ?? 0),
       mode,
@@ -176,6 +185,8 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
     {
       search: (botId, question, lang) => searchFaqs(db, botId, question, lang, deps.embed),
       recordReply: (reply) => recordReply(db, reply),
+      handoff: (reason) =>
+        startHandoff(db, { botId: bot.id, conversationId, reason, email: null, language }),
       sleep: deps.sleep,
       now: deps.now,
     },
@@ -186,8 +197,11 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
   });
 }
 
-async function recordReply(db: SupabaseClient, reply: ReplyRecord): Promise<void> {
-  const { error } = await db.rpc("record_bot_reply", {
+async function recordReply(
+  db: SupabaseClient,
+  reply: ReplyRecord,
+): Promise<{ unknownStreak: number }> {
+  const { data, error } = await db.rpc("record_bot_reply", {
     p_conversation_id: reply.conversationId,
     p_bot_id: reply.botId,
     p_content: reply.content,
@@ -207,4 +221,5 @@ async function recordReply(db: SupabaseClient, reply: ReplyRecord): Promise<void
     outcome: reply.outcome,
     latencyMs: Number(reply.meta.latencyMs),
   });
+  return { unknownStreak: (data as { unknown_streak: number }).unknown_streak };
 }

@@ -124,14 +124,17 @@
     "faqLimitReached": "Bot može da ima najviše 300 pitanja. Obriši neka da napraviš mesta.",
     "embedUnavailable": "Indeksiranje za pretragu trenutno nije dostupno. Pitanja su sačuvana; probaj „Indeksiraj sve“ za minut.",
     "importEmpty": "Još nema šta da se uveze. Nalepi bar jedan par P:/O: ili Q:/A:.",
-    "importTooMany": "Uvezi najviše 100 pitanja odjednom."
+    "importTooMany": "Uvezi najviše 100 pitanja odjednom.",
+    "conversationClosed": "Ovaj čet je rešen, pa ne prima nove odgovore."
   },
   "Dashboard": {
     "nav": {
       "label": "Kontrolna tabla",
       "overview": "Pregled",
       "account": "Nalog",
-      "bots": "Botovi"
+      "bots": "Botovi",
+      "inbox": "Prijemno sanduče",
+      "unread": "{count} nepročitano"
     },
     "signOut": "Odjavi se",
     "loading": "Učitavam kontrolnu tablu…",
@@ -402,6 +405,79 @@
       "body": "Odgovara iz prvog rezultata kada je sličnost bar {threshold}, ili bar {corroborated} kada se pola ili više ključnih reči iz pitanja nalazi i u tom FAQ-u. Rangiranje: {ranking}.",
       "hybrid": "značenje i ključne reči zajedno",
       "vector": "samo značenje"
+    }
+  },
+  "Inbox": {
+    "metaTitle": "Prijemno sanduče",
+    "title": "Prijemno sanduče",
+    "subtitle": "Četovi koje ti je bot predao i svi ostali razgovori, najnoviji prvi.",
+    "filters": {
+      "label": "Prikaži",
+      "all": "Sve",
+      "waiting_human": "Čekaju tebe",
+      "human": "Kod tebe",
+      "bot": "Samo bot",
+      "resolved": "Rešeni"
+    },
+    "status": {
+      "bot": "Bot",
+      "waiting_human": "Čeka",
+      "human": "Kod tebe",
+      "resolved": "Rešen"
+    },
+    "unread": "Nepročitano",
+    "roles": {
+      "visitor": "Posetilac",
+      "bot": "Bot",
+      "human": "Ti",
+      "system": "Napomena"
+    },
+    "anonymous": "Anonimni posetilac",
+    "empty": {
+      "all": "Još nema razgovora. Pojaviće se ovde čim neko piše tvom botu.",
+      "waiting_human": "Niko te ne čeka. Kad bot preda čet, pojaviće se ovde.",
+      "human": "Trenutno ne vodiš nijedan čet.",
+      "bot": "Nema četova koje bot vodi sam.",
+      "resolved": "Još nema rešenih četova."
+    },
+    "open": "Otvori čet sa: {who}",
+    "live": "Osvežava se uživo",
+    "back": "Prijemno sanduče",
+    "detail": {
+      "metaTitle": "Čet",
+      "email": "Email posetioca",
+      "noEmail": "Email nije ostavljen",
+      "language": "Jezik",
+      "rating": "Ocena",
+      "ratingUp": "👍 Korisno",
+      "ratingDown": "👎 Nije korisno",
+      "resolvedBy": {
+        "bot": "Rešio bot",
+        "human": "Zatvoreno iz prijemnog sandučeta",
+        "visitor": "Završeno u widgetu"
+      },
+      "fromFaq": "Iz tvojih pitanja",
+      "conversation": "Razgovor",
+      "startedLabel": "Započet",
+      "handedOffLabel": "Predat tebi"
+    },
+    "reply": {
+      "label": "Tvoj odgovor",
+      "placeholder": "Napiši odgovor. Posetilac ga odmah vidi u četu.",
+      "hint": "Ako posetilac ima ostavljen email i nije aktivan nekoliko minuta, odgovor stiže i mejlom.",
+      "send": "Pošalji odgovor",
+      "sent": "Poslato.",
+      "emailed": "Poslato, i poslato posetiocu mejlom.",
+      "closed": "Ovaj čet je rešen. Posetilac može da započne novi iz widgeta."
+    },
+    "resolve": "Označi kao rešeno",
+    "resolved": "Označeno kao rešeno.",
+    "delete": {
+      "button": "Obriši čet",
+      "title": "Obrisati ovaj čet?",
+      "body": "Poruke i sve što je iz njih zapisano brišu se zauvek. Widget posetioca kreće iz početka.",
+      "confirm": "Obriši",
+      "cancel": "Zadrži"
     }
   }
 }

@@ -35,6 +35,7 @@ export const ERROR_KEYS = [
   "embedUnavailable",
   "importEmpty",
   "importTooMany",
+  "conversationClosed",
   "generic",
 ] as const;
 export type ErrorKey = (typeof ERROR_KEYS)[number];

@@ -32,6 +32,8 @@ button{cursor:pointer}
   transition:transform .18s ease;
 }
 .launcher:hover{transform:scale(1.05)}
+.launcher{position:relative}
+.launcher.has-unread::after{content:"";position:absolute;top:2px;right:2px;width:14px;height:14px;border-radius:50%;background:#d92d20;border:2px solid #fff}
 .launcher svg{width:26px;height:26px}
 
 .panel{
@@ -101,6 +103,11 @@ button{cursor:pointer}
 .rating button[aria-pressed="true"]{border-color:var(--relay-brand);background:var(--bubble)}
 .primary{border:0;border-radius:10px;padding:8px 14px;background:var(--relay-brand);color:var(--relay-fg);font-weight:600}
 .note{margin:0;font-size:12.5px;color:var(--muted);text-align:center}
+.note.bad{color:var(--danger)}
+.emailform{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:13.5px}
+.emailform input{padding:8px 10px;border:1px solid #8f7c6b;border-radius:10px;background:#fff}
+.emailform .note{text-align:left}
+.emailform .row{justify-content:flex-end}
 
 @media (max-width:480px){
   .root:not(.inline){bottom:12px;right:12px}

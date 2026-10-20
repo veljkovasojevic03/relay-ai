@@ -230,6 +230,9 @@ export type Database = {
           id: string;
           ip_hash: string | null;
           language: string;
+          last_message_at: string;
+          last_message_preview: string | null;
+          last_message_role: string | null;
           last_visitor_activity_at: string;
           mode: string;
           owner_unread: boolean;
@@ -251,6 +254,9 @@ export type Database = {
           id?: string;
           ip_hash?: string | null;
           language?: string;
+          last_message_at?: string;
+          last_message_preview?: string | null;
+          last_message_role?: string | null;
           last_visitor_activity_at?: string;
           mode?: string;
           owner_unread?: boolean;
@@ -271,6 +277,9 @@ export type Database = {
           id?: string;
           ip_hash?: string | null;
           language?: string;
+          last_message_at?: string;
+          last_message_preview?: string | null;
+          last_message_role?: string | null;
           last_visitor_activity_at?: string;
           mode?: string;
           owner_unread?: boolean;
@@ -776,6 +785,10 @@ export type Database = {
           vector_rank: number;
         }[];
       };
+      owner_reply: {
+        Args: { p_content: string; p_conversation_id: string; p_reply_email: Json };
+        Returns: Json;
+      };
       plan_bot_limit: { Args: { p_plan: string }; Returns: number };
       plan_conversation_limit: { Args: { p_plan: string }; Returns: number };
       purge_expired_data: { Args: Record<PropertyKey, never>; Returns: Json };
@@ -793,10 +806,25 @@ export type Database = {
         };
         Returns: Json;
       };
+      request_handoff: {
+        Args: {
+          p_bot_id: string;
+          p_conversation_id: string;
+          p_email: string;
+          p_escalation: Json;
+          p_reason: string;
+          p_system_message: string;
+        };
+        Returns: Json;
+      };
       search_normalize: { Args: { p_text: string }; Returns: string };
       start_conversation: {
         Args: { p_bot_id: string; p_ip_hash: string; p_language: string; p_token_hash: string };
         Returns: Json;
+      };
+      touch_visitor_activity: {
+        Args: { p_bot_id: string; p_conversation_id: string };
+        Returns: undefined;
       };
     };
     Enums: {
