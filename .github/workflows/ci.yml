@@ -31,6 +31,7 @@ jobs:
   verify:
     name: Lint, typecheck, test, build
     runs-on: ubuntu-latest
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -43,10 +44,22 @@ jobs:
       - run: pnpm lint
       - run: pnpm typecheck
       - run: pnpm test
-      - run: pnpm build
+
+      # Database: a disposable local Supabase stack with every migration applied.
+      - name: Start local Supabase
+        run: pnpm db:start
+      - run: pnpm db:lint
+      - name: Generated DB types are up to date
+        run: pnpm db:types && git diff --exit-code -- src/lib/supabase/database.types.ts
+      - run: pnpm test:db
+
+      # The app is built and tested against that local stack, never the cloud project.
+      - name: Build (local Supabase env)
+        run: node scripts/local-supabase.mjs -- pnpm build
       - name: Install Playwright browser
         run: pnpm exec playwright install --with-deps chromium
-      - run: pnpm test:e2e
+      - name: E2E (local Supabase env)
+        run: node scripts/local-supabase.mjs -- pnpm test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
