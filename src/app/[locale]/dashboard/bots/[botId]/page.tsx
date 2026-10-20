@@ -1,13 +1,11 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
-import { ArrowLeft } from "lucide-react";
 import { notFound } from "next/navigation";
 
 import { BotEditor } from "@/components/bots/bot-editor";
+import { BotHeader } from "@/components/bots/bot-header";
 import { DeleteBot } from "@/components/bots/delete-bot";
 import { EmbedSnippet } from "@/components/bots/embed-snippet";
 import { LogoSection } from "@/components/bots/logo-section";
-import { Link } from "@/i18n/navigation";
 import { getBot } from "@/lib/bots/queries";
 import { embedSnippet } from "@/lib/bots/snippet";
 import { serverEnv } from "@/lib/env.server";
@@ -22,26 +20,12 @@ export async function generateMetadata({
 
 export default async function BotPage({ params }: PageProps<"/[locale]/dashboard/bots/[botId]">) {
   const { botId } = await params;
-  const [bot, t] = await Promise.all([getBot(botId), getTranslations("Bots.editPage")]);
+  const bot = await getBot(botId);
   if (!bot) notFound();
 
   return (
     <div className="grid gap-6">
-      <div className="grid gap-2">
-        <Link
-          href="/dashboard/bots"
-          className="inline-flex w-fit items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
-        >
-          <ArrowLeft className="size-4" aria-hidden="true" />
-          {t("back")}
-        </Link>
-        <h1 className="font-display text-3xl font-semibold tracking-tight break-words">
-          {bot.name}
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          {t("publicKey")}: <code className="font-mono text-foreground">{bot.publicKey}</code>
-        </p>
-      </div>
+      <BotHeader bot={bot} />
       <BotEditor
         bot={bot}
         aside={

@@ -120,7 +120,11 @@
     "logoType": "Koristi PNG, JPG ili WebP sliku. SVG nije dozvoljen.",
     "logoTooLarge": "Logo može imati najviše 200 KB.",
     "logoMissing": "Prvo izaberi sliku.",
-    "notFound": "Nismo to pronašli."
+    "notFound": "Nismo to pronašli.",
+    "faqLimitReached": "Bot može da ima najviše 300 pitanja. Obriši neka da napraviš mesta.",
+    "embedUnavailable": "Indeksiranje za pretragu trenutno nije dostupno. Pitanja su sačuvana; probaj „Indeksiraj sve“ za minut.",
+    "importEmpty": "Još nema šta da se uveze. Nalepi bar jedan par P:/O: ili Q:/A:.",
+    "importTooMany": "Uvezi najviše 100 pitanja odjednom."
   },
   "Dashboard": {
     "nav": {
@@ -279,6 +283,127 @@
     "editPage": {
       "back": "Svi botovi",
       "publicKey": "Javni ključ"
+    },
+    "tabs": {
+      "label": "Delovi bota",
+      "settings": "Podešavanja",
+      "knowledge": "Znanje",
+      "playground": "Testiraj bota"
+    }
+  },
+  "Knowledge": {
+    "metaTitle": "Znanje",
+    "title": "Pitanja i odgovori",
+    "subtitle": "Bot odgovara samo iz ovoga. Piši pitanja onako kako ih kupci postavljaju.",
+    "count": "{count, plural, =0 {Još nema pitanja} one {# pitanje} few {# pitanja} other {# pitanja}}",
+    "status": {
+      "title": "Indeks za pretragu",
+      "summary": "{ready} spremno · {pending} u indeksiranju · {failed} nije indeksirano",
+      "hint": "Svako pitanje se pri čuvanju pretvara u vektor za pretragu. Pitanja koja nisu indeksirana bot još ne može da pronađe.",
+      "reindex": "Indeksiraj sve",
+      "reindexed": "{count, plural, one {Indeksirano je # pitanje} few {Indeksirana su # pitanja} other {Indeksirano je # pitanja}}.",
+      "ready": "Spremno",
+      "pending": "Indeksira se…",
+      "failed": "Nije indeksirano"
+    },
+    "add": "Dodaj pitanje",
+    "import": "Brzi uvoz",
+    "close": "Zatvori",
+    "filter": {
+      "label": "Prikaži pitanja na",
+      "all": "Svim jezicima"
+    },
+    "fields": {
+      "question": "Pitanje",
+      "questionHint": "Napiši ga kao kupac, na primer „Koliko traje dostava?“",
+      "answer": "Odgovor",
+      "answerHint": "Bot šalje ovaj tekst bez izmena. Neka bude kratak i ljubazan.",
+      "language": "Jezik",
+      "featured": "Istaknuto",
+      "featuredHint": "Istaknuta pitanja su prva na listi."
+    },
+    "save": "Sačuvaj pitanje",
+    "create": "Dodaj pitanje",
+    "cancel": "Otkaži",
+    "edit": "Izmeni",
+    "editLabel": "Izmeni „{question}“",
+    "deleteLabel": "Obriši „{question}“",
+    "delete": {
+      "title": "Obrisati ovo pitanje?",
+      "body": "Bot odmah prestaje da koristi ovaj odgovor.",
+      "confirm": "Obriši",
+      "cancel": "Zadrži"
+    },
+    "featuredBadge": "Istaknuto",
+    "messages": {
+      "created": "Pitanje je dodato.",
+      "updated": "Pitanje je sačuvano.",
+      "deleted": "Pitanje je obrisano.",
+      "imported": "{count, plural, one {Uvezeno je # pitanje} few {Uvezena su # pitanja} other {Uvezeno je # pitanja}}.",
+      "starters": "Početna pitanja su dodata. Prilagodi odgovore svojoj radnji.",
+      "embedFailed": "Sačuvano, ali indeksiranje nije uspelo. Bot ga ne može naći dok ne pokreneš indeksiranje ponovo."
+    },
+    "importPanel": {
+      "title": "Brzi uvoz",
+      "hint": "Nalepi pitanja u blokovima: red koji počinje sa P: (ili Q:) i odgovor posle O: (ili A:). Odgovor može imati više redova.",
+      "label": "Pitanja za uvoz",
+      "language": "Jezik ovih pitanja",
+      "preview": "{count, plural, =0 {Još ništa nije prepoznato} one {# pitanje spremno za uvoz} few {# pitanja spremna za uvoz} other {# pitanja spremno za uvoz}}",
+      "problems": "Redovi za ispravku",
+      "missingAnswer": "Red {line}: „{question}“ nema odgovor.",
+      "missingQuestion": "Red {line}: odgovor bez pitanja.",
+      "questionTooLong": "Red {line}: pitanje je duže od 500 znakova.",
+      "answerTooLong": "Red {line}: odgovor je duži od 4.000 znakova.",
+      "tooMany": "Odjednom se može uvesti najviše {max} pitanja.",
+      "submit": "{count, plural, one {Uvezi # pitanje} few {Uvezi # pitanja} other {Uvezi # pitanja}}",
+      "previewTitle": "Pregled"
+    },
+    "empty": {
+      "title": "Nauči bota prve odgovore",
+      "body": "Počni sa tri pitanja koja dobija svaka radnja, pa prilagodi odgovore. Ili nalepi postojeća pitanja preko brzog uvoza.",
+      "starters": "Dodaj 3 početna pitanja",
+      "language": "Jezik početnih pitanja"
+    },
+    "filteredEmpty": "Još nema pitanja na ovom jeziku."
+  },
+  "Playground": {
+    "metaTitle": "Testiraj bota",
+    "title": "Testiraj bota",
+    "subtitle": "Pitaj ono što bi pitao kupac. Videćeš koji odgovori se poklapaju, koliko su blizu i šta bi bot odgovorio.",
+    "question": "Pitanje kupca",
+    "placeholder": "Koliko traje dostava?",
+    "language": "Jezik",
+    "auto": "Prepoznaj automatski",
+    "submit": "Pitaj",
+    "try": "Probaj neko od svojih pitanja",
+    "sampleMode": "Probni režim: bot odgovara sačuvanim odgovorom od reči do reči, bez veštačke inteligencije.",
+    "noFaqs": "Prvo dodaj nekoliko pitanja u delu Znanje, pa se vrati da ih testiraš.",
+    "notIndexed": "{count, plural, one {# pitanje još nije indeksirano} few {# pitanja još nisu indeksirana} other {# pitanja još nije indeksirano}}, pa ih bot ne može pronaći.",
+    "result": {
+      "title": "Bot bi odgovorio",
+      "language": "Jezik: {language}",
+      "detected": "Jezik: {language} (prepoznat)",
+      "answerSource": "Odgovor iz: {question}",
+      "unknown": "Nisam siguran za ovo. Želiš li da razgovaraš sa osobom?",
+      "unknownNote": "Nijedan odgovor nije bio dovoljno blizu, pa bot kaže da ne zna i nudi osobu.",
+      "suggestions": "Predlaže i:",
+      "textOnly": "Indeksiranje za pretragu nije bilo dostupno, pa je radilo samo poklapanje reči i bot ne bi odgovorio. Probaj ponovo za minut."
+    },
+    "matches": {
+      "title": "Pronađena pitanja",
+      "empty": "Ništa se nije poklopilo.",
+      "rank": "#",
+      "question": "Pitanje",
+      "similarity": "Sličnost",
+      "keywords": "Poklapanje reči",
+      "answering": "Koristi se za odgovor",
+      "none": "—"
+    },
+    "rule": {
+      "title": "Kako bot odlučuje",
+      "body": "Odgovara iz prvog rezultata kada je sličnost bar {threshold}, ili bar {corroborated} kada se pola ili više ključnih reči iz pitanja nalazi i u tom FAQ-u. Rangiranje: {ranking}.",
+      "hybrid": "značenje i ključne reči zajedno",
+      "vector": "samo značenje"
     }
   }
 }

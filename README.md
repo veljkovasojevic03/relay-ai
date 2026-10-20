@@ -6,7 +6,7 @@ An embeddable support chatbot for small web shops. You add your FAQ and paste on
 line on your site. Visitors then get instant answers that cite their source. When the bot
 doesn't know, the chat is handed off to you in a live inbox. Everything runs on free tiers.
 
-> Status: **Phase 2: dashboard and bots.** Features land phase by phase; decisions are logged in
+> Status: **Phase 3: knowledge and retrieval.** Features land phase by phase; decisions are logged in
 > [`docs/DECISIONS.md`](docs/DECISIONS.md) and the design system in
 > [`docs/STYLE_GUIDE.md`](docs/STYLE_GUIDE.md).
 
@@ -67,28 +67,56 @@ pnpm e2e:local     # build + Playwright, including sign-up, sign-in and password
 pnpm db:stop
 ```
 
+`pnpm db:start` leaves out the Edge runtime to stay light, so FAQs saved locally show as
+"Not indexed". Use `pnpm db:start:embed` to run the `embed` function too. On every start the
+runtime downloads the gte-small model (about 130 MB) on the first request, which can take a few
+minutes on a slow connection; after that a request takes a fraction of a second.
+
 Local emails (confirmations, password resets) land in Mailpit at http://127.0.0.1:54324.
 After changing a migration: `pnpm db:reset`, then `pnpm db:types` to regenerate
 `src/lib/supabase/database.types.ts` (CI fails if it is stale).
 
 ## Scripts
 
-| Command             | What it does                           |
-| ------------------- | -------------------------------------- |
-| `pnpm dev`          | Dev server                             |
-| `pnpm lint`         | ESLint                                 |
-| `pnpm typecheck`    | Generate route types + `tsc --noEmit`  |
-| `pnpm test`         | Unit tests (Vitest)                    |
-| `pnpm test:e2e`     | E2E tests against a production build   |
-| `pnpm test:db`      | Database integration tests (local)     |
-| `pnpm e2e:local`    | Build + E2E against local Supabase     |
-| `pnpm db:start`     | Start the local Supabase stack         |
-| `pnpm db:reset`     | Re-create the local DB from migrations |
-| `pnpm db:lint`      | Lint SQL (plpgsql_check)               |
-| `pnpm db:types`     | Regenerate database TypeScript types   |
-| `pnpm build`        | Production build                       |
-| `pnpm format`       | Prettier                               |
-| `pnpm format:check` | Prettier check (CI)                    |
+| Command               | What it does                                        |
+| --------------------- | --------------------------------------------------- |
+| `pnpm dev`            | Dev server                                          |
+| `pnpm lint`           | ESLint                                              |
+| `pnpm typecheck`      | Generate route types + `tsc --noEmit`               |
+| `pnpm test`           | Unit tests (Vitest)                                 |
+| `pnpm test:e2e`       | E2E tests against a production build                |
+| `pnpm test:db`        | Database integration tests (local)                  |
+| `pnpm e2e:local`      | Build + E2E against local Supabase                  |
+| `pnpm db:start`       | Start the local Supabase stack                      |
+| `pnpm db:start:embed` | Same, plus the Edge runtime (`embed`)               |
+| `pnpm eval:retrieval` | Retrieval eval → `docs/RETRIEVAL_REPORT.md` (local) |
+| `pnpm db:reset`       | Re-create the local DB from migrations              |
+| `pnpm db:lint`        | Lint SQL (plpgsql_check)                            |
+| `pnpm db:types`       | Regenerate database TypeScript types                |
+| `pnpm build`          | Production build                                    |
+| `pnpm format`         | Prettier                                            |
+| `pnpm format:check`   | Prettier check (CI)                                 |
+
+## Knowledge and retrieval
+
+Owners write FAQ entries (or paste them as `Q:`/`A:` blocks) in English and Serbian. Each
+question is embedded by the `embed` Edge Function (Supabase's built-in `gte-small`, 384
+dimensions, no external API) and searched with pgvector plus Postgres full-text search. The
+**Test your bot** page shows the matches, their scores and the reply the bot would give.
+
+gte-small is an English model. Serbian works, but less well: the bot answers fewer Serbian
+questions on its own and offers the closest questions as suggestions instead. The measured
+numbers, and how the thresholds were chosen, are in
+[`docs/RETRIEVAL_REPORT.md`](docs/RETRIEVAL_REPORT.md).
+
+To deploy the function to your project:
+
+```bash
+pnpm exec supabase functions deploy embed
+```
+
+It authenticates callers with the project's **secret key** (`sb_secret_…`), so
+`SUPABASE_SERVICE_ROLE_KEY` must hold that key, not the legacy service-role JWT.
 
 ## Automation
 

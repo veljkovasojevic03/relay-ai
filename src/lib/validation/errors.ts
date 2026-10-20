@@ -31,6 +31,10 @@ export const ERROR_KEYS = [
   "logoTooLarge",
   "logoMissing",
   "notFound",
+  "faqLimitReached",
+  "embedUnavailable",
+  "importEmpty",
+  "importTooMany",
   "generic",
 ] as const;
 export type ErrorKey = (typeof ERROR_KEYS)[number];

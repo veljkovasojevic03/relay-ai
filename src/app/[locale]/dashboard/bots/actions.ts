@@ -2,31 +2,18 @@
 
 import { randomUUID } from "node:crypto";
 
-import { hasLocale } from "next-intl";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
 import { redirect } from "@/i18n/navigation";
-import { routing, type Locale } from "@/i18n/routing";
-import { requireUser } from "@/lib/auth/session";
+import { localeOf, ownerClient } from "@/lib/auth/owner";
 import { detectLogoType, LOGO_MAX_BYTES } from "@/lib/bots/logo";
 import { botFormSchema, toBotColumns } from "@/lib/bots/schema";
 import type { FormState } from "@/lib/forms";
 import { log } from "@/lib/log";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { fieldErrors, formValues } from "@/lib/validation/errors";
 
 const LOGO_BUCKET = "bot-logos";
-
-function localeOf(values: Record<string, string>): Locale {
-  return hasLocale(routing.locales, values.locale) ? values.locale : routing.defaultLocale;
-}
-
-/** Authorizes the request and returns a client acting as the owner (RLS applies). */
-async function ownerClient(locale: Locale) {
-  await requireUser(locale);
-  return (await createSupabaseServerClient())!;
-}
 
 const botId = z.uuid();
 

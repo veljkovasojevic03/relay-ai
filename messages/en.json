@@ -120,7 +120,11 @@
     "logoType": "Use a PNG, JPG or WebP image. SVG isn't allowed.",
     "logoTooLarge": "The logo must be 200 KB or smaller.",
     "logoMissing": "Choose an image first.",
-    "notFound": "We couldn't find that."
+    "notFound": "We couldn't find that.",
+    "faqLimitReached": "A bot can hold up to 300 questions. Delete a few to make room.",
+    "embedUnavailable": "Search indexing isn't reachable right now. Your questions are saved; try “Re-index all” in a minute.",
+    "importEmpty": "Nothing to import yet. Paste at least one Q:/A: pair.",
+    "importTooMany": "Import up to 100 questions at a time."
   },
   "Dashboard": {
     "nav": {
@@ -279,6 +283,127 @@
     "editPage": {
       "back": "All bots",
       "publicKey": "Public key"
+    },
+    "tabs": {
+      "label": "Bot sections",
+      "settings": "Settings",
+      "knowledge": "Knowledge",
+      "playground": "Test your bot"
+    }
+  },
+  "Knowledge": {
+    "metaTitle": "Knowledge",
+    "title": "Questions and answers",
+    "subtitle": "Your bot answers only from these. Write them the way your customers ask.",
+    "count": "{count, plural, =0 {No questions yet} one {# question} other {# questions}}",
+    "status": {
+      "title": "Search index",
+      "summary": "{ready} ready · {pending} indexing · {failed} not indexed",
+      "hint": "Each question is turned into a search vector when you save it. Questions that aren't indexed can't be found by the bot yet.",
+      "reindex": "Re-index all",
+      "reindexed": "Re-indexed {count, plural, one {# question} other {# questions}}.",
+      "ready": "Ready",
+      "pending": "Indexing…",
+      "failed": "Not indexed"
+    },
+    "add": "Add question",
+    "import": "Quick import",
+    "close": "Close",
+    "filter": {
+      "label": "Show questions in",
+      "all": "All languages"
+    },
+    "fields": {
+      "question": "Question",
+      "questionHint": "Phrase it like a customer would, for example “How long does delivery take?”",
+      "answer": "Answer",
+      "answerHint": "The bot sends this text as it is. Keep it short and friendly.",
+      "language": "Language",
+      "featured": "Featured",
+      "featuredHint": "Featured questions are listed first."
+    },
+    "save": "Save question",
+    "create": "Add question",
+    "cancel": "Cancel",
+    "edit": "Edit",
+    "editLabel": "Edit “{question}”",
+    "deleteLabel": "Delete “{question}”",
+    "delete": {
+      "title": "Delete this question?",
+      "body": "The bot will stop using this answer right away.",
+      "confirm": "Delete",
+      "cancel": "Keep it"
+    },
+    "featuredBadge": "Featured",
+    "messages": {
+      "created": "Question added.",
+      "updated": "Question saved.",
+      "deleted": "Question deleted.",
+      "imported": "Imported {count, plural, one {# question} other {# questions}}.",
+      "starters": "Starter questions added. Edit the answers to match your shop.",
+      "embedFailed": "Saved, but indexing failed. The bot can't find it until you re-index."
+    },
+    "importPanel": {
+      "title": "Quick import",
+      "hint": "Paste questions in blocks: a line starting with Q: (or P:) and the answer after A: (or O:). Answers can span several lines.",
+      "label": "Questions to import",
+      "language": "Language of these questions",
+      "preview": "{count, plural, =0 {Nothing recognized yet} one {# question ready to import} other {# questions ready to import}}",
+      "problems": "Lines to fix",
+      "missingAnswer": "Line {line}: “{question}” has no answer.",
+      "missingQuestion": "Line {line}: an answer without a question.",
+      "questionTooLong": "Line {line}: the question is longer than 500 characters.",
+      "answerTooLong": "Line {line}: the answer is longer than 4,000 characters.",
+      "tooMany": "Only {max} questions can be imported at once.",
+      "submit": "Import {count, plural, one {# question} other {# questions}}",
+      "previewTitle": "Preview"
+    },
+    "empty": {
+      "title": "Teach your bot its first answers",
+      "body": "Start with the three questions every shop gets, then edit the answers. Or paste your existing FAQ with Quick import.",
+      "starters": "Add 3 starter questions",
+      "language": "Language of the starter questions"
+    },
+    "filteredEmpty": "No questions in this language yet."
+  },
+  "Playground": {
+    "metaTitle": "Test your bot",
+    "title": "Test your bot",
+    "subtitle": "Ask what a customer would ask. You'll see which answers matched, how close they were, and what the bot would reply.",
+    "question": "Customer question",
+    "placeholder": "How long does delivery take?",
+    "language": "Language",
+    "auto": "Detect automatically",
+    "submit": "Ask",
+    "try": "Try one of your questions",
+    "sampleMode": "Sample mode: the bot replies with your saved answer word for word, without AI.",
+    "noFaqs": "Add a few questions under Knowledge first, then come back to test them.",
+    "notIndexed": "{count, plural, one {# question isn't} other {# questions aren't}} indexed yet, so the bot can't find {count, plural, one {it} other {them}}.",
+    "result": {
+      "title": "The bot would reply",
+      "language": "Language: {language}",
+      "detected": "Language: {language} (detected)",
+      "answerSource": "Answered from: {question}",
+      "unknown": "I'm not sure about that one. Would you like to talk to a person?",
+      "unknownNote": "No answer was close enough, so the bot says it doesn't know and offers a person.",
+      "suggestions": "It also suggests:",
+      "textOnly": "Search indexing was unreachable, so only keyword matching ran and the bot would not answer. Try again in a minute."
+    },
+    "matches": {
+      "title": "Matched questions",
+      "empty": "Nothing matched at all.",
+      "rank": "#",
+      "question": "Question",
+      "similarity": "Similarity",
+      "keywords": "Keyword overlap",
+      "answering": "Used for the reply",
+      "none": "—"
+    },
+    "rule": {
+      "title": "How the bot decides",
+      "body": "It answers from the top match when similarity is at least {threshold}, or at least {corroborated} when half or more of the question's keywords also appear in that FAQ. Ranking: {ranking}.",
+      "hybrid": "meaning and keywords combined",
+      "vector": "meaning only"
     }
   }
 }

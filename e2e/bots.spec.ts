@@ -179,7 +179,14 @@ test.describe("bots", () => {
 
     test("bot pages never scroll sideways", async ({ page }) => {
       await createBot(page, "A bot with a fairly long name for small screens");
-      for (const path of [page.url(), "/en/dashboard/bots", "/en/dashboard"]) {
+      const bot = page.url();
+      for (const path of [
+        bot,
+        `${bot}/knowledge`,
+        `${bot}/playground`,
+        "/en/dashboard/bots",
+        "/en/dashboard",
+      ]) {
         await page.goto(path);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
         await expect
