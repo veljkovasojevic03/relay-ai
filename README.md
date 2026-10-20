@@ -6,7 +6,7 @@ An embeddable support chatbot for small web shops. You add your FAQ and paste on
 line on your site. Visitors then get instant answers that cite their source. When the bot
 doesn't know, the chat is handed off to you in a live inbox. Everything runs on free tiers.
 
-> Status: **Phase 4: conversation engine and public API.** Features land phase by phase; decisions are logged in
+> Status: **Phase 5: the widget.** Features land phase by phase; decisions are logged in
 > [`docs/DECISIONS.md`](docs/DECISIONS.md) and the design system in
 > [`docs/STYLE_GUIDE.md`](docs/STYLE_GUIDE.md).
 
@@ -93,7 +93,8 @@ After changing a migration: `pnpm db:reset`, then `pnpm db:types` to regenerate
 | `pnpm db:reset`       | Re-create the local DB from migrations              |
 | `pnpm db:lint`        | Lint SQL (plpgsql_check)                            |
 | `pnpm db:types`       | Regenerate database TypeScript types                |
-| `pnpm build`          | Production build                                    |
+| `pnpm build`          | Widget + production build                           |
+| `pnpm widget:watch`   | Rebuild the widget on change                        |
 | `pnpm format`         | Prettier                                            |
 | `pnpm format:check`   | Prettier check (CI)                                 |
 
@@ -118,17 +119,35 @@ pnpm exec supabase functions deploy embed
 It authenticates callers with the project's **secret key** (`sb_secret_…`), so
 `SUPABASE_SERVICE_ROLE_KEY` must hold that key, not the legacy service-role JWT.
 
+## The widget
+
+`public/widget.js` is a dependency-free TypeScript bundle (about 9 KB gzipped; the build fails
+above 30 KB) that renders inside a Shadow DOM, so the shop's CSS can't change it and it can't
+change the shop. Paste the snippet from the bot's settings page before `</body>`:
+
+```html
+<script src="https://<your-app>/widget.js" data-bot="<public key>" async></script>
+```
+
+Add `data-lang="sr"` (or `en`) to force a language; otherwise the page's `<html lang>` and then
+the browser decide. The widget only answers on websites listed under the bot's **Allowed
+websites**. Elsewhere it stays hidden and logs a console warning.
+
+`pnpm build` and `pnpm dev` build the widget first; run `pnpm widget:watch` while working on
+`widget/src`.
+
 ## Public widget API
 
 The widget talks to these endpoints (CORS only for the bot's allowed websites):
 
-| Endpoint                           | What it does                                                  |
-| ---------------------------------- | ------------------------------------------------------------- |
-| `GET /api/widget/config?bot=`      | Public bot settings and whether new chats can start           |
-| `POST /api/widget/message`         | `{bot, text, locale}` → the bot's reply as Server-Sent Events |
-| `GET /api/widget/poll?bot=&since=` | New human/system messages (fallback for Realtime)             |
-| `POST /api/widget/rate`            | `{bot, rating: "up" \| "down"}`                               |
-| `POST /api/widget/end`             | `{bot}`: the visitor closes the chat                          |
+| Endpoint                            | What it does                                                  |
+| ----------------------------------- | ------------------------------------------------------------- |
+| `GET /api/widget/config?bot=`       | Public bot settings and whether new chats can start           |
+| `POST /api/widget/message`          | `{bot, text, locale}` → the bot's reply as Server-Sent Events |
+| `GET /api/widget/poll?bot=&since=`  | New human/system messages (fallback for Realtime)             |
+| `GET /api/widget/conversation?bot=` | The whole conversation, to resume after a refresh             |
+| `POST /api/widget/rate`             | `{bot, rating: "up" \| "down"}`                               |
+| `POST /api/widget/end`              | `{bot}`: the visitor closes the chat                          |
 
 The first message starts a conversation and returns a token once, in the `meta` event. Send it
 back as `X-Relay-Token` on later calls. Try it against a bot with a few FAQs:

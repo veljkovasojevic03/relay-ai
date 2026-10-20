@@ -262,10 +262,8 @@
     },
     "preview": {
       "title": "Preview",
-      "note": "A static preview of how the chat will look. The working widget arrives in a later update.",
-      "launcher": "Open chat",
-      "subtitle": "Usually replies right away",
-      "inputPlaceholder": "Type your question…"
+      "note": "The real chat with your unsaved changes. Messages are off here; try answers under Test your bot.",
+      "failed": "The preview couldn't load. Refresh the page to try again."
     },
     "danger": {
       "title": "Delete this bot",

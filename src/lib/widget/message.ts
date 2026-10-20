@@ -126,6 +126,7 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
       status: "bot",
       language,
       visitorMessageCount: 0,
+      rating: null,
       createdAt: new Date().toISOString(),
     };
     log.info("widget.conversation_started", { botId: bot.id });

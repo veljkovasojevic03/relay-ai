@@ -1,11 +1,9 @@
 "use client";
 
-import { MessageCircle, SendHorizontal } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import type { FeaturedQuestion, Language } from "@/lib/bots/schema";
-import { readableForeground } from "@/lib/design/contrast";
 import { cn } from "@/lib/utils";
 
 export type PreviewSettings = {
@@ -18,30 +16,83 @@ export type PreviewSettings = {
   defaultLanguage: Language;
 };
 
-const FALLBACK_GREETING: Record<Language, string> = {
-  en: "Hi! How can I help you today?",
-  sr: "Zdravo! Kako mogu da pomognem?",
+// The shape window.RelayAI.preview() expects (widget/src/index.ts).
+type WidgetPreviewSettings = Omit<PreviewSettings, "defaultLanguage"> & {
+  defaultLanguage: Language;
+  lang: Language;
+};
+type PreviewHandle = { update: (s: WidgetPreviewSettings) => void; destroy: () => void };
+type RelayGlobal = {
+  preview: (container: HTMLElement, settings: WidgetPreviewSettings) => PreviewHandle;
 };
 
+let loader: Promise<RelayGlobal> | null = null;
+
+/** Loads the real widget bundle once per page; it registers window.RelayAI. */
+function loadWidget(): Promise<RelayGlobal> {
+  const existing = (window as { RelayAI?: RelayGlobal }).RelayAI;
+  if (existing) return Promise.resolve(existing);
+  loader ??= new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "/widget.js";
+    script.async = true;
+    script.onload = () => {
+      const relay = (window as { RelayAI?: RelayGlobal }).RelayAI;
+      if (relay) resolve(relay);
+      else reject(new Error("widget did not register"));
+    };
+    script.onerror = () => {
+      loader = null;
+      reject(new Error("widget failed to load"));
+    };
+    document.head.appendChild(script);
+  });
+  return loader;
+}
+
 /**
- * Static mock of the widget built from the draft settings (Phase 5 swaps in the real one).
- * The mock is `inert`: it looks interactive but takes no focus or clicks.
+ * The real widget (public/widget.js) rendering the draft settings in its own Shadow DOM, so
+ * what the owner sees is exactly what visitors get. Preview mode never sends messages.
  */
 export function WidgetPreview({ settings }: { settings: PreviewSettings }) {
   const t = useTranslations("Bots.preview");
   const tLocale = useTranslations("Locale");
   const tHeader = useTranslations("Header");
-  // Follows the bot's default language until the owner picks one in the preview.
   const [chosen, setLanguage] = useState<Language | null>(null);
+  const [failed, setFailed] = useState(false);
   const language = chosen ?? settings.defaultLanguage;
-  const color = /^#[0-9a-f]{6}$/i.test(settings.brandColor) ? settings.brandColor : "#b3472b";
-  const fg = readableForeground(color).color;
-  const greeting = settings.greeting[language] || FALLBACK_GREETING[language];
-  const chips = settings.questions.filter((q) => q.language === language);
-  const name = settings.name.trim() || "Relay";
+  const container = useRef<HTMLDivElement>(null);
+  const handle = useRef<PreviewHandle | null>(null);
+  const latest = useRef<WidgetPreviewSettings | null>(null);
+
+  const draft = useMemo<WidgetPreviewSettings>(
+    () => ({ ...settings, lang: language }),
+    [settings, language],
+  );
+
+  // Declared before the mount effect, so the first mount already sees the draft.
+  useEffect(() => {
+    latest.current = draft;
+    handle.current?.update(draft);
+  }, [draft]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadWidget()
+      .then((relay) => {
+        if (cancelled || !container.current || !latest.current) return;
+        handle.current = relay.preview(container.current, latest.current);
+      })
+      .catch(() => !cancelled && setFailed(true));
+    return () => {
+      cancelled = true;
+      handle.current?.destroy();
+      handle.current = null;
+    };
+  }, []);
 
   return (
-    <section aria-labelledby="preview-title" className="grid gap-3">
+    <section aria-labelledby="preview-title" className="grid min-w-0 gap-3">
       <div className="flex items-center justify-between gap-3">
         <h2 id="preview-title" className="font-semibold">
           {t("title")}
@@ -69,80 +120,22 @@ export function WidgetPreview({ settings }: { settings: PreviewSettings }) {
       </div>
 
       <div
-        inert
-        lang={language}
-        className="relative grid gap-3 rounded-2xl border bg-[repeating-linear-gradient(135deg,var(--muted)_0_12px,var(--background)_12px_24px)] p-4"
+        className={cn(
+          "grid min-h-[200px] grid-cols-[minmax(0,1fr)] rounded-2xl border bg-[repeating-linear-gradient(135deg,var(--muted)_0_12px,var(--background)_12px_24px)] p-4",
+          settings.position === "left" ? "justify-items-start" : "justify-items-end",
+        )}
       >
-        <div
-          className={cn(
-            "w-full max-w-[320px] overflow-hidden rounded-2xl border bg-white text-[#1f1a17] shadow-card",
-            settings.position === "left" ? "justify-self-start" : "justify-self-end",
-          )}
-        >
+        {failed ? (
+          <p role="alert" className="self-center text-sm text-destructive">
+            {t("failed")}
+          </p>
+        ) : (
           <div
-            className="flex items-center gap-3 px-4 py-3"
-            style={{ background: color, color: fg }}
-          >
-            {settings.logoUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element -- user logo from Supabase Storage
-              <img
-                src={settings.logoUrl}
-                alt=""
-                className="size-9 rounded-full bg-white object-cover"
-              />
-            ) : (
-              <span
-                aria-hidden="true"
-                className="grid size-9 place-items-center rounded-full text-sm font-semibold"
-                style={{ background: fg, color }}
-              >
-                {name.charAt(0).toUpperCase()}
-              </span>
-            )}
-            <div className="min-w-0">
-              <p className="truncate font-semibold">{name}</p>
-              <p className="text-xs opacity-85">{t("subtitle")}</p>
-            </div>
-          </div>
-          <div className="grid gap-3 p-4 text-sm">
-            <p className="max-w-[85%] rounded-2xl rounded-bl-md bg-[#f3ece3] px-3 py-2">
-              {greeting}
-            </p>
-            {chips.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {chips.map((q, i) => (
-                  <span
-                    key={i}
-                    className="rounded-full border px-3 py-1 text-xs font-medium"
-                    style={{ borderColor: color, color: "#1f1a17" }}
-                  >
-                    {q.text}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-          <div className="flex items-center gap-2 border-t px-3 py-2">
-            <span className="flex-1 truncate text-sm text-[#6b5d52]">{t("inputPlaceholder")}</span>
-            <span
-              aria-hidden="true"
-              className="grid size-8 place-items-center rounded-full"
-              style={{ background: color, color: fg }}
-            >
-              <SendHorizontal className="size-4" />
-            </span>
-          </div>
-        </div>
-        <span
-          aria-hidden="true"
-          className={cn(
-            "grid size-12 place-items-center rounded-full shadow-card",
-            settings.position === "left" ? "justify-self-start" : "justify-self-end",
-          )}
-          style={{ background: color, color: fg }}
-        >
-          <MessageCircle className="size-5" />
-        </span>
+            ref={container}
+            data-testid="widget-preview"
+            className="w-full max-w-[380px] min-w-0"
+          />
+        )}
       </div>
       <p className="text-sm text-muted-foreground">{t("note")}</p>
     </section>

@@ -22,7 +22,7 @@ import {
   type WidgetConversation,
 } from "./context";
 import type { OriginCheck } from "./cors";
-import { MAX_BODY_BYTES, WIDGET_RATE_LIMITS } from "./limits";
+import { MAX_BODY_BYTES, MAX_VISITOR_MESSAGES, WIDGET_RATE_LIMITS } from "./limits";
 import { LIVE_MODE_IMPLEMENTED } from "./mode";
 
 /**
@@ -102,6 +102,73 @@ export async function handleConfig(request: Request, db: SupabaseClient): Promis
     origin,
     // Short, so settings changes show up quickly; Vary: Origin keeps caches per site.
     "public, max-age=30",
+  );
+}
+
+type MessageRow = {
+  id: string;
+  role: string;
+  content: string;
+  source_faq_ids: string[];
+  meta: { mode?: string } | null;
+  created_at: string;
+};
+
+/**
+ * GET /api/widget/conversation?bot=: the whole conversation, so a refreshed page resumes
+ * where it left off. Sources are resolved to their questions within this bot only; an FAQ
+ * deleted since simply drops out of the label.
+ */
+export async function handleConversation(request: Request, db: SupabaseClient): Promise<Response> {
+  const url = new URL(request.url);
+  const resolved = await resolveConversation(
+    db,
+    request,
+    url.searchParams.get("bot"),
+    WIDGET_RATE_LIMITS.poll,
+  );
+  if (!resolved.ok) return resolved.response;
+  const { origin, conversation, bot } = resolved;
+
+  const { data, error } = await db
+    .from("messages")
+    .select("id, role, content, source_faq_ids, meta, created_at")
+    .eq("conversation_id", conversation.id)
+    .eq("bot_id", bot.id)
+    .order("created_at", { ascending: true })
+    .limit(200);
+  if (error) {
+    log.error("widget.history_failed", { code: error.code });
+    return widgetError("internal", 500, origin);
+  }
+  const rows = data as MessageRow[];
+
+  const faqIds = [...new Set(rows.flatMap((m) => m.source_faq_ids ?? []))];
+  const questions = new Map<string, string>();
+  if (faqIds.length) {
+    const faqs = await db.from("faqs").select("id, question").eq("bot_id", bot.id).in("id", faqIds);
+    for (const f of (faqs.data ?? []) as { id: string; question: string }[]) {
+      questions.set(f.id, f.question);
+    }
+  }
+
+  return widgetJson(
+    {
+      status: conversation.status,
+      rating: conversation.rating,
+      remainingMessages: Math.max(0, MAX_VISITOR_MESSAGES - conversation.visitorMessageCount),
+      messages: rows.map((m) => ({
+        id: m.id,
+        role: m.role,
+        text: m.content,
+        sources: (m.source_faq_ids ?? [])
+          .filter((id) => questions.has(id))
+          .map((id) => ({ id, question: questions.get(id)! })),
+        mode: m.meta?.mode === "sample" || m.meta?.mode === "live" ? m.meta.mode : null,
+        createdAt: m.created_at,
+      })),
+    },
+    origin,
   );
 }
 

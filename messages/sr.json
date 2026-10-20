@@ -262,10 +262,8 @@
     },
     "preview": {
       "title": "Pregled",
-      "note": "Statički pregled izgleda razgovora. Pravi widget stiže u jednom od sledećih ažuriranja.",
-      "launcher": "Otvori razgovor",
-      "subtitle": "Obično odgovara odmah",
-      "inputPlaceholder": "Napiši pitanje…"
+      "note": "Pravi čet sa tvojim nesačuvanim izmenama. Slanje je ovde isključeno; odgovore isprobaj u delu Testiraj bota.",
+      "failed": "Pregled nije mogao da se učita. Osveži stranicu i pokušaj ponovo."
     },
     "danger": {
       "title": "Obriši ovog bota",

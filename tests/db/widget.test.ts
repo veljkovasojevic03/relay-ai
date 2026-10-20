@@ -1,7 +1,13 @@
 import { beforeAll, describe, expect, it } from "vitest";
 
 import { hashIp } from "@/lib/security/ip";
-import { handleConfig, handleEnd, handlePoll, handleRate } from "@/lib/widget/handlers";
+import {
+  handleConfig,
+  handleConversation,
+  handleEnd,
+  handlePoll,
+  handleRate,
+} from "@/lib/widget/handlers";
 import { handleMessage, type MessageDeps } from "@/lib/widget/message";
 import { MAX_VISITOR_MESSAGES, WIDGET_RATE_LIMITS } from "@/lib/widget/limits";
 
@@ -454,6 +460,40 @@ describe("config, poll, rate, end", () => {
     );
     expect(badSince.status).toBe(400);
     const noToken = await handlePoll(get(`poll?bot=${bot.key}`), db());
+    expect(noToken.status).toBe(401);
+  });
+
+  it("conversation returns the whole history with sources, for a refreshed page", async () => {
+    const first = await send(bot.key, "How long does shipping take?");
+    const token = tokenOf(first);
+    await send(bot.key, "Do you sell kids clothing?", { token, embed: embedAs(9) });
+
+    const response = await handleConversation(
+      get(`conversation?bot=${bot.key}`, { "X-Relay-Token": token, Origin: SHOP }),
+      db(),
+    );
+    expect(response.headers.get("access-control-allow-origin")).toBe(SHOP);
+    const history = await response.json();
+    expect(history).toMatchObject({
+      status: "bot",
+      rating: null,
+      remainingMessages: MAX_VISITOR_MESSAGES - 2,
+    });
+    expect(
+      history.messages.map((m: { role: string; sources: unknown[]; mode: string | null }) => [
+        m.role,
+        m.sources.length,
+        m.mode,
+      ]),
+    ).toEqual([
+      ["visitor", 0, null],
+      ["bot", 1, "sample"],
+      ["visitor", 0, null],
+      ["bot", 0, "sample"],
+    ]);
+    expect(history.messages[1].sources[0].question).toBe("How long does shipping take?");
+
+    const noToken = await handleConversation(get(`conversation?bot=${bot.key}`), db());
     expect(noToken.status).toBe(401);
   });
 

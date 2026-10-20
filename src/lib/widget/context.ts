@@ -100,6 +100,7 @@ export type WidgetConversation = {
   status: "bot" | "waiting_human" | "human" | "resolved";
   language: Language;
   visitorMessageCount: number;
+  rating: "up" | "down" | null;
   createdAt: string;
 };
 
@@ -116,7 +117,7 @@ export async function findConversation(
   const tokenHash = hashToken(token);
   const { data, error } = await db
     .from("conversations")
-    .select("id, token_hash, status, language, visitor_message_count, created_at")
+    .select("id, token_hash, status, language, visitor_message_count, rating, created_at")
     .eq("bot_id", botId)
     .eq("token_hash", tokenHash)
     .maybeSingle();
@@ -130,6 +131,7 @@ export async function findConversation(
     status: data.status,
     language: data.language === "sr" ? "sr" : "en",
     visitorMessageCount: data.visitor_message_count,
+    rating: data.rating === "up" || data.rating === "down" ? data.rating : null,
     createdAt: data.created_at,
   };
 }
