@@ -3,7 +3,7 @@ import { join } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
-import { contrastRatio } from "./contrast";
+import { contrastRatio, readableForeground } from "./contrast";
 
 // Reads the real tokens from globals.css so the test fails if someone edits a color there.
 const css = readFileSync(join(process.cwd(), "src/app/globals.css"), "utf8");
@@ -58,5 +58,24 @@ describe("contrastRatio", () => {
     expect(contrastRatio("#000000", "#ffffff")).toBeCloseTo(21, 5);
     expect(contrastRatio("#777777", "#ffffff")).toBeCloseTo(4.48, 2);
     expect(() => contrastRatio("red", "#fff")).toThrow();
+  });
+});
+
+describe("readableForeground", () => {
+  it.each([
+    ["#b3472b", "#ffffff"],
+    ["#000000", "#ffffff"],
+    ["#ffffff", "#1f1a17"],
+    ["#ffd400", "#1f1a17"],
+    ["#0ea5e9", "#1f1a17"],
+  ])("on %s uses %s", (bg, fg) => {
+    expect(readableForeground(bg).color).toBe(fg);
+  });
+
+  it("always reaches at least AA large-text contrast, whatever the brand color", () => {
+    for (let v = 0; v <= 0xffffff; v += 0x050505) {
+      const hex = `#${v.toString(16).padStart(6, "0")}`;
+      expect(readableForeground(hex).ratio, hex).toBeGreaterThanOrEqual(3);
+    }
   });
 });

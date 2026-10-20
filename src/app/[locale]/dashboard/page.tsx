@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
-import { ArrowRight, BookOpenText, Bot, Code } from "lucide-react";
+import { ArrowRight, BookOpenText, Bot, Check, Code } from "lucide-react";
+import type { ReactNode } from "react";
 
-import { asLocale } from "@/i18n/routing";
 import { Link } from "@/i18n/navigation";
+import { asLocale } from "@/i18n/routing";
 import { getOwnerProfile } from "@/lib/auth/session";
+import { listBots } from "@/lib/bots/queries";
 
 export async function generateMetadata({
   params,
@@ -15,15 +17,37 @@ export async function generateMetadata({
 }
 
 export default async function DashboardOverview() {
-  const [profile, t] = await Promise.all([
+  const [profile, bots, t] = await Promise.all([
     getOwnerProfile(),
+    listBots(),
     getTranslations("Dashboard.overview"),
   ]);
+  const firstBot = bots[0];
 
-  const steps = [
-    { icon: Bot, label: t("next.bot") },
-    { icon: BookOpenText, label: t("next.faq") },
-    { icon: Code, label: t("next.embed") },
+  const steps: { icon: typeof Bot; label: string; status: ReactNode }[] = [
+    {
+      icon: Bot,
+      label: t("next.bot"),
+      status: firstBot ? (
+        <span className="inline-flex items-center gap-1 text-success">
+          <Check className="size-4" aria-hidden="true" />
+          {t("done")}
+        </span>
+      ) : (
+        <StepLink href="/dashboard/bots/new">{t("start")}</StepLink>
+      ),
+    },
+    // FAQ editing arrives with the knowledge base (Phase 3).
+    { icon: BookOpenText, label: t("next.faq"), status: t("comingNext") },
+    {
+      icon: Code,
+      label: t("next.embed"),
+      status: firstBot ? (
+        <StepLink href={`/dashboard/bots/${firstBot.id}`}>{t("open")}</StepLink>
+      ) : (
+        t("afterBot")
+      ),
+    },
   ];
 
   return (
@@ -47,8 +71,8 @@ export default async function DashboardOverview() {
           {t("nextTitle")}
         </h2>
         <ol className="grid gap-3 sm:grid-cols-3">
-          {steps.map(({ icon: Icon, label }, i) => (
-            <li key={label} className="grid gap-3 rounded-xl border bg-card p-4">
+          {steps.map(({ icon: Icon, label, status }, i) => (
+            <li key={label} className="grid content-start gap-3 rounded-xl border bg-card p-4">
               <span className="grid size-9 place-items-center rounded-lg bg-accent text-accent-foreground">
                 <Icon className="size-4" aria-hidden="true" />
               </span>
@@ -56,19 +80,25 @@ export default async function DashboardOverview() {
                 <span className="sr-only">{i + 1}. </span>
                 {label}
               </span>
-              <span className="text-sm text-muted-foreground">{t("comingNext")}</span>
+              <span className="text-sm text-muted-foreground">{status}</span>
             </li>
           ))}
         </ol>
       </section>
 
-      <Link
-        href="/dashboard/account"
-        className="inline-flex w-fit items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
-      >
-        {t("accountLink")}
-        <ArrowRight className="size-4" aria-hidden="true" />
-      </Link>
+      <StepLink href="/dashboard/account">{t("accountLink")}</StepLink>
     </div>
+  );
+}
+
+function StepLink({ href, children }: { href: string; children: ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex w-fit items-center gap-1 font-medium text-primary underline-offset-4 hover:underline"
+    >
+      {children}
+      <ArrowRight className="size-4" aria-hidden="true" />
+    </Link>
   );
 }

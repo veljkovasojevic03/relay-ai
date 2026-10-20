@@ -18,3 +18,13 @@ export function contrastRatio(a: string, b: string): number {
   const [hi, lo] = [luminance(a), luminance(b)].sort((x, y) => y - x) as [number, number];
   return (hi + 0.05) / (lo + 0.05);
 }
+
+const LIGHT_TEXT = "#ffffff";
+const DARK_TEXT = "#1f1a17";
+
+/** Picks the text color (white or ink) with the higher contrast on `background`. */
+export function readableForeground(background: string): { color: string; ratio: number } {
+  const light = contrastRatio(LIGHT_TEXT, background);
+  const dark = contrastRatio(DARK_TEXT, background);
+  return light >= dark ? { color: LIGHT_TEXT, ratio: light } : { color: DARK_TEXT, ratio: dark };
+}

@@ -59,3 +59,17 @@ One line per decision: what + why. Newest at the bottom of each phase.
 - **The saved `ui_language` decides the locale after sign-in**, and changing it in Account switches the dashboard immediately.
 - **`--input` darkened to `#958270`** so form-control borders reach 3:1 on every surface (WCAG 1.4.11); the contrast test enforces it.
 - **Serbian copy avoids gendered verb forms** ("Drago nam je što si tu", "Zaboravljena lozinka?") because the owner's gender is unknown.
+
+## Phase 2: Dashboard shell and bots
+
+- **The bot plan limit lives in a `BEFORE INSERT` trigger with a per-owner advisory lock.** No code path (dashboard, a future API, the sandbox seeder) can skip it, and parallel creates can't both pass the count. A test fires 6 concurrent inserts at a Free account and gets exactly 1. The UI's "limit reached" state is display only.
+- **Logos live in a public `bot-logos` bucket**, because the widget renders them on third-party sites. Bucket settings cap size at 200 KB and MIME at PNG/JPEG/WebP; storage RLS allows writes only under `<bot_id>/` for bots the owner owns. The Server Action also checks magic bytes, so a renamed SVG never reaches storage.
+- **Every logo upload gets a fresh random file name**, and the previous object is deleted. No cache-busting query strings, and long `Cache-Control` is safe.
+- **Allowed origins are normalized by one shared function on both client and server** (scheme + lowercase host + non-default port, path dropped, IDN to punycode). http is accepted only for localhost/127.0.0.1. Duplicates after normalization are rejected rather than merged silently. A unit test checks the output against the same regex as the DB constraint.
+- **Quick questions are `[{ language, text }]`, at most 3 per language.** The widget shows the chips for the visitor's language.
+- **List editors post their state as JSON hidden fields**, validated by zod on the server like every other field.
+- **The bot editor is fully controlled**, so the live preview follows every keystroke and a failed submit keeps the draft. The preview is a static mock marked `inert` (looks real, takes no focus); Phase 5 replaces it with the real widget.
+- **The preview's text color comes from `readableForeground(brand_color)`** (white or ink, whichever contrasts more). A test sweeps the color space and asserts ≥ 3:1 everywhere; the widget will use the same function.
+- **Bot ids in URLs are validated as UUIDs before querying.** Someone else's bot is invisible through RLS and renders the same "not found" as a missing one.
+- **The sidebar collapses into horizontal tabs below `lg`.** URL-reading client components (nav, locale switcher) sit behind Suspense, which Cache Components requires once a dynamic segment (`bots/[botId]`) exists.
+- **E2E reloads after client redirects before asserting.** Next keeps the previous route mounted but hidden (Activity) for back navigation, so the old form is still in the DOM.

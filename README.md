@@ -6,7 +6,7 @@ An embeddable support chatbot for small web shops. You add your FAQ and paste on
 line on your site. Visitors then get instant answers that cite their source. When the bot
 doesn't know, the chat is handed off to you in a live inbox. Everything runs on free tiers.
 
-> Status: **Phase 1: database, auth and RLS.** Features land phase by phase; decisions are logged in
+> Status: **Phase 2: dashboard and bots.** Features land phase by phase; decisions are logged in
 > [`docs/DECISIONS.md`](docs/DECISIONS.md) and the design system in
 > [`docs/STYLE_GUIDE.md`](docs/STYLE_GUIDE.md).
 

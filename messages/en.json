@@ -108,13 +108,26 @@
     "linkInvalid": "That link is invalid or has expired. Request a new one.",
     "oauthUnavailable": "Google sign-in isn't available right now. Use email instead.",
     "notConfigured": "Sign-in isn't set up on this deployment yet.",
-    "generic": "Something went wrong. Please try again."
+    "generic": "Something went wrong. Please try again.",
+    "tooLong": "This is too long.",
+    "invalidColor": "Use a hex color like #b3472b.",
+    "invalidOrigin": "That doesn't look like a website address.",
+    "httpsRequired": "Use an https:// address (plain http works only for localhost).",
+    "duplicateOrigin": "That website is already on the list.",
+    "tooManyOrigins": "You can add up to 20 websites.",
+    "tooManyQuestions": "Up to 3 quick questions per language.",
+    "botLimitReached": "You've reached your plan's bot limit.",
+    "logoType": "Use a PNG, JPG or WebP image. SVG isn't allowed.",
+    "logoTooLarge": "The logo must be 200 KB or smaller.",
+    "logoMissing": "Choose an image first.",
+    "notFound": "We couldn't find that."
   },
   "Dashboard": {
     "nav": {
       "label": "Dashboard",
       "overview": "Overview",
-      "account": "Account"
+      "account": "Account",
+      "bots": "Bots"
     },
     "signOut": "Sign out",
     "loading": "Loading your dashboard…",
@@ -140,7 +153,11 @@
         "embed": "Paste one script tag on your shop"
       },
       "comingNext": "Coming in the next update",
-      "accountLink": "Review your account details"
+      "accountLink": "Review your account details",
+      "done": "Done",
+      "start": "Start here",
+      "afterBot": "Available once your bot exists",
+      "open": "Open"
     }
   },
   "Account": {
@@ -155,5 +172,113 @@
     "plan": "Plan",
     "save": "Save changes",
     "saved": "Saved."
+  },
+  "Bots": {
+    "metaTitle": "Bots",
+    "title": "Your bots",
+    "subtitle": "Each bot answers customers on your shop.",
+    "usage": "{count} of {limit, plural, one {# bot} other {# bots}} on the {plan} plan",
+    "new": "New bot",
+    "limitReached": "The {plan} plan includes {limit, plural, one {# bot} other {# bots}}. Delete one to make room, or move to Pro once billing is available.",
+    "empty": {
+      "title": "No bots yet",
+      "body": "A bot answers your customers from your FAQ and hands the chat to you when it doesn't know. Setting one up takes a minute.",
+      "cta": "Create your first bot"
+    },
+    "card": {
+      "active": "Active",
+      "paused": "Paused",
+      "edit": "Edit {name}",
+      "origins": "{count, plural, =0 {No websites yet} one {# website} other {# websites}}"
+    },
+    "sections": {
+      "basics": "Basics",
+      "appearance": "Appearance",
+      "greeting": "Greeting",
+      "origins": "Where it runs",
+      "questions": "Quick questions",
+      "status": "Status",
+      "logo": "Logo"
+    },
+    "fields": {
+      "name": "Bot name",
+      "nameHint": "Shown at the top of the chat, for example “Kroj Support”.",
+      "description": "About your shop",
+      "descriptionHint": "What you sell, your tone, and topics the bot should stay away from.",
+      "defaultLanguage": "Default language",
+      "defaultLanguageHint": "Used when a visitor writes in neither English nor Serbian.",
+      "brandColor": "Brand color",
+      "brandColorHint": "Text on top of it is picked automatically so it stays readable.",
+      "greetingEn": "Greeting in English",
+      "greetingSr": "Greeting in Serbian",
+      "position": "Position on the page",
+      "left": "Bottom left",
+      "right": "Bottom right",
+      "active": "Bot is active",
+      "activeHint": "When it's off, the widget tells visitors chat is unavailable.",
+      "brandColorPicker": "Color picker"
+    },
+    "logo": {
+      "hint": "PNG, JPG or WebP, up to 200 KB. Square works best.",
+      "upload": "Upload logo",
+      "replace": "Replace logo",
+      "remove": "Remove logo",
+      "uploaded": "Logo updated.",
+      "removed": "Logo removed.",
+      "alt": "{name} logo",
+      "none": "No logo yet. The chat shows your bot's initial instead."
+    },
+    "origins": {
+      "label": "Allowed websites",
+      "hint": "The widget answers only on these addresses, for example https://kroj.rs.",
+      "add": "Add website",
+      "placeholder": "https://your-shop.com",
+      "remove": "Remove {origin}",
+      "empty": "No websites yet. Until you add one, the widget won't answer on any site."
+    },
+    "questions": {
+      "label": "Quick questions",
+      "hint": "Up to 3 per language, shown as buttons when the chat opens.",
+      "placeholder": "How long does shipping take?",
+      "add": "Add question",
+      "remove": "Remove question {index}",
+      "language": "Language of question {index}",
+      "text": "Question {index}",
+      "empty": "No quick questions yet."
+    },
+    "save": "Save changes",
+    "create": "Create bot",
+    "saved": "Saved.",
+    "embed": {
+      "title": "Add it to your shop",
+      "body": "Paste this line just before </body> on every page where the chat should appear.",
+      "copy": "Copy snippet",
+      "copied": "Copied to clipboard",
+      "copyFailed": "Copy didn't work. Select the text and copy it yourself."
+    },
+    "preview": {
+      "title": "Preview",
+      "note": "A static preview of how the chat will look. The working widget arrives in a later update.",
+      "launcher": "Open chat",
+      "subtitle": "Usually replies right away",
+      "inputPlaceholder": "Type your question…"
+    },
+    "danger": {
+      "title": "Delete this bot",
+      "body": "This deletes the bot, its FAQ and every conversation with it. It can't be undone.",
+      "button": "Delete bot",
+      "confirmTitle": "Delete “{name}”?",
+      "confirm": "Yes, delete it",
+      "cancel": "Keep it"
+    },
+    "newPage": {
+      "metaTitle": "New bot",
+      "title": "Create a bot",
+      "subtitle": "You can change all of this later."
+    },
+    "editPage": {
+      "back": "All bots",
+      "publicKey": "Public key"
+    }
   }
 }

@@ -20,12 +20,17 @@ export default function DashboardLayout({ children }: LayoutProps<"/[locale]/das
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <header className="border-b bg-card">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center gap-4 px-4 sm:px-6">
+        <div className="mx-auto flex h-16 w-full max-w-7xl items-center gap-4 px-4 sm:px-6">
           <Link href="/dashboard" aria-label={t("dashboard")} className="rounded-md">
             <Wordmark />
           </Link>
           <div className="ml-auto flex items-center gap-3">
-            <LocaleSwitcher />
+            {/* Both read the URL, which dynamic segments (bots/[botId]) only know at request time. */}
+            <Suspense
+              fallback={<div className="h-10 w-28 rounded-full bg-muted" aria-hidden="true" />}
+            >
+              <LocaleSwitcher />
+            </Suspense>
             <Suspense
               fallback={<div className="h-8 w-24 rounded-md bg-muted" aria-hidden="true" />}
             >
@@ -33,15 +38,21 @@ export default function DashboardLayout({ children }: LayoutProps<"/[locale]/das
             </Suspense>
           </div>
         </div>
-        <div className="mx-auto w-full max-w-6xl px-2 sm:px-4">
-          <DashboardNav />
-        </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-8 sm:px-6 sm:py-10">
-        <Suspense fallback={<DashboardSkeleton />}>
-          <AuthGate>{children}</AuthGate>
-        </Suspense>
-      </main>
+      <div className="mx-auto grid w-full max-w-7xl flex-1 gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[13rem_minmax(0,1fr)] lg:gap-10 lg:py-10">
+        <aside className="lg:sticky lg:top-6 lg:self-start">
+          <Suspense
+            fallback={<div className="h-10 rounded-md bg-muted lg:h-32" aria-hidden="true" />}
+          >
+            <DashboardNav />
+          </Suspense>
+        </aside>
+        <main className="min-w-0">
+          <Suspense fallback={<DashboardSkeleton />}>
+            <AuthGate>{children}</AuthGate>
+          </Suspense>
+        </main>
+      </div>
     </div>
   );
 }

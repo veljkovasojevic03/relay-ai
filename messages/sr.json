@@ -108,13 +108,26 @@
     "linkInvalid": "Link nije ispravan ili je istekao. Zatraži novi.",
     "oauthUnavailable": "Prijava preko Google-a trenutno nije dostupna. Koristi email.",
     "notConfigured": "Prijava još nije podešena na ovoj instalaciji.",
-    "generic": "Nešto nije u redu. Pokušaj ponovo."
+    "generic": "Nešto nije u redu. Pokušaj ponovo.",
+    "tooLong": "Ovo je predugačko.",
+    "invalidColor": "Koristi hex boju, npr. #b3472b.",
+    "invalidOrigin": "Ovo ne liči na adresu sajta.",
+    "httpsRequired": "Koristi https:// adresu (http radi samo za localhost).",
+    "duplicateOrigin": "Ovaj sajt je već na listi.",
+    "tooManyOrigins": "Možeš dodati najviše 20 sajtova.",
+    "tooManyQuestions": "Najviše 3 brza pitanja po jeziku.",
+    "botLimitReached": "Dostignut je limit botova za tvoj plan.",
+    "logoType": "Koristi PNG, JPG ili WebP sliku. SVG nije dozvoljen.",
+    "logoTooLarge": "Logo može imati najviše 200 KB.",
+    "logoMissing": "Prvo izaberi sliku.",
+    "notFound": "Nismo to pronašli."
   },
   "Dashboard": {
     "nav": {
       "label": "Kontrolna tabla",
       "overview": "Pregled",
-      "account": "Nalog"
+      "account": "Nalog",
+      "bots": "Botovi"
     },
     "signOut": "Odjavi se",
     "loading": "Učitavam kontrolnu tablu…",
@@ -140,7 +153,11 @@
         "embed": "Nalepi jedan script tag na svoju prodavnicu"
       },
       "comingNext": "Stiže u sledećem ažuriranju",
-      "accountLink": "Proveri podatke naloga"
+      "accountLink": "Proveri podatke naloga",
+      "done": "Gotovo",
+      "start": "Počni ovde",
+      "afterBot": "Dostupno kad napraviš bota",
+      "open": "Otvori"
     }
   },
   "Account": {
@@ -155,5 +172,113 @@
     "plan": "Plan",
     "save": "Sačuvaj izmene",
     "saved": "Sačuvano."
+  },
+  "Bots": {
+    "metaTitle": "Botovi",
+    "title": "Tvoji botovi",
+    "subtitle": "Svaki bot odgovara kupcima na tvojoj prodavnici.",
+    "usage": "{count} od {limit, plural, one {# bota} few {# bota} other {# botova}} na planu {plan}",
+    "new": "Novi bot",
+    "limitReached": "Plan {plan} uključuje {limit, plural, one {# bota} few {# bota} other {# botova}}. Obriši jednog da napraviš mesta ili pređi na Pro kad naplata bude dostupna.",
+    "empty": {
+      "title": "Još nema botova",
+      "body": "Bot odgovara kupcima iz tvojih čestih pitanja i prebacuje razgovor tebi kad ne zna odgovor. Podešavanje traje minut.",
+      "cta": "Napravi prvog bota"
+    },
+    "card": {
+      "active": "Aktivan",
+      "paused": "Pauziran",
+      "edit": "Uredi {name}",
+      "origins": "{count, plural, =0 {Još nema sajtova} one {# sajt} few {# sajta} other {# sajtova}}"
+    },
+    "sections": {
+      "basics": "Osnovno",
+      "appearance": "Izgled",
+      "greeting": "Pozdrav",
+      "origins": "Gde radi",
+      "questions": "Brza pitanja",
+      "status": "Status",
+      "logo": "Logo"
+    },
+    "fields": {
+      "name": "Ime bota",
+      "nameHint": "Prikazuje se na vrhu razgovora, npr. „Kroj podrška“.",
+      "description": "O tvojoj prodavnici",
+      "descriptionHint": "Šta prodaješ, kojim tonom pričaš i koje teme bot treba da izbegava.",
+      "defaultLanguage": "Podrazumevani jezik",
+      "defaultLanguageHint": "Koristi se kad posetilac ne piše ni engleski ni srpski.",
+      "brandColor": "Boja brenda",
+      "brandColorHint": "Boja teksta preko nje bira se automatski da ostane čitljiv.",
+      "greetingEn": "Pozdrav na engleskom",
+      "greetingSr": "Pozdrav na srpskom",
+      "position": "Položaj na strani",
+      "left": "Dole levo",
+      "right": "Dole desno",
+      "active": "Bot je aktivan",
+      "activeHint": "Kad je isključen, widget posetiocima javlja da razgovor nije dostupan.",
+      "brandColorPicker": "Birač boje"
+    },
+    "logo": {
+      "hint": "PNG, JPG ili WebP, do 200 KB. Najbolje izgleda kvadratna slika.",
+      "upload": "Otpremi logo",
+      "replace": "Zameni logo",
+      "remove": "Ukloni logo",
+      "uploaded": "Logo je ažuriran.",
+      "removed": "Logo je uklonjen.",
+      "alt": "Logo: {name}",
+      "none": "Još nema logoa. Razgovor umesto njega prikazuje početno slovo bota."
+    },
+    "origins": {
+      "label": "Dozvoljeni sajtovi",
+      "hint": "Widget odgovara samo na ovim adresama, npr. https://kroj.rs.",
+      "add": "Dodaj sajt",
+      "placeholder": "https://tvoja-prodavnica.rs",
+      "remove": "Ukloni {origin}",
+      "empty": "Još nema sajtova. Dok ne dodaš neki, widget neće odgovarati ni na jednom sajtu."
+    },
+    "questions": {
+      "label": "Brza pitanja",
+      "hint": "Do 3 po jeziku, prikazuju se kao dugmad kad se razgovor otvori.",
+      "placeholder": "Koliko traje dostava?",
+      "add": "Dodaj pitanje",
+      "remove": "Ukloni pitanje {index}",
+      "language": "Jezik pitanja {index}",
+      "text": "Pitanje {index}",
+      "empty": "Još nema brzih pitanja."
+    },
+    "save": "Sačuvaj izmene",
+    "create": "Napravi bota",
+    "saved": "Sačuvano.",
+    "embed": {
+      "title": "Dodaj ga na prodavnicu",
+      "body": "Nalepi ovu liniju odmah ispred </body> na svakoj strani gde treba da se pojavi razgovor.",
+      "copy": "Kopiraj kod",
+      "copied": "Kopirano",
+      "copyFailed": "Kopiranje nije uspelo. Označi tekst i kopiraj ga ručno."
+    },
+    "preview": {
+      "title": "Pregled",
+      "note": "Statički pregled izgleda razgovora. Pravi widget stiže u jednom od sledećih ažuriranja.",
+      "launcher": "Otvori razgovor",
+      "subtitle": "Obično odgovara odmah",
+      "inputPlaceholder": "Napiši pitanje…"
+    },
+    "danger": {
+      "title": "Obriši ovog bota",
+      "body": "Briše bota, njegova česta pitanja i sve razgovore sa njim. Ne može da se poništi.",
+      "button": "Obriši bota",
+      "confirmTitle": "Obrisati „{name}“?",
+      "confirm": "Da, obriši",
+      "cancel": "Zadrži"
+    },
+    "newPage": {
+      "metaTitle": "Novi bot",
+      "title": "Napravi bota",
+      "subtitle": "Sve ovo možeš kasnije da promeniš."
+    },
+    "editPage": {
+      "back": "Svi botovi",
+      "publicKey": "Javni ključ"
+    }
   }
 }

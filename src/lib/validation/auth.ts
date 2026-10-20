@@ -1,5 +1,8 @@
 import { z } from "zod";
 
+export { ERROR_KEYS, fieldErrors, formValues } from "./errors";
+export type { ErrorKey, FieldErrors } from "./errors";
+
 /**
  * Form schemas shared by Server Actions. Error messages are message-catalog keys under
  * `Errors.*`, so the same schema produces English and Serbian messages.
@@ -51,45 +54,3 @@ export const profileSchema = z.object({
   uiLanguage: z.enum(["en", "sr"], { error: "required" }),
   notificationEmail: email,
 });
-
-export type FieldErrors = Partial<Record<string, ErrorKey>>;
-
-export const ERROR_KEYS = [
-  "required",
-  "invalidEmail",
-  "passwordTooShort",
-  "passwordTooLong",
-  "passwordMismatch",
-  "nameTooLong",
-  "invalidCredentials",
-  "emailNotConfirmed",
-  "weakPassword",
-  "rateLimited",
-  "sessionExpired",
-  "linkInvalid",
-  "oauthUnavailable",
-  "notConfigured",
-  "generic",
-] as const;
-export type ErrorKey = (typeof ERROR_KEYS)[number];
-
-const isErrorKey = (value: string): value is ErrorKey =>
-  (ERROR_KEYS as readonly string[]).includes(value);
-
-/** First error per field, as catalog keys. Unknown messages fall back to `generic`. */
-export function fieldErrors(error: z.ZodError): FieldErrors {
-  const out: FieldErrors = {};
-  for (const issue of error.issues) {
-    const field = String(issue.path[0] ?? "form");
-    out[field] ??= isErrorKey(issue.message) ? issue.message : "generic";
-  }
-  return out;
-}
-
-/** Reads a FormData into a plain object of strings (files and repeats are ignored). */
-export function formValues(formData: FormData): Record<string, string> {
-  const out: Record<string, string> = {};
-  for (const [key, value] of formData)
-    if (typeof value === "string" && !(key in out)) out[key] = value;
-  return out;
-}
