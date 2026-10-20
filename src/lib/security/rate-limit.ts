@@ -18,6 +18,13 @@ export const AUTH_RATE_LIMITS = {
   passwordEmail: { name: "auth:password-email", limit: 5, windowSeconds: 3600 },
 } satisfies Record<string, RateLimitRule>;
 
+/** Per signed-in owner; each playground question calls the embed function. */
+export const PLAYGROUND_RATE_LIMIT: RateLimitRule = {
+  name: "playground",
+  limit: 30,
+  windowSeconds: 60,
+};
+
 /**
  * Per-client-IP limit backed by `check_rate_limit`. Auth calls reach Supabase from the
  * server, so Supabase's own per-IP limits would only ever see the server's address.
@@ -37,8 +44,19 @@ export async function isWithinRateLimit(rule: RateLimitRule): Promise<boolean> {
     return true;
   }
 
+  return checkRateLimit(rule, hashIp(ip, salt));
+}
+
+/** Same check keyed by an id the server trusts (e.g. the signed-in owner's id). */
+export async function isWithinOwnerRateLimit(rule: RateLimitRule, ownerId: string) {
+  return checkRateLimit(rule, `owner:${ownerId}`);
+}
+
+async function checkRateLimit(rule: RateLimitRule, subject: string): Promise<boolean> {
+  const db = supabaseAdmin();
+  if (!db) return true;
   const { data, error } = await db.rpc("check_rate_limit", {
-    p_key: `${rule.name}:${hashIp(ip, salt)}`,
+    p_key: `${rule.name}:${subject}`,
     p_limit: rule.limit,
     p_window_seconds: rule.windowSeconds,
   });

@@ -25,6 +25,8 @@ const eslintConfig = defineConfig([
     "test-results/**",
     "next-env.d.ts",
     "public/widget.js",
+    // Deno code (Edge Functions), checked by the Supabase runtime, not by Node tooling.
+    "supabase/functions/**",
   ]),
 ]);
 

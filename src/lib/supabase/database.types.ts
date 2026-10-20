@@ -748,6 +748,7 @@ export type Database = {
           p_bot_id: string;
           p_hybrid?: boolean;
           p_k?: number;
+          p_language?: string;
           p_query_embedding: string;
           p_query_text: string;
         };
@@ -755,6 +756,7 @@ export type Database = {
           answer: string;
           featured: boolean;
           id: string;
+          keyword_overlap: number;
           language: string;
           question: string;
           rrf_score: number;
@@ -766,6 +768,7 @@ export type Database = {
       plan_bot_limit: { Args: { p_plan: string }; Returns: number };
       plan_conversation_limit: { Args: { p_plan: string }; Returns: number };
       purge_expired_data: { Args: Record<PropertyKey, never>; Returns: Json };
+      search_normalize: { Args: { p_text: string }; Returns: string };
       start_conversation: {
         Args: { p_bot_id: string; p_ip_hash: string; p_language: string; p_token_hash: string };
         Returns: Json;
