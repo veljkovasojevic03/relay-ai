@@ -19,5 +19,7 @@ export default defineConfig({
     url: `http://localhost:${PORT}/api/health`,
     reuseExistingServer: !process.env.CI,
     timeout: 60_000,
+    // Auth emails and OAuth redirects must point back at this server, not the dev port.
+    env: { NEXT_PUBLIC_APP_URL: `http://localhost:${PORT}` },
   },
 });

@@ -6,7 +6,7 @@ An embeddable support chatbot for small web shops. You add your FAQ and paste on
 line on your site. Visitors then get instant answers that cite their source. When the bot
 doesn't know, the chat is handed off to you in a live inbox. Everything runs on free tiers.
 
-> Status: **Phase 0: foundation.** Features land phase by phase; decisions are logged in
+> Status: **Phase 1: database, auth and RLS.** Features land phase by phase; decisions are logged in
 > [`docs/DECISIONS.md`](docs/DECISIONS.md) and the design system in
 > [`docs/STYLE_GUIDE.md`](docs/STYLE_GUIDE.md).
 
@@ -55,23 +55,47 @@ pnpm exec supabase db push
 
 `/api/health` then reports `"status": "ok"` with the database latency.
 
+### Local database (Docker)
+
+Tests never touch the cloud project. They run against a disposable local Supabase stack
+(needs Docker Desktop):
+
+```bash
+pnpm db:start      # local Postgres, Auth, Realtime, Storage + all migrations
+pnpm test:db       # RLS isolation, column grants, quota/rate-limit races, retrieval, purge
+pnpm e2e:local     # build + Playwright, including sign-up, sign-in and password reset by email
+pnpm db:stop
+```
+
+Local emails (confirmations, password resets) land in Mailpit at http://127.0.0.1:54324.
+After changing a migration: `pnpm db:reset`, then `pnpm db:types` to regenerate
+`src/lib/supabase/database.types.ts` (CI fails if it is stale).
+
 ## Scripts
 
-| Command             | What it does                          |
-| ------------------- | ------------------------------------- |
-| `pnpm dev`          | Dev server                            |
-| `pnpm lint`         | ESLint                                |
-| `pnpm typecheck`    | Generate route types + `tsc --noEmit` |
-| `pnpm test`         | Unit tests (Vitest)                   |
-| `pnpm test:e2e`     | E2E tests against a production build  |
-| `pnpm build`        | Production build                      |
-| `pnpm format`       | Prettier                              |
-| `pnpm format:check` | Prettier check (CI)                   |
+| Command             | What it does                           |
+| ------------------- | -------------------------------------- |
+| `pnpm dev`          | Dev server                             |
+| `pnpm lint`         | ESLint                                 |
+| `pnpm typecheck`    | Generate route types + `tsc --noEmit`  |
+| `pnpm test`         | Unit tests (Vitest)                    |
+| `pnpm test:e2e`     | E2E tests against a production build   |
+| `pnpm test:db`      | Database integration tests (local)     |
+| `pnpm e2e:local`    | Build + E2E against local Supabase     |
+| `pnpm db:start`     | Start the local Supabase stack         |
+| `pnpm db:reset`     | Re-create the local DB from migrations |
+| `pnpm db:lint`      | Lint SQL (plpgsql_check)               |
+| `pnpm db:types`     | Regenerate database TypeScript types   |
+| `pnpm build`        | Production build                       |
+| `pnpm format`       | Prettier                               |
+| `pnpm format:check` | Prettier check (CI)                    |
 
 ## Automation
 
 - **CI** (`.github/workflows/ci.yml`): gitleaks secret scan, then format check, lint,
-  typecheck, unit tests, build and E2E on every push and PR.
+  typecheck and unit tests. After that it starts a local Supabase stack and runs the SQL lint,
+  a check that the generated DB types are current, the DB tests, and finally build + E2E
+  against that stack. This runs on every push and PR.
 - **Cron** (`.github/workflows/cron.yml`): hourly `POST /api/cron/tick`, which keeps the free
   Supabase project awake. It needs the repo secrets `APP_URL` and `CRON_SECRET`. GitHub may
   delay or skip scheduled runs, so nothing depends on exact timing.

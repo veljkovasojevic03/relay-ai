@@ -5,7 +5,9 @@
   },
   "Header": {
     "home": "Relay AI početna",
-    "language": "Jezik"
+    "language": "Jezik",
+    "signIn": "Prijava",
+    "dashboard": "Kontrolna tabla"
   },
   "Locale": {
     "en": "English",
@@ -36,5 +38,121 @@
     "title": "Ova stranica ne postoji",
     "body": "Link je možda star ili adresa ima grešku.",
     "back": "Nazad na početnu"
+  },
+  "Auth": {
+    "fields": {
+      "email": "Email",
+      "password": "Lozinka",
+      "passwordHint": "Najmanje 8 karaktera.",
+      "confirmPassword": "Ponovi lozinku",
+      "displayName": "Tvoje ime",
+      "optional": "nije obavezno"
+    },
+    "pending": "Sačekaj…",
+    "or": "ili",
+    "google": "Nastavi preko Google-a",
+    "showPassword": "Prikaži lozinku",
+    "hidePassword": "Sakrij lozinku",
+    "login": {
+      "metaTitle": "Prijava",
+      "title": "Drago nam je što si tu",
+      "subtitle": "Prijavi se na svoju Relay kontrolnu tablu.",
+      "submit": "Prijavi se",
+      "forgot": "Zaboravljena lozinka?",
+      "noAccount": "Prvi put na Relay-u?",
+      "signupLink": "Napravi nalog"
+    },
+    "signup": {
+      "metaTitle": "Novi nalog",
+      "title": "Napravi nalog",
+      "subtitle": "Besplatan plan je besplatan zauvek. Kartica nije potrebna.",
+      "submit": "Napravi nalog",
+      "haveAccount": "Već imaš nalog?",
+      "loginLink": "Prijavi se",
+      "checkEmailTitle": "Proveri inbox",
+      "checkEmailBody": "Poslali smo link za potvrdu na {email}. Otvori ga da završiš pravljenje naloga."
+    },
+    "forgot": {
+      "metaTitle": "Nova lozinka",
+      "title": "Resetuj lozinku",
+      "subtitle": "Poslaćemo ti link da izabereš novu.",
+      "submit": "Pošalji link",
+      "sentTitle": "Proveri inbox",
+      "sentBody": "Ako postoji nalog za {email}, link za reset je na putu. Radi jednom i brzo ističe.",
+      "back": "Nazad na prijavu"
+    },
+    "reset": {
+      "metaTitle": "Nova lozinka",
+      "title": "Izaberi novu lozinku",
+      "subtitle": "Posle čuvanja odmah nastavljaš u kontrolnu tablu.",
+      "submit": "Sačuvaj novu lozinku",
+      "expiredTitle": "Ovaj link za reset je istekao",
+      "expiredBody": "Linkovi za reset rade jednom i kratko traju. Zatraži novi.",
+      "requestNew": "Pošalji novi link"
+    },
+    "notConfigured": "Prijava još nije podešena na ovoj instalaciji."
+  },
+  "Errors": {
+    "required": "Ovo polje je obavezno.",
+    "invalidEmail": "Unesi ispravnu email adresu.",
+    "passwordTooShort": "Koristi najmanje 8 karaktera.",
+    "passwordTooLong": "Koristi najviše 72 karaktera.",
+    "passwordMismatch": "Lozinke se ne poklapaju.",
+    "nameTooLong": "Koristi najviše 80 karaktera.",
+    "invalidCredentials": "Email i lozinka se ne poklapaju.",
+    "emailNotConfirmed": "Prvo potvrdi email. Link je u tvom inboxu.",
+    "weakPassword": "Izaberi jaču lozinku.",
+    "rateLimited": "Previše pokušaja. Sačekaj minut pa probaj ponovo.",
+    "sessionExpired": "Sesija je istekla. Prijavi se ponovo.",
+    "linkInvalid": "Link nije ispravan ili je istekao. Zatraži novi.",
+    "oauthUnavailable": "Prijava preko Google-a trenutno nije dostupna. Koristi email.",
+    "notConfigured": "Prijava još nije podešena na ovoj instalaciji.",
+    "generic": "Nešto nije u redu. Pokušaj ponovo."
+  },
+  "Dashboard": {
+    "nav": {
+      "label": "Kontrolna tabla",
+      "overview": "Pregled",
+      "account": "Nalog"
+    },
+    "signOut": "Odjavi se",
+    "loading": "Učitavam kontrolnu tablu…",
+    "error": {
+      "title": "Nešto nije u redu",
+      "body": "Nismo uspeli da učitamo stranicu. Pokušaj ponovo za trenutak.",
+      "retry": "Pokušaj ponovo"
+    },
+    "overview": {
+      "metaTitle": "Pregled",
+      "greeting": "Zdravo, {name}",
+      "greetingFallback": "Zdravo",
+      "lead": "Evo šta sledeće podešavaš.",
+      "plan": "Plan",
+      "plans": {
+        "free": "Besplatni",
+        "pro": "Pro"
+      },
+      "nextTitle": "Sledeći koraci",
+      "next": {
+        "bot": "Napravi bota i izaberi mu boju i pozdrav",
+        "faq": "Dodaj pitanja koja kupci najčešće postavljaju",
+        "embed": "Nalepi jedan script tag na svoju prodavnicu"
+      },
+      "comingNext": "Stiže u sledećem ažuriranju",
+      "accountLink": "Proveri podatke naloga"
+    }
+  },
+  "Account": {
+    "metaTitle": "Nalog",
+    "title": "Nalog",
+    "subtitle": "Kako se predstavljaš i gde ti se javljamo.",
+    "signInEmail": "Email za prijavu",
+    "displayName": "Ime za prikaz",
+    "uiLanguage": "Jezik kontrolne table",
+    "notificationEmail": "Email za obaveštenja",
+    "notificationHint": "Ovde stižu obaveštenja kad razgovor pređe na tebe. Na početku je to tvoj email za prijavu.",
+    "plan": "Plan",
+    "save": "Sačuvaj izmene",
+    "saved": "Sačuvano."
   }
 }

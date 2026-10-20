@@ -8,3 +8,8 @@ export const routing = defineRouting({
 });
 
 export type Locale = (typeof routing.locales)[number];
+
+/** Narrows a route param to a supported locale (the default when it isn't one). */
+export function asLocale(value: string | undefined): Locale {
+  return routing.locales.find((l) => l === value) ?? routing.defaultLocale;
+}

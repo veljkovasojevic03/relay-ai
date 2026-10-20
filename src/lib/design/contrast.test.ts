@@ -35,6 +35,10 @@ const pairs: Array<[string, string, number]> = [
   ["success", "background", 4.5],
   ["background", "foreground", 4.5],
   ["ring", "background", 3],
+  // Form control boundaries (WCAG 1.4.11).
+  ["input", "background", 3],
+  ["input", "card", 3],
+  ["input", "muted", 3],
   ["sidebar-foreground", "sidebar", 4.5],
   ["sidebar-accent-foreground", "sidebar-accent", 4.5],
 ];

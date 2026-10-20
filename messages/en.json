@@ -5,7 +5,9 @@
   },
   "Header": {
     "home": "Relay AI home",
-    "language": "Language"
+    "language": "Language",
+    "signIn": "Sign in",
+    "dashboard": "Dashboard"
   },
   "Locale": {
     "en": "English",
@@ -36,5 +38,121 @@
     "title": "This page doesn't exist",
     "body": "The link may be old, or the address has a typo.",
     "back": "Back to the home page"
+  },
+  "Auth": {
+    "fields": {
+      "email": "Email",
+      "password": "Password",
+      "passwordHint": "At least 8 characters.",
+      "confirmPassword": "Repeat password",
+      "displayName": "Your name",
+      "optional": "optional"
+    },
+    "pending": "Please wait…",
+    "or": "or",
+    "google": "Continue with Google",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "login": {
+      "metaTitle": "Sign in",
+      "title": "Welcome back",
+      "subtitle": "Sign in to your Relay dashboard.",
+      "submit": "Sign in",
+      "forgot": "Forgot your password?",
+      "noAccount": "New to Relay?",
+      "signupLink": "Create an account"
+    },
+    "signup": {
+      "metaTitle": "Create account",
+      "title": "Create your account",
+      "subtitle": "The free plan is free for good. No card needed.",
+      "submit": "Create account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in",
+      "checkEmailTitle": "Check your inbox",
+      "checkEmailBody": "We sent a confirmation link to {email}. Open it to finish creating your account."
+    },
+    "forgot": {
+      "metaTitle": "Reset password",
+      "title": "Reset your password",
+      "subtitle": "We'll email you a link to choose a new one.",
+      "submit": "Send reset link",
+      "sentTitle": "Check your inbox",
+      "sentBody": "If there's an account for {email}, a reset link is on its way. It works once and expires soon.",
+      "back": "Back to sign in"
+    },
+    "reset": {
+      "metaTitle": "New password",
+      "title": "Choose a new password",
+      "subtitle": "You'll stay signed in after saving it.",
+      "submit": "Save new password",
+      "expiredTitle": "This reset link has expired",
+      "expiredBody": "Reset links work once and only for a short time. Ask for a new one.",
+      "requestNew": "Send a new link"
+    },
+    "notConfigured": "Sign-in isn't set up on this deployment yet."
+  },
+  "Errors": {
+    "required": "This field is required.",
+    "invalidEmail": "Enter a valid email address.",
+    "passwordTooShort": "Use at least 8 characters.",
+    "passwordTooLong": "Use at most 72 characters.",
+    "passwordMismatch": "The passwords don't match.",
+    "nameTooLong": "Use at most 80 characters.",
+    "invalidCredentials": "That email and password don't match.",
+    "emailNotConfirmed": "Confirm your email first. Check your inbox for the link.",
+    "weakPassword": "Pick a stronger password.",
+    "rateLimited": "Too many attempts. Wait a minute and try again.",
+    "sessionExpired": "Your session has expired. Sign in again.",
+    "linkInvalid": "That link is invalid or has expired. Request a new one.",
+    "oauthUnavailable": "Google sign-in isn't available right now. Use email instead.",
+    "notConfigured": "Sign-in isn't set up on this deployment yet.",
+    "generic": "Something went wrong. Please try again."
+  },
+  "Dashboard": {
+    "nav": {
+      "label": "Dashboard",
+      "overview": "Overview",
+      "account": "Account"
+    },
+    "signOut": "Sign out",
+    "loading": "Loading your dashboard…",
+    "error": {
+      "title": "Something went wrong",
+      "body": "We couldn't load this page. Try again in a moment.",
+      "retry": "Try again"
+    },
+    "overview": {
+      "metaTitle": "Overview",
+      "greeting": "Hi, {name}",
+      "greetingFallback": "Hi there",
+      "lead": "Here's what you'll set up next.",
+      "plan": "Plan",
+      "plans": {
+        "free": "Free",
+        "pro": "Pro"
+      },
+      "nextTitle": "Next steps",
+      "next": {
+        "bot": "Create your bot and pick its color and greeting",
+        "faq": "Add the questions your customers ask most",
+        "embed": "Paste one script tag on your shop"
+      },
+      "comingNext": "Coming in the next update",
+      "accountLink": "Review your account details"
+    }
+  },
+  "Account": {
+    "metaTitle": "Account",
+    "title": "Account",
+    "subtitle": "How you appear and where we reach you.",
+    "signInEmail": "Sign-in email",
+    "displayName": "Display name",
+    "uiLanguage": "Dashboard language",
+    "notificationEmail": "Notification email",
+    "notificationHint": "Handoff alerts go here. It starts as your sign-in email.",
+    "plan": "Plan",
+    "save": "Save changes",
+    "saved": "Saved."
   }
 }

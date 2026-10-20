@@ -79,6 +79,9 @@ export function parseServerEnv(source: Record<string, string | undefined>): Serv
 
 export const hasSupabase = (env: ServerEnv) =>
   Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
+/** Owner sign-in needs only the public URL and the browser-safe key. */
+export const hasSupabaseAuth = (env: ServerEnv) =>
+  Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
 export const hasLiveLlm = (env: ServerEnv) => Boolean(env.ANTHROPIC_API_KEY);
 export const hasStripe = (env: ServerEnv) =>
   Boolean(env.STRIPE_SECRET_KEY && env.STRIPE_WEBHOOK_SECRET && env.STRIPE_PRICE_PRO);

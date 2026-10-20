@@ -1,11 +1,13 @@
 import { useTranslations } from "next-intl";
 
+import { buttonVariants } from "@/components/ui/button";
 import { Link } from "@/i18n/navigation";
 
 import { LocaleSwitcher } from "./locale-switcher";
 import { Wordmark } from "./logo";
 
-export function SiteHeader() {
+/** Public header. `minimal` hides the sign-in link (used on the auth pages themselves). */
+export function SiteHeader({ minimal = false }: { minimal?: boolean }) {
   const t = useTranslations("Header");
 
   return (
@@ -14,7 +16,14 @@ export function SiteHeader() {
         <Link href="/" aria-label={t("home")} className="rounded-md">
           <Wordmark />
         </Link>
-        <LocaleSwitcher />
+        <div className="flex items-center gap-3">
+          <LocaleSwitcher />
+          {!minimal && (
+            <Link href="/login" className={buttonVariants({ variant: "outline", size: "sm" })}>
+              {t("signIn")}
+            </Link>
+          )}
+        </div>
       </div>
     </header>
   );
