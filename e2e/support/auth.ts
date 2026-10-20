@@ -16,12 +16,21 @@ export const newCredentials = () => ({
   password: `pw-${randomUUID()}`,
 });
 
-export async function signUp(page: Page, name: string, email: string, password: string) {
+/** Submits the sign-up form and waits for the "check your inbox" state. */
+export async function requestSignUp(page: Page, name: string, email: string, password: string) {
   await page.goto("/en/signup");
   await page.getByLabel("Your name").fill(name);
   await page.getByLabel("Email").fill(email);
   await page.getByLabel("Password", { exact: true }).fill(password);
   await page.getByRole("button", { name: "Create account" }).click();
+  await expect(page.getByRole("status")).toContainText("Check your inbox");
+}
+
+/** Full sign-up like production: form, confirmation email, link opened in the same browser. */
+export async function signUp(page: Page, name: string, email: string, password: string) {
+  await requestSignUp(page, name, email, password);
+  const mail = await latestEmailTo(email);
+  await page.goto(firstLink(mail.text || mail.html));
   await expect(page).toHaveURL(/\/dashboard$/);
 }
 

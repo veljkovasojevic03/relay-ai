@@ -60,7 +60,8 @@
       "submit": "Sign in",
       "forgot": "Forgot your password?",
       "noAccount": "New to Relay?",
-      "signupLink": "Create an account"
+      "signupLink": "Create an account",
+      "emailConfirmed": "Your email is confirmed. Sign in to continue."
     },
     "signup": {
       "metaTitle": "Create account",

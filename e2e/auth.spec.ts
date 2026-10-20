@@ -5,6 +5,7 @@ import {
   formAlert,
   latestEmailTo,
   newCredentials,
+  requestSignUp,
   requireSupabase,
   signIn,
   signOut,
@@ -39,6 +40,35 @@ test.describe("owner authentication", () => {
 
     await page.goto("/login");
     await expect(page).toHaveURL(/\/dashboard$/);
+  });
+
+  test("a confirmation link opened in another browser confirms and asks to sign in", async ({
+    page,
+    browser,
+  }) => {
+    const { email, password } = newCredentials();
+    await requestSignUp(page, "Mila", email, password);
+    const mail = await latestEmailTo(email);
+
+    const other = await (await browser.newContext()).newPage();
+    await other.goto(firstLink(mail.text || mail.html));
+    await expect(other).toHaveURL(/\/login\?notice=emailConfirmed$/);
+    await expect(other.getByRole("status")).toHaveText(
+      "Your email is confirmed. Sign in to continue.",
+    );
+    await expect(formAlert(other)).toHaveCount(0);
+
+    await signIn(other, email, password);
+    await expect(other).toHaveURL(/\/dashboard$/);
+  });
+
+  test("signing in before confirming explains what to do", async ({ page }) => {
+    const { email, password } = newCredentials();
+    await requestSignUp(page, "Mila", email, password);
+    await signIn(page, email, password);
+    await expect(formAlert(page)).toHaveText(
+      "Confirm your email first. Check your inbox for the link.",
+    );
   });
 
   test("wrong password and invalid fields show accessible errors", async ({ page }) => {

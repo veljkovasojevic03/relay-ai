@@ -60,7 +60,8 @@
       "submit": "Prijavi se",
       "forgot": "Zaboravljena lozinka?",
       "noAccount": "Prvi put na Relay-u?",
-      "signupLink": "Napravi nalog"
+      "signupLink": "Napravi nalog",
+      "emailConfirmed": "Email je potvrđen. Prijavi se da nastaviš."
     },
     "signup": {
       "metaTitle": "Novi nalog",

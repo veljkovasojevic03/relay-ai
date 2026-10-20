@@ -54,6 +54,13 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     log.info("auth.callback_failed", { code: error.code ?? "unknown" });
+    // Supabase only redirects here with a `code` after it has verified the email (bad or
+    // expired links arrive with `error` params, handled above). If the code can't be
+    // exchanged, the link was opened in another browser than the one that signed up: the
+    // address IS confirmed, there just is no session here. Say so instead of "invalid link".
+    if (code && params.get("flow") === "signup") {
+      return redirectTo(`${localizedPath(locale, "/login")}?notice=emailConfirmed`);
+    }
     const key = authErrorKey(error);
     return fail(key === "generic" ? "linkInvalid" : key);
   }

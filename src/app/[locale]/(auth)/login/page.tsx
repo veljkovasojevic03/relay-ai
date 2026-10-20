@@ -57,6 +57,7 @@ async function LoginContent({ searchParams }: Pick<PageProps<"/[locale]/login">,
   const query = await searchParams;
   const next = typeof query.next === "string" ? safeNextPath(query.next) : undefined;
   const error = ERROR_KEYS.find((key) => key === query.error) as ErrorKey | undefined;
+  const emailConfirmed = query.notice === "emailConfirmed";
   const google = await isGoogleEnabled();
 
   return (
@@ -67,7 +68,7 @@ async function LoginContent({ searchParams }: Pick<PageProps<"/[locale]/login">,
           <OrDivider />
         </>
       )}
-      <LoginForm next={next} initialError={error} />
+      <LoginForm next={next} initialError={error} emailConfirmed={emailConfirmed} />
     </div>
   );
 }

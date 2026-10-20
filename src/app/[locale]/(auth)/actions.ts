@@ -27,9 +27,10 @@ function formLocale(values: Record<string, string>): Locale {
 }
 
 /** Where Supabase sends the browser after an email link or OAuth round trip. */
-function callbackUrl(locale: Locale, next: string): string {
+function callbackUrl(locale: Locale, next: string, flow?: "signup"): string {
   const url = new URL("/api/auth/callback", serverEnv().NEXT_PUBLIC_APP_URL);
   url.searchParams.set("next", localizedPath(locale, next));
+  if (flow) url.searchParams.set("flow", flow);
   return url.toString();
 }
 
@@ -83,7 +84,7 @@ export async function signUpAction(_prev: FormState, formData: FormData): Promis
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
-      emailRedirectTo: callbackUrl(locale, DEFAULT_AFTER_LOGIN),
+      emailRedirectTo: callbackUrl(locale, DEFAULT_AFTER_LOGIN, "signup"),
       data: { display_name: parsed.data.displayName ?? undefined, ui_language: locale },
     },
   });
