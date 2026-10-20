@@ -33,7 +33,7 @@ test.describe("bots", () => {
     page,
     context,
   }) => {
-    await page.getByRole("link", { name: "Bots" }).click();
+    await page.getByRole("link", { name: "Bots", exact: true }).click();
     await expect(page.getByRole("heading", { name: "No bots yet" })).toBeVisible();
     await page.getByRole("link", { name: "Create your first bot" }).click();
 

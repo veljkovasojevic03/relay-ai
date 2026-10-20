@@ -90,7 +90,7 @@ test.describe("owner authentication", () => {
   }) => {
     const { email, password } = newCredentials();
     await signUp(page, "Mila", email, password);
-    await page.getByRole("link", { name: "Account" }).click();
+    await page.getByRole("link", { name: "Account", exact: true }).click();
 
     await page.getByLabel("Display name").fill("Mila Petrović");
     await page.getByLabel("Notification email").fill("alerts@kroj.test");
