@@ -737,6 +737,17 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      add_visitor_message: {
+        Args: {
+          p_bot_id: string;
+          p_content: string;
+          p_conversation_id: string;
+          p_language: string;
+          p_max_messages: number;
+        };
+        Returns: Json;
+      };
+      bot_accepts_conversations: { Args: { p_bot_id: string }; Returns: boolean };
       check_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };
         Returns: boolean;
@@ -768,6 +779,20 @@ export type Database = {
       plan_bot_limit: { Args: { p_plan: string }; Returns: number };
       plan_conversation_limit: { Args: { p_plan: string }; Returns: number };
       purge_expired_data: { Args: Record<PropertyKey, never>; Returns: Json };
+      record_bot_reply: {
+        Args: {
+          p_bot_id: string;
+          p_content: string;
+          p_conversation_id: string;
+          p_first_response_ms: number;
+          p_language: string;
+          p_meta: Json;
+          p_outcome: string;
+          p_question: string;
+          p_source_faq_ids: string[];
+        };
+        Returns: Json;
+      };
       search_normalize: { Args: { p_text: string }; Returns: string };
       start_conversation: {
         Args: { p_bot_id: string; p_ip_hash: string; p_language: string; p_token_hash: string };

@@ -28,8 +28,10 @@ export const RETRIEVAL: Record<"en" | "sr", RetrievalSettings> = {
 
 /** Matches fetched per query (the playground shows all of them). */
 export const MATCH_COUNT = 5;
-/** Questions offered as "did you mean" when the bot declines. */
+/** Questions offered as "did you mean" when the bot declines... */
 export const SUGGESTION_COUNT = 3;
+/** ...but only ones at least this close; unrelated questions shouldn't get random offers. */
+export const SUGGESTION_MIN_SIMILARITY = 0.8;
 
 export type FaqMatch = {
   id: string;
@@ -90,5 +92,8 @@ export function decideAnswer(matches: FaqMatch[], settings: RetrievalSettings): 
       : settings.threshold;
     if (top.similarity >= bar) return { kind: "answer", faq: top };
   }
-  return { kind: "unknown", suggestions: matches.slice(0, SUGGESTION_COUNT) };
+  const suggestions = matches
+    .filter((m) => m.similarity !== null && m.similarity >= SUGGESTION_MIN_SIMILARITY)
+    .slice(0, SUGGESTION_COUNT);
+  return { kind: "unknown", suggestions };
 }

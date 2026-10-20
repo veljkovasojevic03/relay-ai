@@ -34,31 +34,36 @@ export type SearchResult = {
  * If embedding fails, full-text search still runs; with no similarity the bot never
  * answers, but the owner still sees what matched.
  */
+/** Turns a question into a vector, or null when embedding isn't available. */
+export type QueryEmbedder = (text: string) => Promise<number[] | null>;
+
+/** The `embed` Edge Function, with a short timeout: a visitor is waiting. */
+export const embedQuery: QueryEmbedder = async (text) => {
+  const config = embedConfig();
+  if (!config) return null;
+  try {
+    const [vector] = await embedTexts([queryEmbeddingText(text)], { ...config, timeoutMs: 10_000 });
+    return vector ?? null;
+  } catch (error) {
+    log.warn("faqs.query_embed_failed", {
+      reason: error instanceof EmbedError ? error.reason : "unknown",
+    });
+    return null;
+  }
+};
+
 export async function searchFaqs(
   // Untyped client: both the SSR client (typed) and the admin client reach here.
   client: SupabaseClient,
   botId: string,
   question: string,
   language: Language,
+  embed: QueryEmbedder = embedQuery,
 ): Promise<SearchResult> {
   const settings = RETRIEVAL[language];
   const text = question.slice(0, QUERY_MAX_LENGTH);
-
-  let embedding: string | null = null;
-  const config = embedConfig();
-  if (config) {
-    try {
-      const [vector] = await embedTexts([queryEmbeddingText(text)], {
-        ...config,
-        timeoutMs: 10_000,
-      });
-      embedding = toPgVector(vector!);
-    } catch (error) {
-      log.warn("faqs.query_embed_failed", {
-        reason: error instanceof EmbedError ? error.reason : "unknown",
-      });
-    }
-  }
+  const vector = await embed(text);
+  const embedding = vector ? toPgVector(vector) : null;
 
   const { data, error } = await client.rpc("match_faqs", {
     p_bot_id: botId,

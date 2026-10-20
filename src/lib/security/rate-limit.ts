@@ -44,15 +44,22 @@ export async function isWithinRateLimit(rule: RateLimitRule): Promise<boolean> {
     return true;
   }
 
-  return checkRateLimit(rule, hashIp(ip, salt));
+  return isWithinKeyedRateLimit(rule, hashIp(ip, salt));
 }
 
 /** Same check keyed by an id the server trusts (e.g. the signed-in owner's id). */
 export async function isWithinOwnerRateLimit(rule: RateLimitRule, ownerId: string) {
-  return checkRateLimit(rule, `owner:${ownerId}`);
+  return isWithinKeyedRateLimit(rule, `owner:${ownerId}`);
 }
 
-async function checkRateLimit(rule: RateLimitRule, subject: string): Promise<boolean> {
+/**
+ * Limit keyed by any subject the server derived itself (an IP hash, a bot id, a
+ * conversation id). Fails open like the others.
+ */
+export async function isWithinKeyedRateLimit(
+  rule: RateLimitRule,
+  subject: string,
+): Promise<boolean> {
   const db = supabaseAdmin();
   if (!db) return true;
   const { data, error } = await db.rpc("check_rate_limit", {

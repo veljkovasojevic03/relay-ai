@@ -6,7 +6,7 @@ An embeddable support chatbot for small web shops. You add your FAQ and paste on
 line on your site. Visitors then get instant answers that cite their source. When the bot
 doesn't know, the chat is handed off to you in a live inbox. Everything runs on free tiers.
 
-> Status: **Phase 3: knowledge and retrieval.** Features land phase by phase; decisions are logged in
+> Status: **Phase 4: conversation engine and public API.** Features land phase by phase; decisions are logged in
 > [`docs/DECISIONS.md`](docs/DECISIONS.md) and the design system in
 > [`docs/STYLE_GUIDE.md`](docs/STYLE_GUIDE.md).
 
@@ -117,6 +117,45 @@ pnpm exec supabase functions deploy embed
 
 It authenticates callers with the project's **secret key** (`sb_secret_…`), so
 `SUPABASE_SERVICE_ROLE_KEY` must hold that key, not the legacy service-role JWT.
+
+## Public widget API
+
+The widget talks to these endpoints (CORS only for the bot's allowed websites):
+
+| Endpoint                           | What it does                                                  |
+| ---------------------------------- | ------------------------------------------------------------- |
+| `GET /api/widget/config?bot=`      | Public bot settings and whether new chats can start           |
+| `POST /api/widget/message`         | `{bot, text, locale}` → the bot's reply as Server-Sent Events |
+| `GET /api/widget/poll?bot=&since=` | New human/system messages (fallback for Realtime)             |
+| `POST /api/widget/rate`            | `{bot, rating: "up" \| "down"}`                               |
+| `POST /api/widget/end`             | `{bot}`: the visitor closes the chat                          |
+
+The first message starts a conversation and returns a token once, in the `meta` event. Send it
+back as `X-Relay-Token` on later calls. Try it against a bot with a few FAQs:
+
+```bash
+curl -N -X POST http://localhost:3000/api/widget/message \
+  -H "Content-Type: application/json" \
+  -d '{"bot":"<public key>","text":"How long does delivery take?"}'
+```
+
+```text
+event: meta
+data: {"token":"…","mode":"sample","language":"en"}
+
+event: delta
+data: {"text":"Orders placed by"}
+…
+event: sources
+data: {"faqs":[{"id":"…","question":"How long does delivery take?"}]}
+
+event: done
+data: {"outcome":"answered","offerHuman":false,"suggestions":[],"remainingMessages":19}
+```
+
+Without `ANTHROPIC_API_KEY` (and until Live mode lands) every answer is **Sample**: the matched
+FAQ's answer word for word. Errors are JSON with a status code, for example
+`{"error":"origin_not_allowed"}` (403) or `{"error":"message_cap_reached"}` (429).
 
 ## Automation
 

@@ -39,13 +39,19 @@ describe("decideAnswer", () => {
     expect(decideAnswer([match("a", null, 1)], settings).kind).toBe("unknown");
   });
 
-  it("offers the top three as suggestions when it declines", () => {
-    const matches = ["a", "b", "c", "d"].map((id) => match(id, 0.7, 0));
+  it("offers up to three close questions as suggestions when it declines", () => {
+    const matches = [0.86, 0.84, 0.82, 0.81].map((s, i) => match(String(i), s, 0));
     const decision = decideAnswer(matches, settings);
-    expect(decision.kind).toBe("unknown");
-    if (decision.kind === "unknown") {
-      expect(decision.suggestions.map((m) => m.id)).toEqual(["a", "b", "c"]);
-    }
+    expect(decision.kind === "unknown" && decision.suggestions.map((m) => m.id)).toEqual([
+      "0",
+      "1",
+      "2",
+    ]);
+  });
+
+  it("offers nothing that isn't close", () => {
+    const matches = [0.79, 0.7].map((s, i) => match(String(i), s, 0));
+    expect(decideAnswer(matches, settings)).toEqual({ kind: "unknown", suggestions: [] });
   });
 
   it("declines when nothing matched", () => {
