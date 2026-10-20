@@ -29,3 +29,5 @@ One line per decision: what + why. Newest at the bottom of each phase.
 - **Default models `claude-haiku-4-5` (Free) / `claude-sonnet-5-5` (Pro)**, overridable via env. Re-verify against Anthropic docs in Phase 10.
 - **E2E runs against `next start` (a production build)** so CI tests what Vercel serves.
 - **`.gitattributes` forces LF.** The repo is developed on Windows and CI runs on Linux.
+- **gitleaks runs from the pinned official image (`ghcr.io/gitleaks/gitleaks:v8.30.1`) over the full history**, not `gitleaks-action`. The action failed on the repo's first push (commit-range edge case) and targets deprecated Node 20, while a full scan of a small repo is cheap and has no edge cases.
+- **Local development uses Docker Desktop (WSL2) for the local Supabase stack** (`supabase start`). Migrations and RLS tests run against a disposable local database first; the cloud project only receives `supabase db push`.
