@@ -1,4 +1,11 @@
-import { ApiError, type Api, type Source, type Status, type WidgetConfig } from "./api";
+import {
+  ApiError,
+  type ActionCard,
+  type Api,
+  type Source,
+  type Status,
+  type WidgetConfig,
+} from "./api";
 import { focusables, h, icon } from "./dom";
 import { format, STRINGS, type ErrorKey, type Lang, type Strings } from "./i18n";
 import { renderMarkdown } from "./markdown";
@@ -283,6 +290,11 @@ export class RelayWidget {
       return;
     }
     const questions = this.config.questions.filter((q) => q.language === lang).map((q) => q.text);
+    // Quick starts for the bot's actions; their text is what the server listens for.
+    for (const action of this.config.actions ?? []) {
+      const label = this.t.actions[action];
+      if (label) questions.push(label);
+    }
     this.starterChips = questions.length ? this.chips(questions) : null;
     if (this.starterChips) this.log.appendChild(this.starterChips);
     this.setComposerEnabled(Boolean(this.options.api));
@@ -310,9 +322,11 @@ export class RelayWidget {
           id: m.id,
           sources: m.sources,
           sample: m.mode === "sample",
+          simulated: m.simulated,
         });
         if (m.role === "human" || m.role === "system") this.since = m.createdAt;
       }
+      if (history.pendingAction) this.log.appendChild(this.actionCard(history.pendingAction));
       if (history.status === "resolved") this.renderEnded(history.rating);
       else {
         this.renderRow(history.remainingMessages);
@@ -331,7 +345,14 @@ export class RelayWidget {
   private addMessage(
     role: Role,
     text: string,
-    opts: { id?: string; sources?: Source[]; sample?: boolean; lang?: Lang; error?: boolean } = {},
+    opts: {
+      id?: string;
+      sources?: Source[];
+      sample?: boolean;
+      simulated?: boolean;
+      lang?: Lang;
+      error?: boolean;
+    } = {},
   ): { msg: HTMLDivElement; bubble: HTMLDivElement } {
     if (opts.id) this.seen.add(opts.id);
     const bubble = h(this.doc, "div", { class: "bubble" });
@@ -343,7 +364,9 @@ export class RelayWidget {
       { class: `msg ${role}${opts.error ? " error" : ""}`, lang: opts.lang },
       bubble,
     );
-    if (role === "bot") this.addMeta(msg, opts.sources ?? [], Boolean(opts.sample));
+    if (role === "bot") {
+      this.addMeta(msg, opts.sources ?? [], Boolean(opts.sample), Boolean(opts.simulated));
+    }
     if (role === "human") {
       msg.appendChild(
         h(this.doc, "div", { class: "meta", text: format(this.t.team, { name: this.name() }) }),
@@ -354,8 +377,8 @@ export class RelayWidget {
     return { msg, bubble };
   }
 
-  private addMeta(msg: HTMLElement, sources: Source[], sample: boolean) {
-    if (!sources.length && !sample) return;
+  private addMeta(msg: HTMLElement, sources: Source[], sample: boolean, simulated = false) {
+    if (!sources.length && !sample && !simulated) return;
     const meta = h(this.doc, "div", { class: "meta" });
     if (sources[0]) {
       meta.appendChild(
@@ -369,14 +392,23 @@ export class RelayWidget {
         h(this.doc, "span", { class: "tag", title: this.t.sampleTitle, text: this.t.sample }),
       );
     }
+    if (simulated) {
+      meta.appendChild(
+        h(this.doc, "span", {
+          class: "tag",
+          title: this.t.simulatedTitle,
+          text: this.t.simulated,
+        }),
+      );
+    }
     msg.appendChild(meta);
   }
 
-  private chips(questions: string[], label?: string): HTMLElement {
+  private chips(questions: string[], label?: string, ariaLabel?: string): HTMLElement {
     const box = h(this.doc, "div", {
       class: "chips",
       role: "group",
-      "aria-label": label ?? this.t.suggestions,
+      "aria-label": label ?? ariaLabel ?? this.t.suggestions,
     });
     if (label) box.appendChild(h(this.doc, "p", { text: label }));
     for (const q of questions) {
@@ -386,7 +418,12 @@ export class RelayWidget {
         text: q,
         disabled: !this.options.api,
       });
-      chip.addEventListener("click", () => void this.submit(q));
+      chip.addEventListener("click", () => {
+        if (this.busy) return;
+        // Quick replies belong to one question: once answered, they go.
+        if (ariaLabel) box.remove();
+        void this.submit(q);
+      });
       box.appendChild(chip);
     }
     return box;
@@ -473,6 +510,7 @@ export class RelayWidget {
     let sources: Source[] = [];
     let sample = false;
     let language: Lang = this.options.lang;
+    let card: ActionCard | null = null;
     /** Formatting and labels are applied once, at handoff or done, whichever comes first. */
     let finalized = false;
     try {
@@ -501,6 +539,9 @@ export class RelayWidget {
           case "sources":
             sources = event.data.faqs;
             break;
+          case "action_card":
+            card = event.data;
+            break;
           case "handoff":
             typing.remove();
             if (reply && !finalized) {
@@ -521,21 +562,16 @@ export class RelayWidget {
                 : "";
               this.announce(`${replyText}${label}`);
             }
+            if (card) this.log.appendChild(this.actionCard(card));
             if (event.data.suggestions.length) {
               this.log.appendChild(this.chips(event.data.suggestions, this.t.suggestions));
             }
-            if (event.data.offerHuman && this.status === "bot") {
-              const talk = h(this.doc, "button", {
-                type: "button",
-                class: "chip",
-                text: this.t.talkToHuman,
-              });
-              talk.addEventListener("click", () => {
-                talk.remove();
-                void this.requestHuman();
-              });
-              this.log.appendChild(h(this.doc, "div", { class: "chips" }, talk));
+            if (event.data.quickReplies?.length) {
+              this.log.appendChild(
+                this.chips(event.data.quickReplies, undefined, this.t.quickReplies),
+              );
             }
+            if (event.data.offerHuman) this.offerHuman();
             this.renderRow(event.data.remainingMessages);
             this.scrollDown();
             break;
@@ -563,6 +599,105 @@ export class RelayWidget {
     } finally {
       typing.remove();
     }
+  }
+
+  /** A "Talk to a person" chip in the conversation. */
+  private offerHuman() {
+    if (this.status !== "bot") return;
+    const talk = h(this.doc, "button", {
+      type: "button",
+      class: "chip",
+      text: this.t.talkToHuman,
+    });
+    talk.addEventListener("click", () => {
+      talk.remove();
+      void this.requestHuman();
+    });
+    this.log.appendChild(h(this.doc, "div", { class: "chips" }, talk));
+  }
+
+  /**
+   * The confirmation card of a guided action (spec §4.7): nothing runs until the visitor
+   * presses Confirm. Values are shown as text only.
+   */
+  private actionCard(card: ActionCard): HTMLElement {
+    const doc = this.doc;
+    const t = this.t.card;
+    const title = card.action === "create_ticket" ? t.create_ticket : t.order_status;
+    const labels: Record<string, string> = {
+      orderNumber: t.orderNumber,
+      email: t.email,
+      subject: t.subject,
+      description: t.description,
+    };
+    const list = h(doc, "dl");
+    for (const field of card.fields) {
+      list.append(
+        h(doc, "dt", { text: labels[field.key] ?? field.key }),
+        h(doc, "dd", { text: field.value }),
+      );
+    }
+    const status = h(doc, "p", { class: "note", role: "status" });
+    const confirm = h(doc, "button", { type: "button", class: "primary", text: t.confirm });
+    const cancel = h(doc, "button", { type: "button", class: "link", text: t.cancel });
+    const buttons = h(doc, "div", { class: "row" }, cancel, confirm);
+    const head = h(doc, "p", { class: "cardtitle", text: title });
+    if (card.simulated) {
+      head.appendChild(
+        h(doc, "span", { class: "tag", title: this.t.simulatedTitle, text: this.t.simulated }),
+      );
+    }
+    const box = h(
+      doc,
+      "div",
+      { class: "card", role: "group", "aria-label": title },
+      head,
+      list,
+      buttons,
+      status,
+    );
+
+    const decide = async (decision: "confirm" | "cancel") => {
+      const api = this.options.api;
+      if (!api || !this.token || this.busy) return;
+      this.busy = true;
+      confirm.disabled = true;
+      cancel.disabled = true;
+      this.setComposerEnabled(false);
+      status.textContent = decision === "confirm" ? t.working : "";
+      try {
+        const result = await api.confirm(this.token, card.actionRunId, decision);
+        buttons.remove();
+        status.textContent = result.status === "cancelled" ? t.cancelled : t.confirmed;
+        this.addMessage("bot", result.message, {
+          id: result.messageId ?? undefined,
+          simulated: result.simulated,
+          lang: this.options.lang,
+        });
+        this.announce(result.message);
+        if (result.offerHuman) this.offerHuman();
+      } catch (error) {
+        const code = error instanceof ApiError ? error.code : "generic";
+        if (code === "action_not_pending") {
+          buttons.remove();
+          status.textContent = t.expired;
+        } else if (code === "conversation_closed") {
+          buttons.remove();
+          this.renderEnded(null);
+        } else {
+          confirm.disabled = false;
+          cancel.disabled = false;
+          status.textContent = this.t.errors.generic;
+        }
+      } finally {
+        this.busy = false;
+        this.setComposerEnabled(true);
+        this.scrollDown();
+      }
+    };
+    confirm.addEventListener("click", () => void decide("confirm"));
+    cancel.addEventListener("click", () => void decide("cancel"));
+    return box;
   }
 
   private showError(key: ErrorKey) {

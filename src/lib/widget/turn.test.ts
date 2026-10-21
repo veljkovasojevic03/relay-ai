@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
+import type { FlowState } from "@/lib/actions/flow";
 import type { SearchResult } from "@/lib/faqs/search";
 import { RETRIEVAL, type FaqMatch } from "@/lib/faqs/retrieval";
 
@@ -43,6 +44,8 @@ const input: TurnInput = {
   mode: { mode: "sample", reason: "no_api_key" },
   startedAt: 1000,
   wantsHuman: false,
+  flow: null,
+  intent: null,
 };
 
 function deps(
@@ -52,6 +55,7 @@ function deps(
 ) {
   const log: string[] = [];
   const recorded: ReplyRecord[] = [];
+  const flows: (FlowState | null)[] = [];
   const d: TurnDeps = {
     search: vi.fn(async () => {
       if (search instanceof Error) throw search;
@@ -73,10 +77,18 @@ function deps(
         messageId: handed ? "m1" : null,
       };
     }),
+    saveFlow: vi.fn(async (state) => {
+      log.push("flow");
+      flows.push(state);
+    }),
+    createRun: vi.fn(async (action) => {
+      log.push("run");
+      return { actionRunId: "run1", action: action.action, fields: [], simulated: true };
+    }),
     sleep: async () => {},
     now: () => 1250,
   };
-  return { d, log, recorded };
+  return { d, log, recorded, flows };
 }
 
 async function collect(events: AsyncGenerator<WidgetEvent>, log?: string[]) {
@@ -231,5 +243,55 @@ describe("runTurn", () => {
       runTurn({ ...input, token: "tok", channel: "chan" }, deps(answered).d),
     );
     expect(events[0]!.data).toMatchObject({ token: "tok", channel: "chan" });
+  });
+});
+
+describe("runTurn: guided action flows", () => {
+  it("starts a flow on an enabled intent: asks, saves the state, offers Cancel, skips the FAQ", async () => {
+    const { d, log, recorded, flows } = deps(answered);
+    const events = await collect(runTurn({ ...input, intent: "order_status" }, d), log);
+    expect(d.search).not.toHaveBeenCalled();
+    expect(log.slice(0, 4)).toEqual(["meta", "flow", "record", "delta"]);
+    expect(flows[0]).toMatchObject({ action: "order_status", step: "orderNumber" });
+    expect(recorded[0]).toMatchObject({ outcome: "flow" });
+    expect(events.at(-1)!.data).toMatchObject({ outcome: "flow", quickReplies: ["Cancel"] });
+  });
+
+  it("ends a flow in a confirmation card: state cleared, run created, card before done", async () => {
+    const { d, flows } = deps(answered);
+    const flow: FlowState = {
+      action: "order_status",
+      step: "email",
+      params: { orderNumber: "KR-10482" },
+      tries: 0,
+    };
+    const events = await collect(runTurn({ ...input, flow, text: "marko@example.com" }, d));
+    expect(flows).toEqual([null]);
+    expect(d.createRun).toHaveBeenCalledWith(
+      expect.objectContaining({
+        action: "order_status",
+        params: { orderNumber: "KR-10482", email: "marko@example.com" },
+      }),
+    );
+    expect(events.map((e) => e.event).slice(-2)).toEqual(["action_card", "done"]);
+    expect(events.at(-2)!.data).toMatchObject({ actionRunId: "run1" });
+  });
+
+  it("a request for a person during a flow ends the flow and hands off", async () => {
+    const { d, flows } = deps(answered);
+    const flow: FlowState = { action: "create_ticket", step: "subject", params: {}, tries: 0 };
+    const events = await collect(runTurn({ ...input, flow, wantsHuman: true }, d));
+    expect(flows).toEqual([null]);
+    expect(events.map((e) => e.event)).toContain("handoff");
+    expect(d.createRun).not.toHaveBeenCalled();
+  });
+
+  it("reports an error and creates nothing visible when the state can't be saved", async () => {
+    const { d } = deps(answered);
+    d.saveFlow = vi.fn(async () => {
+      throw new Error("db down");
+    });
+    const events = await collect(runTurn({ ...input, intent: "create_ticket" }, d));
+    expect(events.map((e) => e.event)).toEqual(["meta", "error"]);
   });
 });

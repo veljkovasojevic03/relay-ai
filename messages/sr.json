@@ -134,7 +134,8 @@
       "account": "Nalog",
       "bots": "Botovi",
       "inbox": "Prijemno sanduče",
-      "unread": "{count} nepročitano"
+      "unread": "{count} nepročitano",
+      "events": "Event log"
     },
     "signOut": "Odjavi se",
     "loading": "Učitavam kontrolnu tablu…",
@@ -289,7 +290,8 @@
       "label": "Delovi bota",
       "settings": "Podešavanja",
       "knowledge": "Znanje",
-      "playground": "Testiraj bota"
+      "playground": "Testiraj bota",
+      "actions": "Akcije"
     }
   },
   "Knowledge": {
@@ -479,5 +481,79 @@
       "confirm": "Obriši",
       "cancel": "Zadrži"
     }
+  },
+  "Actions": {
+    "metaTitle": "Akcije",
+    "title": "Akcije",
+    "subtitle": "Stvari koje bot može da uradi za posetioca, a ne samo da odgovori. Svaka akcija traži potvrdu posetioca pre nego što se pokrene.",
+    "names": {
+      "order_status": "Status porudžbine",
+      "create_ticket": "Novi tiket"
+    },
+    "descriptions": {
+      "order_status": "Pita za broj porudžbine i email, pa proverava porudžbinu. Ne prikazuje ništa ako se oba podatka ne poklapaju.",
+      "create_ticket": "Prikuplja naslov, opis i email (nije obavezan), pa pravi tiket i šalje ti mejl preko n8n-a."
+    },
+    "confirmBadge": "Traži potvrdu",
+    "demoOnly": "Dostupno samo za bota demo prodavnice, jer čita demo porudžbine.",
+    "simulated": "simulirano",
+    "errors": {
+      "notFound": "Ovaj bot više ne postoji.",
+      "demoOnly": "Status porudžbine je dostupan samo za bota demo prodavnice.",
+      "generic": "Čuvanje nije uspelo. Pokušaj ponovo."
+    },
+    "runStatus": {
+      "pending_confirmation": "Čeka potvrdu",
+      "confirmed": "Potvrđeno",
+      "running": "U toku",
+      "succeeded": "Uspešno",
+      "failed": "Neuspešno",
+      "cancelled": "Otkazano"
+    },
+    "runs": {
+      "title": "Poslednja pokretanja",
+      "eventLog": "Otvori Event log",
+      "empty": "Nijedna akcija još nije pokrenuta. Uključi neku i probaj je u widgetu.",
+      "duration": "{ms} ms",
+      "error": "Greška: {error}"
+    }
+  },
+  "Events": {
+    "metaTitle": "Event log",
+    "title": "Event log",
+    "subtitle": "Sve što su tvoji botovi poslali n8n-u: mejlovi tebi i posetiocima, i pozivi akcija. Sadržaj poruka se ovde ne prikazuje.",
+    "mode": {
+      "simulated": "Simulirani režim: n8n ovde nije povezan, pa se ništa ne šalje mejlom. Događaji se beleže kao ono što bi bilo poslato, a akcije se računaju u aplikaciji.",
+      "real": "Povezano sa n8n-om: događaji idu u tvoje workflow-ove, a n8n javlja da li je svaki mejl poslat."
+    },
+    "filters": {
+      "label": "Filtriraj događaje",
+      "all": "Svi"
+    },
+    "status": {
+      "pending": "Na čekanju",
+      "delivered": "Predato n8n-u",
+      "sent": "Poslato",
+      "failed": "Neuspešno",
+      "simulated": "Simulirano"
+    },
+    "types": {
+      "escalation": "Mejl tebi o prebacivanju",
+      "reply_email": "Mejl posetiocu sa odgovorom",
+      "order_status": "Provera porudžbine",
+      "create_ticket": "Novi tiket"
+    },
+    "explain": {
+      "queued": "Čeka slanje n8n-u.",
+      "retrying": "n8n ga nije prihvatio (pokušaja do sada: {attempts}). Sledeći pokušaj {next}.",
+      "delivered": "n8n ga je prihvatio i još nije javio ishod.",
+      "sent": "n8n je potvrdio da je gotovo.",
+      "failed": "Nije prošlo.",
+      "simulatedEmail": "Simulirano: bilo bi poslato mejlom preko n8n-a.",
+      "simulatedAction": "Simulirano: izračunato u aplikaciji umesto u n8n-u."
+    },
+    "lastError": "Poslednja greška: {error}",
+    "empty": "Još nema događaja. Pojavljuju se kad se čet prebaci tebi, kad odgovoriš posetiocu koji je otišao ili kad se pokrene akcija.",
+    "emptyFiltered": "Nema događaja sa ovim statusom."
   }
 }

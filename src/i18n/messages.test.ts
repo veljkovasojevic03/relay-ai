@@ -18,6 +18,14 @@ describe("message catalogs", () => {
     expect(keys(sr).sort()).toEqual(keys(en).sort());
   });
 
+  it("no key contains a dot (next-intl reads dots as nesting)", () => {
+    const dotted = (value: unknown): string[] =>
+      typeof value === "object" && value !== null
+        ? Object.entries(value).flatMap(([k, v]) => [...(k.includes(".") ? [k] : []), ...dotted(v)])
+        : [];
+    expect(dotted(en)).toEqual([]);
+  });
+
   it.each([
     ["en", en],
     ["sr", sr],

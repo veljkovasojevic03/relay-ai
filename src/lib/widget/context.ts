@@ -30,6 +30,8 @@ export type WidgetBot = {
   greeting: unknown;
   position: "left" | "right";
   featuredQuestions: unknown;
+  /** The demo store's bot: the only one that may offer `order_status` (spec §4.7). */
+  isDemo: boolean;
 };
 
 export async function loadBot(db: SupabaseClient, publicKey: unknown): Promise<WidgetBot | null> {
@@ -37,7 +39,7 @@ export async function loadBot(db: SupabaseClient, publicKey: unknown): Promise<W
   const { data, error } = await db
     .from("bots")
     .select(
-      "id, owner_id, name, active, allowed_origins, default_language, brand_color, logo_path, greeting, position, featured_questions",
+      "id, owner_id, name, active, allowed_origins, default_language, brand_color, logo_path, greeting, position, featured_questions, is_demo",
     )
     .eq("public_key", publicKey)
     .maybeSingle();
@@ -58,6 +60,7 @@ export async function loadBot(db: SupabaseClient, publicKey: unknown): Promise<W
     greeting: data.greeting,
     position: data.position === "left" ? "left" : "right",
     featuredQuestions: data.featured_questions,
+    isDemo: data.is_demo === true,
   };
 }
 
@@ -105,6 +108,8 @@ export type WidgetConversation = {
   channel: string;
   hasEmail: boolean;
   createdAt: string;
+  /** Guided action flow in progress (`conversations.action_flow`), unvalidated. */
+  actionFlow: unknown;
 };
 
 /**
@@ -121,7 +126,7 @@ export async function findConversation(
   const { data, error } = await db
     .from("conversations")
     .select(
-      "id, token_hash, status, language, visitor_message_count, rating, realtime_channel, visitor_email, created_at",
+      "id, token_hash, status, language, visitor_message_count, rating, realtime_channel, visitor_email, created_at, action_flow",
     )
     .eq("bot_id", botId)
     .eq("token_hash", tokenHash)
@@ -140,6 +145,7 @@ export async function findConversation(
     channel: data.realtime_channel,
     hasEmail: Boolean(data.visitor_email),
     createdAt: data.created_at,
+    actionFlow: data.action_flow,
   };
 }
 

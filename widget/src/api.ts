@@ -15,6 +15,26 @@ export type WidgetConfig = {
   mode: "sample" | "live";
   /** Public Supabase URL + browser-safe key for "reply waiting" pings; null = polling only. */
   realtime?: { url: string; key: string } | null;
+  /** Actions this bot offers; each gets a quick-start chip. */
+  actions?: ActionName[];
+};
+
+export type ActionName = "order_status" | "create_ticket";
+
+/** A guided flow's confirmation card (SSE `action_card`). */
+export type ActionCard = {
+  actionRunId: string;
+  action: ActionName;
+  fields: { key: string; value: string }[];
+  simulated: boolean;
+};
+
+export type ActionDecision = {
+  status: "succeeded" | "failed" | "cancelled";
+  message: string;
+  messageId: string | null;
+  simulated: boolean;
+  offerHuman: boolean;
 };
 
 export type Status = "bot" | "waiting_human" | "human" | "resolved";
@@ -27,6 +47,8 @@ export type HistoryMessage = {
   text: string;
   sources: Source[];
   mode: "sample" | "live" | null;
+  /** An action result computed without n8n. */
+  simulated?: boolean;
   createdAt: string;
 };
 
@@ -37,6 +59,8 @@ export type History = {
   hasEmail: boolean;
   remainingMessages: number;
   messages: HistoryMessage[];
+  /** An action card still waiting for the visitor's answer. */
+  pendingAction?: ActionCard | null;
 };
 
 export type StreamEvent =
@@ -46,6 +70,7 @@ export type StreamEvent =
     }
   | { event: "delta"; data: { text: string } }
   | { event: "sources"; data: { faqs: Source[] } }
+  | { event: "action_card"; data: ActionCard }
   | {
       event: "handoff";
       data: { reason: string; status: "waiting_human"; message: string; messageId: string | null };
@@ -53,10 +78,11 @@ export type StreamEvent =
   | {
       event: "done";
       data: {
-        outcome: "answered" | "unknown" | "degraded" | "waiting" | "handoff";
+        outcome: "answered" | "unknown" | "degraded" | "waiting" | "handoff" | "flow";
         offerHuman: boolean;
         suggestions: string[];
         remainingMessages: number;
+        quickReplies?: string[];
       };
     }
   | { event: "error"; data: { code: string } };
@@ -144,6 +170,15 @@ export class Api {
     hasEmail: boolean;
   }> {
     return (await this.post("handoff", email ? { email } : {}, token)).json();
+  }
+
+  /** The visitor's answer to an action card. */
+  async confirm(
+    token: string,
+    actionRunId: string,
+    decision: "confirm" | "cancel",
+  ): Promise<ActionDecision> {
+    return (await this.post("confirm", { actionRunId, decision }, token)).json();
   }
 
   async rate(token: string, rating: "up" | "down") {

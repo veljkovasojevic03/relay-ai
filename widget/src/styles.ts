@@ -104,6 +104,13 @@ button{cursor:pointer}
 .primary{border:0;border-radius:10px;padding:8px 14px;background:var(--relay-brand);color:var(--relay-fg);font-weight:600}
 .note{margin:0;font-size:12.5px;color:var(--muted);text-align:center}
 .note.bad{color:var(--danger)}
+.card{display:flex;flex-direction:column;gap:8px;padding:12px;border:1px solid var(--relay-brand);border-radius:14px;background:#fff;font-size:13.5px}
+.cardtitle{margin:0;font-weight:600;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:4px 10px}
+.card dt{color:var(--muted)}
+.card dd{margin:0;overflow-wrap:anywhere;white-space:pre-wrap}
+.card .row{justify-content:flex-end}
+.card .note{text-align:left}
 .emailform{display:flex;flex-direction:column;gap:6px;padding:12px;border:1px solid var(--line);border-radius:14px;background:#fff;font-size:13.5px}
 .emailform input{padding:8px 10px;border:1px solid #8f7c6b;border-radius:10px;background:#fff}
 .emailform .note{text-align:left}

@@ -25,7 +25,8 @@ export default defineConfig({
       reuseExistingServer: !process.env.CI,
       timeout: 60_000,
       // Auth emails and OAuth redirects must point back at this server, not the dev port.
-      env: { NEXT_PUBLIC_APP_URL: `http://localhost:${PORT}` },
+      // n8n is always simulated here, whatever .env.local says.
+      env: { NEXT_PUBLIC_APP_URL: `http://localhost:${PORT}`, N8N_MODE: "simulated" },
     },
     // A third-party page on another origin that embeds the widget (e2e/widget.spec.ts).
     {

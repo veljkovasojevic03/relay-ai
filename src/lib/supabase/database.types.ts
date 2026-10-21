@@ -223,6 +223,7 @@ export type Database = {
       };
       conversations: {
         Row: {
+          action_flow: Json | null;
           bot_id: string;
           created_at: string;
           first_response_ms: number | null;
@@ -247,6 +248,7 @@ export type Database = {
         };
         ComputedFields: never;
         Insert: {
+          action_flow?: Json | null;
           bot_id: string;
           created_at?: string;
           first_response_ms?: number | null;
@@ -270,6 +272,7 @@ export type Database = {
           visitor_message_count?: number;
         };
         Update: {
+          action_flow?: Json | null;
           bot_id?: string;
           created_at?: string;
           first_response_ms?: number | null;
@@ -756,11 +759,38 @@ export type Database = {
         };
         Returns: Json;
       };
+      apply_n8n_callback: {
+        Args: { p_error: string; p_event_id: string; p_status: string };
+        Returns: Json;
+      };
       bot_accepts_conversations: { Args: { p_bot_id: string }; Returns: boolean };
       check_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };
         Returns: boolean;
       };
+      claim_outbox: {
+        Args: { p_lease_seconds: number; p_limit: number };
+        Returns: {
+          attempts: number;
+          created_at: string;
+          delivered_at: string | null;
+          event_id: string;
+          id: string;
+          last_error: string | null;
+          next_attempt_at: string;
+          owner_id: string | null;
+          payload: NonNullable<Json>;
+          status: string;
+          type: string;
+        }[];
+        SetofOptions: {
+          from: "*";
+          to: "n8n_outbox";
+          isOneToOne: false;
+          isSetofReturn: true;
+        };
+      };
+      digest_stats: { Args: { p_since: string }; Returns: Json };
       health_check: { Args: Record<PropertyKey, never>; Returns: string };
       is_valid_origin_list: { Args: { origins: string[] }; Returns: boolean };
       match_faqs: {

@@ -23,7 +23,10 @@
     "db:lint": "supabase db lint --local --level warning --fail-on warning",
     "db:types": "supabase gen types typescript --local > src/lib/supabase/database.types.ts && prettier --write src/lib/supabase/database.types.ts",
     "eval:retrieval": "tsx scripts/eval-retrieval.ts",
-    "e2e:local": "node scripts/local-supabase.mjs -- pnpm build && node scripts/local-supabase.mjs -- pnpm test:e2e"
+    "e2e:local": "node scripts/local-supabase.mjs -- pnpm build && node scripts/local-supabase.mjs -- pnpm test:e2e",
+    "n8n:send": "tsx scripts/n8n/send-event.ts",
+    "n8n:verify": "tsx scripts/n8n/verify.ts",
+    "demo:mark-bot": "tsx scripts/demo/mark-demo-bot.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

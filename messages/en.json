@@ -134,7 +134,8 @@
       "account": "Account",
       "bots": "Bots",
       "inbox": "Inbox",
-      "unread": "{count} unread"
+      "unread": "{count} unread",
+      "events": "Event log"
     },
     "signOut": "Sign out",
     "loading": "Loading your dashboard…",
@@ -289,7 +290,8 @@
       "label": "Bot sections",
       "settings": "Settings",
       "knowledge": "Knowledge",
-      "playground": "Test your bot"
+      "playground": "Test your bot",
+      "actions": "Actions"
     }
   },
   "Knowledge": {
@@ -479,5 +481,79 @@
       "confirm": "Delete",
       "cancel": "Keep it"
     }
+  },
+  "Actions": {
+    "metaTitle": "Actions",
+    "title": "Actions",
+    "subtitle": "Things your bot can do for a visitor, not just answer. Every action asks the visitor to confirm before it runs.",
+    "names": {
+      "order_status": "Order status",
+      "create_ticket": "Create a ticket"
+    },
+    "descriptions": {
+      "order_status": "Asks for the order number and email, then looks the order up. Shows nothing unless both match.",
+      "create_ticket": "Collects a subject, details and an optional email, then creates a ticket and emails you through n8n."
+    },
+    "confirmBadge": "Needs confirmation",
+    "demoOnly": "Available only for the demo store's bot, because it reads the demo orders.",
+    "simulated": "simulated",
+    "errors": {
+      "notFound": "This bot no longer exists.",
+      "demoOnly": "Order status is available only for the demo store's bot.",
+      "generic": "Couldn't save that. Please try again."
+    },
+    "runStatus": {
+      "pending_confirmation": "Waiting for confirmation",
+      "confirmed": "Confirmed",
+      "running": "Running",
+      "succeeded": "Succeeded",
+      "failed": "Failed",
+      "cancelled": "Cancelled"
+    },
+    "runs": {
+      "title": "Recent runs",
+      "eventLog": "Open the Event log",
+      "empty": "No actions have run yet. Switch one on and try it in your widget.",
+      "duration": "{ms} ms",
+      "error": "Error: {error}"
+    }
+  },
+  "Events": {
+    "metaTitle": "Event log",
+    "title": "Event log",
+    "subtitle": "Everything your bots sent to n8n: emails to you and your visitors, and action calls. Message contents aren't shown here.",
+    "mode": {
+      "simulated": "Simulated mode: n8n isn't connected here, so nothing is emailed. Events are recorded as what would have been sent, and actions are computed in the app.",
+      "real": "Connected to n8n: events go to your workflows, and n8n reports back whether each email went out."
+    },
+    "filters": {
+      "label": "Filter events",
+      "all": "All"
+    },
+    "status": {
+      "pending": "Queued",
+      "delivered": "Delivered to n8n",
+      "sent": "Sent",
+      "failed": "Failed",
+      "simulated": "Simulated"
+    },
+    "types": {
+      "escalation": "Handoff email to you",
+      "reply_email": "Reply email to visitor",
+      "order_status": "Order status lookup",
+      "create_ticket": "New ticket"
+    },
+    "explain": {
+      "queued": "Waiting to be sent to n8n.",
+      "retrying": "n8n didn't accept it ({attempts} tries so far). Next try {next}.",
+      "delivered": "n8n accepted it and hasn't reported the result yet.",
+      "sent": "n8n confirmed it's done.",
+      "failed": "It didn't go through.",
+      "simulatedEmail": "Simulated: would have been emailed via n8n.",
+      "simulatedAction": "Simulated: computed in the app instead of n8n."
+    },
+    "lastError": "Last error: {error}",
+    "empty": "No events yet. They appear when a chat is handed to you, when you reply to a visitor who left, or when an action runs.",
+    "emptyFiltered": "No events with this status."
   }
 }

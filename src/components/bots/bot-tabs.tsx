@@ -1,12 +1,12 @@
 "use client";
 
-import { BookOpen, FlaskConical, Settings2 } from "lucide-react";
+import { BookOpen, FlaskConical, Settings2, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
 import { cn } from "@/lib/utils";
 
-/** Sections of one bot: settings, knowledge (FAQ) and the test playground. */
+/** Sections of one bot: settings, knowledge (FAQ), the test playground and actions. */
 export function BotTabs({ botId }: { botId: string }) {
   const t = useTranslations("Bots.tabs");
   const pathname = usePathname();
@@ -15,6 +15,7 @@ export function BotTabs({ botId }: { botId: string }) {
     { href: base, key: "settings", icon: Settings2 },
     { href: `${base}/knowledge`, key: "knowledge", icon: BookOpen },
     { href: `${base}/playground`, key: "playground", icon: FlaskConical },
+    { href: `${base}/actions`, key: "actions", icon: Zap },
   ] as const;
 
   return (

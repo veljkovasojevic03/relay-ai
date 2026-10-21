@@ -3,13 +3,15 @@ import { connection } from "next/server";
 import { isAuthorizedBearer } from "@/lib/auth/bearer";
 import { serverEnv } from "@/lib/env.server";
 import { log } from "@/lib/log";
+import { flushOutboxNow } from "@/lib/n8n/flush";
 import { checkDatabase } from "@/lib/supabase/health";
 
 const noStore = { "Cache-Control": "no-store" };
 
 /**
- * Called by .github/workflows/cron.yml. For now it only runs the Supabase keep-alive; outbox
- * retries, counter resets and purging are added by the phases that introduce them.
+ * Called by .github/workflows/cron.yml: the Supabase keep-alive, then n8n outbox events that
+ * are due (retries with backoff, and anything an after-response flush missed). Counter
+ * resets and purging are added by the phases that introduce them.
  */
 export async function POST(request: Request) {
   await connection();
@@ -23,11 +25,16 @@ export async function POST(request: Request) {
 
   const started = performance.now();
   const keepAlive = await checkDatabase();
+  const outbox = keepAlive.status === "error" ? null : await flushOutboxNow(25);
   const durationMs = Math.round(performance.now() - started);
-  log.info("cron.tick", { keepAlive: keepAlive.status, durationMs });
+  log.info("cron.tick", {
+    keepAlive: keepAlive.status,
+    outboxClaimed: outbox?.claimed ?? null,
+    durationMs,
+  });
 
   return Response.json(
-    { ok: keepAlive.status !== "error", keepAlive: keepAlive.status, durationMs },
+    { ok: keepAlive.status !== "error", keepAlive: keepAlive.status, outbox, durationMs },
     { status: keepAlive.status === "error" ? 502 : 200, headers: noStore },
   );
 }

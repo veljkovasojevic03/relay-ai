@@ -3,11 +3,14 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
+import { enabledActions } from "@/lib/actions/registry";
+import { decideRun, pendingCard } from "@/lib/actions/run";
 import { logoPublicUrl } from "@/lib/bots/logo";
 import { parseFeaturedQuestions, parseGreeting } from "@/lib/bots/schema";
 import { readableForeground } from "@/lib/design/contrast";
 import { serverEnv } from "@/lib/env.server";
 import { log } from "@/lib/log";
+import { n8nDispatcher } from "@/lib/n8n/dispatcher";
 import { isWithinKeyedRateLimit } from "@/lib/security/rate-limit";
 
 import {
@@ -23,7 +26,7 @@ import {
 } from "./context";
 import type { OriginCheck } from "./cors";
 import { MAX_BODY_BYTES, MAX_VISITOR_MESSAGES, WIDGET_RATE_LIMITS } from "./limits";
-import { startHandoff } from "./handoff";
+import { startHandoff, type HandoffReason } from "./handoff";
 import { LIVE_MODE_IMPLEMENTED } from "./mode";
 
 /**
@@ -81,9 +84,10 @@ export async function handleConfig(request: Request, db: SupabaseClient): Promis
   if (!resolved.ok) return resolved.response;
   const { bot, origin } = resolved;
 
-  const { data: accepts, error } = await db.rpc("bot_accepts_conversations", {
-    p_bot_id: bot.id,
-  });
+  const [{ data: accepts, error }, actions] = await Promise.all([
+    db.rpc("bot_accepts_conversations", { p_bot_id: bot.id }),
+    enabledActions(db, bot),
+  ]);
   if (error) log.error("widget.availability_failed", { code: error.code });
 
   return widgetJson(
@@ -99,6 +103,8 @@ export async function handleConfig(request: Request, db: SupabaseClient): Promis
       // New chats can start. An existing chat may continue while this is false.
       available: bot.active && accepts === true,
       mode: LIVE_MODE_IMPLEMENTED ? "live" : "sample",
+      // Actions this bot offers; the widget shows a quick-start chip for each.
+      actions,
       // Public values (the browser-safe key), so the widget can hear "reply waiting" pings.
       realtime: realtimeConfig(),
     },
@@ -113,7 +119,7 @@ type MessageRow = {
   role: string;
   content: string;
   source_faq_ids: string[];
-  meta: { mode?: string } | null;
+  meta: { mode?: string; simulated?: boolean } | null;
   created_at: string;
 };
 
@@ -145,6 +151,10 @@ export async function handleConversation(request: Request, db: SupabaseClient): 
     return widgetError("internal", 500, origin);
   }
   const rows = data as MessageRow[];
+  const card =
+    conversation.status === "bot"
+      ? await pendingCard(db, bot.id, conversation.id, serverEnv().N8N_MODE === "simulated")
+      : null;
 
   const faqIds = [...new Set(rows.flatMap((m) => m.source_faq_ids ?? []))];
   const questions = new Map<string, string>();
@@ -170,8 +180,12 @@ export async function handleConversation(request: Request, db: SupabaseClient): 
           .filter((id) => questions.has(id))
           .map((id) => ({ id, question: questions.get(id)! })),
         mode: m.meta?.mode === "sample" || m.meta?.mode === "live" ? m.meta.mode : null,
+        // An action result that n8n would have produced (no n8n configured).
+        simulated: m.meta?.simulated === true,
         createdAt: m.created_at,
       })),
+      // An unconfirmed action card, shown again after a refresh.
+      pendingAction: card,
     },
     origin,
   );
@@ -279,7 +293,11 @@ const handoffSchema = z.object({
  * POST /api/widget/handoff {bot, email?}: "Talk to a person", or the optional email given
  * after the handoff. Idempotent: a second call only stores the email.
  */
-export async function handleHandoff(request: Request, db: SupabaseClient): Promise<Response> {
+export async function handleHandoff(
+  request: Request,
+  db: SupabaseClient,
+  onOutboxEvent?: () => void,
+): Promise<Response> {
   const body = await readJsonBody(request, MAX_BODY_BYTES);
   const key = botKey.safeParse(body);
   if (!key.success) return widgetError("bad_request", 400);
@@ -298,10 +316,11 @@ export async function handleHandoff(request: Request, db: SupabaseClient): Promi
   const result = await startHandoff(db, {
     botId: bot.id,
     conversationId: conversation.id,
-    reason: "requested",
+    reason: await handoffReason(db, bot.id, conversation.id),
     email: parsed.data.email ?? null,
     language: conversation.language,
   });
+  if (result.status === "handed_off") onOutboxEvent?.();
   if (result.status === "closed") return widgetError("conversation_closed", 409, origin);
   if (result.status === "not_found") return widgetError("invalid_token", 401, origin);
 
@@ -314,6 +333,62 @@ export async function handleHandoff(request: Request, db: SupabaseClient): Promi
     },
     origin,
   );
+}
+
+/** "Talk to a person" right after an action failed tells the owner why (spec §8). */
+async function handoffReason(
+  db: SupabaseClient,
+  botId: string,
+  conversationId: string,
+): Promise<HandoffReason> {
+  const { data } = await db
+    .from("action_runs")
+    .select("status, updated_at")
+    .eq("conversation_id", conversationId)
+    .eq("bot_id", botId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const recent = data && Date.now() - Date.parse(data.updated_at) < 15 * 60 * 1000;
+  return recent && data.status === "failed" ? "action_failed" : "requested";
+}
+
+const confirmSchema = z.object({
+  actionRunId: z.uuid(),
+  decision: z.enum(["confirm", "cancel"]),
+});
+
+/**
+ * POST /api/widget/confirm {bot, actionRunId, decision}: the visitor's answer to an action
+ * card. The run must belong to this conversation and still wait for confirmation; it runs
+ * at most once.
+ */
+export async function handleConfirm(request: Request, db: SupabaseClient): Promise<Response> {
+  const body = await readJsonBody(request, MAX_BODY_BYTES);
+  const key = botKey.safeParse(body);
+  if (!key.success) return widgetError("bad_request", 400);
+  const resolved = await resolveConversation(
+    db,
+    request,
+    key.data.bot,
+    WIDGET_RATE_LIMITS.feedback,
+  );
+  if (!resolved.ok) return resolved.response;
+  const { origin, conversation, bot } = resolved;
+  const parsed = confirmSchema.safeParse(body);
+  if (!parsed.success) return widgetError("bad_request", 400, origin);
+  if (conversation.status === "resolved") return widgetError("conversation_closed", 409, origin);
+
+  const result = await decideRun(db, n8nDispatcher(db), {
+    runId: parsed.data.actionRunId,
+    botId: bot.id,
+    ownerId: bot.ownerId,
+    conversationId: conversation.id,
+    decision: parsed.data.decision,
+    language: conversation.language,
+  });
+  if (result.status === "not_pending") return widgetError("action_not_pending", 409, origin);
+  return widgetJson(result, origin);
 }
 
 const endSchema = z.object({ bot: z.string() });

@@ -1,3 +1,12 @@
+import {
+  advanceFlow,
+  startFlow,
+  type ActionCard,
+  type ActionName,
+  type ActionParams,
+  type FlowState,
+  type FlowStep,
+} from "@/lib/actions/flow";
 import type { Language } from "@/lib/bots/schema";
 import type { SearchResult } from "@/lib/faqs/search";
 
@@ -19,7 +28,7 @@ export type ReplyRecord = {
   content: string;
   sourceFaqIds: string[];
   meta: Record<string, string | number | boolean | null>;
-  outcome: "answered" | "unknown" | "degraded";
+  outcome: "answered" | "unknown" | "degraded" | "flow";
   question: string;
   language: Language;
   firstResponseMs: number;
@@ -30,6 +39,10 @@ export type TurnDeps = {
   /** Saves the reply; returns the conversation's unknown streak after it. */
   recordReply: (reply: ReplyRecord) => Promise<{ unknownStreak: number }>;
   handoff: (reason: HandoffReason) => Promise<HandoffResult>;
+  /** Stores the guided flow's next state (null ends it). */
+  saveFlow: (state: FlowState | null) => Promise<void>;
+  /** Creates the `pending_confirmation` action run behind a confirmation card. */
+  createRun: (action: ActionParams) => Promise<ActionCard>;
   sleep: (ms: number) => Promise<void>;
   now: () => number;
 };
@@ -47,6 +60,10 @@ export type TurnInput = {
   conversationStatus: "bot" | "waiting_human" | "human" | "resolved";
   remainingMessages: number;
   mode: ModeDecision;
+  /** A guided action flow in progress: this message answers its question. */
+  flow: FlowState | null;
+  /** The message asks for an action this bot offers (already filtered). */
+  intent: ActionName | null;
   /** When the request arrived (ms), for latency and first-response time. */
   startedAt: number;
 };
@@ -77,12 +94,23 @@ export async function* runTurn(input: TurnInput, deps: TurnDeps): AsyncGenerator
   }
 
   if (input.wantsHuman) {
+    if (input.flow) await deps.saveFlow(null).catch(() => undefined);
     const handed = await tryHandoff(deps, "requested");
     if (handed) {
       yield handed;
       yield done("handoff", false, [], input.remainingMessages);
       return;
     }
+  }
+
+  const step = input.flow
+    ? advanceFlow(input.flow, input.text, input.language)
+    : input.intent
+      ? startFlow(input.intent, input.language)
+      : null;
+  if (step) {
+    yield* flowTurn(input, deps, step);
+    return;
   }
 
   let search: SearchResult;
@@ -161,8 +189,65 @@ function done(
   offerHuman: boolean,
   suggestions: string[],
   remainingMessages: number,
+  quickReplies: string[] = [],
 ): WidgetEvent {
-  return { event: "done", data: { outcome, offerHuman, suggestions, remainingMessages } };
+  return {
+    event: "done",
+    data: {
+      outcome,
+      offerHuman,
+      suggestions,
+      remainingMessages,
+      ...(quickReplies.length ? { quickReplies } : {}),
+    },
+  };
+}
+
+/** One step of a guided action flow: save the state, say the next line, maybe show a card. */
+async function* flowTurn(
+  input: TurnInput,
+  deps: TurnDeps,
+  step: FlowStep,
+): AsyncGenerator<WidgetEvent> {
+  let card: ActionCard | null = null;
+  try {
+    await deps.saveFlow(step.kind === "ask" ? step.state : null);
+    if (step.kind === "confirm") card = await deps.createRun(step);
+    const latencyMs = Math.max(0, Math.round(deps.now() - input.startedAt));
+    await deps.recordReply({
+      conversationId: input.conversationId,
+      botId: input.botId,
+      content: step.reply,
+      sourceFaqIds: [],
+      meta: {
+        mode: input.mode.mode,
+        modeReason: input.mode.reason,
+        outcome: "flow",
+        latencyMs,
+        flow: step.kind === "ask" ? step.state.action : (card?.action ?? null),
+      },
+      outcome: "flow",
+      question: input.text,
+      language: input.language,
+      firstResponseMs: latencyMs,
+    });
+  } catch {
+    yield { event: "error", data: { code: "internal" } };
+    return;
+  }
+
+  for (const [i, text] of chunkText(step.reply).entries()) {
+    if (i > 0) await deps.sleep(SAMPLE_CHUNK_DELAY_MS);
+    yield { event: "delta", data: { text } };
+  }
+  if (card) yield { event: "action_card", data: card };
+  yield done(
+    "flow",
+    step.kind === "stop" && step.offerHuman,
+    [],
+    input.remainingMessages,
+    step.kind === "ask" ? step.quickReplies : [],
+  );
 }
 
 /** The `handoff` event, or null when nothing changed (already handed off) or it failed. */

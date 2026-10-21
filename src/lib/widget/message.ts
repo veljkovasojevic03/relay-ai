@@ -3,6 +3,10 @@ import "server-only";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { z } from "zod";
 
+import { flowStateSchema, type FlowState } from "@/lib/actions/flow";
+import { actionIntent } from "@/lib/actions/intent";
+import { enabledActions } from "@/lib/actions/registry";
+import { cancelPendingRuns, createPendingRun } from "@/lib/actions/run";
 import { LANGUAGES, type Language } from "@/lib/bots/schema";
 import { hasLiveLlm } from "@/lib/env";
 import { serverEnv } from "@/lib/env.server";
@@ -40,6 +44,8 @@ export type MessageDeps = {
   embed: QueryEmbedder;
   sleep: (ms: number) => Promise<void>;
   now: () => number;
+  /** Called when this turn wrote an n8n event (a handoff), so the route can deliver it. */
+  onOutboxEvent?: () => void;
 };
 
 export function defaultMessageDeps(): MessageDeps | null {
@@ -134,6 +140,7 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
       channel: started.realtime_channel ?? "",
       hasEmail: false,
       createdAt: new Date().toISOString(),
+      actionFlow: null,
     };
     log.info("widget.conversation_started", { botId: bot.id });
   }
@@ -168,6 +175,15 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
   });
 
   const conversationId = conversation.id;
+  const inBotMode = (stored.conversation_status ?? "bot") === "bot";
+  const savedFlow = flowStateSchema.safeParse(conversation.actionFlow);
+  const flow: FlowState | null = inBotMode && savedFlow.success ? savedFlow.data : null;
+  // Only an action this bot offers starts a flow; anything else goes to the FAQ.
+  const asked = inBotMode && !flow ? actionIntent(text) : null;
+  const intent = asked && (await enabledActions(db, bot)).includes(asked) ? asked : null;
+  // A new message means an unconfirmed card was passed over.
+  if (inBotMode && !token) await cancelPendingRuns(db, bot.id, conversationId);
+
   const events = runTurn(
     {
       botId: bot.id,
@@ -181,12 +197,41 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
       remainingMessages: MAX_VISITOR_MESSAGES - (stored.visitor_message_count ?? 0),
       mode,
       startedAt,
+      flow,
+      intent,
     },
     {
       search: (botId, question, lang) => searchFaqs(db, botId, question, lang, deps.embed),
       recordReply: (reply) => recordReply(db, reply),
-      handoff: (reason) =>
-        startHandoff(db, { botId: bot.id, conversationId, reason, email: null, language }),
+      handoff: async (reason) => {
+        const result = await startHandoff(db, {
+          botId: bot.id,
+          conversationId,
+          reason,
+          email: null,
+          language,
+        });
+        if (result.status === "handed_off") deps.onOutboxEvent?.();
+        return result;
+      },
+      saveFlow: async (state) => {
+        const { error } = await db
+          .from("conversations")
+          .update({ action_flow: state })
+          .eq("id", conversationId)
+          .eq("bot_id", bot.id);
+        if (error) {
+          log.error("widget.flow_store_failed", { code: error.code });
+          throw new Error("flow store failed");
+        }
+      },
+      createRun: (action) =>
+        createPendingRun(db, {
+          botId: bot.id,
+          conversationId,
+          simulated: env.N8N_MODE === "simulated",
+          ...action,
+        }),
       sleep: deps.sleep,
       now: deps.now,
     },

@@ -7,8 +7,10 @@
  * or `error` as the last event when a turn fails midway.
  */
 
+import type { ActionCard } from "@/lib/actions/flow";
+
 export type Mode = "sample" | "live";
-export type Outcome = "answered" | "unknown" | "degraded" | "waiting" | "handoff";
+export type Outcome = "answered" | "unknown" | "degraded" | "waiting" | "handoff" | "flow";
 
 export type WidgetEvent =
   | {
@@ -24,7 +26,8 @@ export type WidgetEvent =
     }
   | { event: "delta"; data: { text: string } }
   | { event: "sources"; data: { faqs: { id: string; question: string }[] } }
-  | { event: "action_card"; data: Record<string, unknown> }
+  /** A guided flow collected everything: the visitor confirms or cancels (POST /confirm). */
+  | { event: "action_card"; data: ActionCard }
   | {
       event: "handoff";
       /** The chat now waits for a person; `message` is the system line to show. */
@@ -39,6 +42,8 @@ export type WidgetEvent =
         /** "Did you mean" questions when the bot declined. */
         suggestions: string[];
         remainingMessages: number;
+        /** Quick replies during a guided flow ("Cancel", "Skip"); sent as the next message. */
+        quickReplies?: string[];
       };
     }
   | { event: "error"; data: { code: string } };

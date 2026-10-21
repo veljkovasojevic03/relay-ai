@@ -7,6 +7,7 @@ import { redirect } from "@/i18n/navigation";
 import { localeOf, ownerClient } from "@/lib/auth/owner";
 import type { FormState } from "@/lib/forms";
 import { log } from "@/lib/log";
+import { flushOutboxAfterResponse } from "@/lib/n8n/flush";
 import { pingConversation } from "@/lib/realtime/broadcast";
 import { cleanText, eventContext } from "@/lib/widget/handoff";
 import { formValues } from "@/lib/validation/errors";
@@ -69,6 +70,8 @@ export async function replyAction(_prev: FormState, formData: FormData): Promise
   if (result.status !== "ok") return { status: "error", error: "notFound" };
 
   if (result.realtime_channel) await pingConversation(result.realtime_channel, "message");
+  // The reply email goes to n8n after the owner's response is sent.
+  if (result.emailed) flushOutboxAfterResponse();
   refresh();
   return { status: "success", values: { emailed: result.emailed ? "yes" : "no" } };
 }

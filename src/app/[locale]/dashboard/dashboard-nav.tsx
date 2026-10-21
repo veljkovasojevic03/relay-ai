@@ -1,6 +1,6 @@
 "use client";
 
-import { Bot, Inbox, LayoutDashboard, UserRound } from "lucide-react";
+import { Bot, Inbox, LayoutDashboard, UserRound, Webhook } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Link, usePathname } from "@/i18n/navigation";
@@ -10,6 +10,7 @@ const items = [
   { href: "/dashboard", key: "overview", icon: LayoutDashboard, exact: true },
   { href: "/dashboard/inbox", key: "inbox", icon: Inbox, exact: false },
   { href: "/dashboard/bots", key: "bots", icon: Bot, exact: false },
+  { href: "/dashboard/events", key: "events", icon: Webhook, exact: false },
   { href: "/dashboard/account", key: "account", icon: UserRound, exact: true },
 ] as const;
 

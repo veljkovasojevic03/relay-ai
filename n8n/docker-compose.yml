@@ -1,0 +1,41 @@
+# Local n8n for Relay AI's real mode (spec §8). Workflows are built by hand from
+# RELAY_AI_N8N_WORKBOOK.md; none are generated or committed here.
+#
+#   cd n8n && cp .env.example .env   # then fill in the two secrets
+#   docker compose up -d             # http://localhost:5678
+services:
+  n8n:
+    # Pin a version for reproducible runs, e.g. N8N_VERSION=2.4.1 in n8n/.env.
+    image: docker.n8n.io/n8nio/n8n:${N8N_VERSION:-stable}
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678" # this machine only
+    environment:
+      # Keeps saved credentials (e.g. "Relay SMTP") readable after restarts.
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?set N8N_ENCRYPTION_KEY in n8n/.env}
+      # Must equal the app's N8N_SHARED_SECRET. Read in Code nodes as $env.N8N_SHARED_SECRET.
+      N8N_SHARED_SECRET: ${N8N_SHARED_SECRET:?set N8N_SHARED_SECRET in n8n/.env}
+      # So the editor shows the webhook URLs the app calls.
+      WEBHOOK_URL: http://localhost:5678/
+      GENERIC_TIMEZONE: Europe/Belgrade
+      TZ: Europe/Belgrade
+      # Code node: allow require('crypto') for HMAC (workbook lesson 2).
+      NODE_FUNCTION_ALLOW_BUILTIN: crypto
+      # Since n8n 2.0, Code nodes can't read $env by default. Local only: the secret stays
+      # in this file's .env instead of being pasted into a node.
+      N8N_BLOCK_ENV_ACCESS_IN_NODE: "false"
+      # Code nodes run in a task runner (n8n 2.x default); internal mode needs no extra container.
+      N8N_RUNNERS_ENABLED: "true"
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_PERSONALIZATION_ENABLED: "false"
+    extra_hosts:
+      # Lets workflows reach the app at http://host.docker.internal:3000 on Linux too
+      # (Docker Desktop on Windows/macOS provides this name already).
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # Workflows, credentials and executions survive restarts and `docker compose down`
+      # (a named volume avoids file-permission trouble with bind mounts on Linux).
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:
