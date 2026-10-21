@@ -12,13 +12,13 @@ import { randomUUID } from "node:crypto";
 
 import { signEvent } from "../../src/lib/n8n/signing";
 
-import { adminClient, loadEnv, parseArgs, requireSecret } from "./common";
+import { adminClient, envValue, loadEnv, parseArgs, requireSecret } from "./common";
 
 async function main() {
   loadEnv();
   const { values } = parseArgs(process.argv.slice(2));
   const secret = requireSecret();
-  const app = (values.app ?? process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(
+  const app = (values.app ?? envValue("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000").replace(
     /\/+$/,
     "",
   );

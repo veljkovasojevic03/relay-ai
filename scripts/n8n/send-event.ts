@@ -27,6 +27,7 @@ import { signEvent } from "../../src/lib/n8n/signing";
 
 import {
   adminClient,
+  envValue,
   loadEnv,
   parseArgs,
   requireSecret,
@@ -48,12 +49,12 @@ async function main() {
   const secret = requireSecret();
   let base = (
     values.base ??
-    process.env.N8N_WEBHOOK_BASE ??
+    envValue("N8N_WEBHOOK_BASE") ??
     "http://localhost:5678/webhook"
   ).replace(/\/+$/, "");
   if (flags.has("test")) base = base.replace(/\/webhook$/, "/webhook-test");
-  const appUrl = (process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000").replace(/\/+$/, "");
-  const to = values.to ?? process.env.N8N_TEST_EMAIL ?? "owner@example.com";
+  const appUrl = (envValue("NEXT_PUBLIC_APP_URL") ?? "http://localhost:3000").replace(/\/+$/, "");
+  const to = values.to ?? envValue("N8N_TEST_EMAIL") ?? "owner@example.com";
 
   const event = sampleEvent(type, {
     to,

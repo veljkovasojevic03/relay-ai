@@ -21,6 +21,11 @@ export function loadEnv() {
   }
 }
 
+/** An env value, or undefined when unset OR empty (`N8N_WEBHOOK_BASE=` in .env.local). */
+export function envValue(name: string): string | undefined {
+  return process.env[name]?.trim() || undefined;
+}
+
 export function requireSecret(): string {
   const secret = process.env.N8N_SHARED_SECRET?.trim();
   if (!secret) {
