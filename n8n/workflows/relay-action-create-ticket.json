@@ -1,0 +1,234 @@
+{
+  "name": "relay-action-create-ticket",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "relay-action-create-ticket",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        -336,
+        -48
+      ],
+      "id": "ea63716e-39cb-4e03-93ed-77b328b732c6",
+      "name": "Webhook",
+      "webhookId": "5427265e-3be5-47ad-8fe3-1d96c934472f"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ah62PFGSKftlmmSO",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ah62PFGSKftlmmSO",
+          "cachedResultName": "relay-verify"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        -112,
+        -48
+      ],
+      "id": "70b26f2f-1636-4dd2-8f6d-605bad92f064",
+      "name": "Call 'relay-verify'"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "b6479aa7-a80f-4832-a8ef-deaf5d27c4ed",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        112,
+        -48
+      ],
+      "id": "e4a07ae2-090c-4ef8-b8a9-46c15632fc54",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, error: $json.error }) }}",
+        "options": {
+          "responseCode": "={{ $json.error === 'bad_request' ? 400 : 401 }}"
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        336,
+        48
+      ],
+      "id": "ad03fa72-bb20-44aa-af77-1cdbc02f757a",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const req = $('Webhook').first().json.body;\nconst p = (req.data && req.data.params) || {};\n\n// Escape: tekst od kupca ne sme postati HTML (<script>, <b>, & ...)\nconst esc = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) =>\n  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' })[c]);\n\n// Subject mora biti u jednom redu (novi red u subject-u = header injection)\nconst oneLine = (s) => String(s ?? '').replace(/[\\r\\n]+/g, ' ').trim().slice(0, 150);\n\n// Referenca: RLY- + 4 cifre (za sada nasumično)\nconst ticketRef = 'RLY-' + String(Math.floor(Math.random() * 10000)).padStart(4, '0');\n\nconst inboxUrl = `http://localhost:3000/dashboard/inbox/${req.data?.conversationId ?? ''}`;\n\nconst html = `\n  <h2>Novi tiket ${ticketRef}</h2>\n  <p><b>Prodavnica:</b> ${esc(req.bot?.name)}</p>\n  <p><b>Naslov:</b> ${esc(p.subject)}</p>\n  <p><b>Opis:</b><br>${esc(p.description).replace(/\\n/g, '<br>')}</p>\n  <p><b>Mejl kupca:</b> ${p.visitorEmail ? esc(p.visitorEmail) : 'nije ostavljen'}</p>\n  <p><a href=\"${esc(inboxUrl)}\">Otvori razgovor u inbox-u</a></p>\n`;\n\nreturn [{\n  json: {\n    ticketRef,\n    to: req.owner?.notificationEmail,\n    subject: `[Relay] Novi tiket ${ticketRef}: ${oneLine(p.subject)}`,\n    html,\n  },\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        336,
+        -144
+      ],
+      "id": "69a38a0d-43a0-48cd-b3bc-321b572af74c",
+      "name": "Pripremi tiket"
+    },
+    {
+      "parameters": {
+        "fromEmail": "you@example.com",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        560,
+        -144
+      ],
+      "id": "0c9a976f-6dfd-4630-bcec-0a9cc352ac6f",
+      "name": "Send an Email",
+      "webhookId": "64e8080e-e3d0-4b4e-8466-d6625f48f9f9",
+      "credentials": {
+        "smtp": {
+          "id": "Z9tsDOcsY9jinKeb",
+          "name": "Relay SMTP"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, result: { ticketRef: $('Pripremi tiket').first().json.ticketRef } }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        784,
+        -144
+      ],
+      "id": "dc985631-fe5b-49dd-9d80-3c2ef53e5e05",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Call 'relay-verify'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'relay-verify'": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Pripremi tiket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pripremi tiket": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "7bbcdae7-59dd-4e76-bcab-4fa033a2cae1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93d91177354f8fdc6e20b557fd4a052e070b40974c2ab43c31acd399d195dc8f"
+  },
+  "nodeGroups": [],
+  "id": "NqSQxDAmV0TWvmrM",
+  "tags": []
+}

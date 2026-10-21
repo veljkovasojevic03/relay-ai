@@ -1,0 +1,57 @@
+{
+  "name": "relay-verify",
+  "nodes": [
+    {
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "97355bb4-2f7f-472e-8523-072dbd457b9a",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\n// Ulaz: ceo zahtev koji je Webhook primio (headers + body)\nconst req = $input.first().json;\nconst headers = req.headers || {};\nconst body = req.body || {};\n\n// 1) Da li postoji sve što nam treba? (u n8n-u su nazivi zaglavlja malim slovima)\nconst ts = headers['x-relay-timestamp'];\nconst sig = headers['x-relay-signature'];\nconst eventId = body.eventId;\nif (!ts || !sig || !eventId || !/^\\d+$/.test(ts)) {\n  return [{ json: { valid: false, error: 'bad_request' } }];\n}\n\n// 2) Da li je zahtev svež? (najviše 5 minuta razlike)\nif (Math.abs(Date.now() - Number(ts)) > 5 * 60 * 1000) {\n  return [{ json: { valid: false, error: 'stale_timestamp' } }];\n}\n\n// 3) Izračunaj potpis istim receptom kao aplikacija: HMAC-SHA256(secret, \"ts.eventId\")\nconst secret = $env.N8N_SHARED_SECRET;\nif (!secret) throw new Error('N8N_SHARED_SECRET nije podešen');\nconst expected = crypto.createHmac('sha256', secret).update(`${ts}.${eventId}`).digest('hex');\n\n// 4) Uporedi bez curenja vremena. timingSafeEqual puca ako dužine nisu iste, pa prvo to proveri.\nconst a = Buffer.from(expected);\nconst b = Buffer.from(String(sig).toLowerCase());\nconst ok = a.length === b.length && crypto.timingSafeEqual(a, b);\n\nreturn [{ json: ok ? { valid: true } : { valid: false, error: 'invalid_signature' } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c5ce5fcb-5c39-4c0f-b380-d064323d4867",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5b45fea1-b21e-491a-aa45-0e1ece25334c",
+  "meta": {
+    "instanceId": "93d91177354f8fdc6e20b557fd4a052e070b40974c2ab43c31acd399d195dc8f"
+  },
+  "nodeGroups": [],
+  "id": "ah62PFGSKftlmmSO",
+  "tags": []
+}

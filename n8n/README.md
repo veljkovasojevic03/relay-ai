@@ -1,8 +1,19 @@
 # n8n/
 
 Local, self-hosted n8n for the app's **real** mode. The workflows are built by hand from
-`RELAY_AI_N8N_WORKBOOK.md`; **no workflow JSON is generated here**. When they're done, export
-them to `n8n/workflows/` as your own work (check that no secret is in the export).
+`RELAY_AI_N8N_WORKBOOK.md`; **no workflow JSON is generated here**.
+
+## The workflows (`workflows/`)
+
+Exported from n8n as built (lessons 1–6): `relay-verify` (signature check, a sub-workflow),
+`relay-action-order-status`, `relay-action-create-ticket`, `relay-escalation`,
+`relay-reply-email`, and the warm-up `relay-ping`. They contain no secrets: the HMAC key is
+read from `$env.N8N_SHARED_SECRET`, and the SMTP credential is referenced by name only.
+
+To use them on a fresh n8n: create an SMTP credential named `Relay SMTP`, import each file
+(⋯ → Import from file), import `relay-verify` first and re-select it in the other workflows'
+*Execute Sub-workflow* node, set **From Email** in the Send Email nodes (the exports say
+`you@example.com`), then Publish each one.
 
 The contract is in [`docs/N8N_CONTRACT.md`](../docs/N8N_CONTRACT.md).
 

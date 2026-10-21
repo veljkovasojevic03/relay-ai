@@ -1,0 +1,64 @@
+{
+  "name": "relay-ping",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "relay-ping",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "d87db47c-fa1b-4a83-ae55-fb4d301f63b7",
+      "name": "Webhook",
+      "webhookId": "c364a9f6-9b2a-4917-a650-862bd4e3a3ed"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, echo: $json.body }) }}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        448,
+        0
+      ],
+      "id": "8df053de-9cc2-4bee-9115-94bf25471dd0",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "a5795993-a4c7-4f7e-b21e-b6044631bdf3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93d91177354f8fdc6e20b557fd4a052e070b40974c2ab43c31acd399d195dc8f"
+  },
+  "nodeGroups": [],
+  "id": "iwSGNuuSeWSyAFec",
+  "tags": []
+}

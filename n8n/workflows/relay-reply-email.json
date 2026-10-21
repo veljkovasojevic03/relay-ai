@@ -1,0 +1,276 @@
+{
+  "name": "relay-reply-email",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "relay-reply-email",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "568a1f06-a404-424d-a8c9-8392703cacfc",
+      "name": "Webhook",
+      "webhookId": "712243b3-da00-4ca0-b2be-9f68fc8dfb21"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        224,
+        0
+      ],
+      "id": "7cb161cb-11e0-45c6-b29b-b67a6f50cdae",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "ah62PFGSKftlmmSO",
+          "mode": "list",
+          "cachedResultUrl": "/workflow/ah62PFGSKftlmmSO",
+          "cachedResultName": "relay-verify"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.4,
+      "position": [
+        448,
+        0
+      ],
+      "id": "4fb29f24-0ff4-453f-a569-9233d1abcde5",
+      "name": "Call 'relay-verify'"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 4
+          },
+          "conditions": [
+            {
+              "id": "f4afd97d-f5e8-4db4-a6d2-eb8f21b37bea",
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "fb6a8e51-4189-434d-96eb-92eedc190353",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "const req = $('Webhook').first().json.body;\nconst d = req.data || {};\nconst en = d.language === 'en';\n\nconst esc = (s) => String(s ?? '').replace(/[&<>\"']/g, (c) =>\n  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' })[c]);\nconst oneLine = (s) => String(s ?? '').replace(/[\\r\\n]+/g, ' ').trim().slice(0, 150);\n\nconst shop = d.shopName || req.bot?.name || 'Relay';\n\n// Odgovor vlasnika: prvo escape, pa novi redovi u <br>\nconst reply = esc(d.replyText).replace(/\\r?\\n/g, '<br>');\n\nconst html = `\n  <p>${en ? 'Hi,' : 'Zdravo,'}</p>\n  <p>${en\n    ? `here is the answer from ${esc(shop)} to your question in the chat:`\n    : `evo odgovora iz prodavnice ${esc(shop)} na tvoje pitanje iz četa:`}</p>\n  <blockquote style=\"margin:0;padding:12px 16px;border-left:3px solid #b3472b;background:#faf6f1\">${reply}</blockquote>\n  <p>${en ? 'Best regards,' : 'Pozdrav,'}<br>${esc(shop)}</p>\n`;\n\nreturn [{ json: {\n  to: d.visitorEmail,\n  subject: oneLine(en ? `Reply from ${shop}` : `Odgovor iz prodavnice ${shop}`),\n  html,\n} }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        848,
+        -96
+      ],
+      "id": "204a4a16-5563-4642-b0ad-f59331ce13d2",
+      "name": "Pripremi mejl"
+    },
+    {
+      "parameters": {
+        "fromEmail": "you@example.com",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1040,
+        -96
+      ],
+      "id": "f06be332-a715-4606-be65-b5059435fa56",
+      "name": "Send an Email",
+      "webhookId": "6292dcac-bc03-4a91-9177-befbf2b07413",
+      "credentials": {
+        "smtp": {
+          "id": "Z9tsDOcsY9jinKeb",
+          "name": "Relay SMTP"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const crypto = require('crypto');\n\nconst eventId = $('Webhook').first().json.body.eventId;\nconst err = $json.error;              // postoji samo ako Send Email nije uspeo\nconst status = err ? 'failed' : 'sent';\n\n// Isti recept kao u Lekciji 2, ali sada TI potpisuješ\nconst ts = String(Date.now());\nconst signature = crypto.createHmac('sha256', $env.N8N_SHARED_SECRET)\n  .update(`${ts}.${eventId}`).digest('hex');\n\nconst body = { eventId, status };\nif (err) body.error = String(err.message ?? err).slice(0, 300);\n\nreturn [{ json: { ts, signature, body } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1216,
+        -96
+      ],
+      "id": "ad0970be-1d04-4edf-a098-0733b0b0456a",
+      "name": "Potpiši callback"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3000/api/n8n/callback",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-Relay-Timestamp",
+              "value": "={{ $json.ts }}"
+            },
+            {
+              "name": "X-Relay-Signature",
+              "value": "={{ $json.signature }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1440,
+        -96
+      ],
+      "id": "67ab808b-150b-41d6-b8f3-0aec51fd5893",
+      "name": "HTTP Request"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        [
+          {
+            "node": "Call 'relay-verify'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'relay-verify'": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Pripremi mejl",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pripremi mejl": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send an Email": {
+      "main": [
+        [
+          {
+            "node": "Potpiši callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Potpiši callback": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "e6a6d916-4667-4a55-9dce-fef0e7ef923d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "93d91177354f8fdc6e20b557fd4a052e070b40974c2ab43c31acd399d195dc8f"
+  },
+  "nodeGroups": [],
+  "id": "kClKhIttW8WGeWxk",
+  "tags": []
+}
