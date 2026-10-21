@@ -12,7 +12,7 @@ read from `$env.N8N_SHARED_SECRET`, and the SMTP credential is referenced by nam
 
 To use them on a fresh n8n: create an SMTP credential named `Relay SMTP`, import each file
 (⋯ → Import from file), import `relay-verify` first and re-select it in the other workflows'
-*Execute Sub-workflow* node, set **From Email** in the Send Email nodes (the exports say
+_Execute Sub-workflow_ node, set **From Email** in the Send Email nodes (the exports say
 `you@example.com`), then Publish each one.
 
 The contract is in [`docs/N8N_CONTRACT.md`](../docs/N8N_CONTRACT.md).
