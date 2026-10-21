@@ -41,6 +41,10 @@ export type OwnerProfile = {
   /** Anonymous explore-the-dashboard account (Phase 9), deleted at `sandboxExpiresAt`. */
   isSandbox: boolean;
   sandboxExpiresAt: string | null;
+  /** Mirrored from Stripe by the webhook (Phase 11); null without a subscription. */
+  subscriptionStatus: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
 };
 
 export const getOwnerProfile = cache(async (): Promise<OwnerProfile> => {
@@ -49,7 +53,7 @@ export const getOwnerProfile = cache(async (): Promise<OwnerProfile> => {
   const { data, error } = await supabase
     .from("profiles")
     .select(
-      "display_name, ui_language, notification_email, weekly_digest, plan, is_sandbox, sandbox_expires_at",
+      "display_name, ui_language, notification_email, weekly_digest, plan, is_sandbox, sandbox_expires_at, subscription_status, current_period_end, subscription_cancel_at_period_end",
     )
     .eq("id", user.id)
     .single();
@@ -62,5 +66,8 @@ export const getOwnerProfile = cache(async (): Promise<OwnerProfile> => {
     plan: data.plan === "pro" ? "pro" : "free",
     isSandbox: data.is_sandbox === true,
     sandboxExpiresAt: data.sandbox_expires_at,
+    subscriptionStatus: data.subscription_status,
+    currentPeriodEnd: data.current_period_end,
+    cancelAtPeriodEnd: data.subscription_cancel_at_period_end === true,
   };
 });

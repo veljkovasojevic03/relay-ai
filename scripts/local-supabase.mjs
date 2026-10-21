@@ -29,6 +29,12 @@ export function localSupabaseEnv() {
     SUPABASE_SERVICE_ROLE_KEY: status.SECRET_KEY ?? status.SERVICE_ROLE_KEY,
     SUPABASE_DB_URL: status.DB_URL,
     MAILPIT_URL: status.MAILPIT_URL ?? status.INBUCKET_URL,
+    // Like CI: no Turnstile (real keys only accept their own hostnames) and no Stripe.
+    NEXT_PUBLIC_TURNSTILE_SITE_KEY: "",
+    TURNSTILE_SECRET_KEY: "",
+    STRIPE_SECRET_KEY: "",
+    STRIPE_WEBHOOK_SECRET: "",
+    STRIPE_PRICE_PRO: "",
   };
 }
 

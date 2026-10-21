@@ -23,14 +23,14 @@ describe("selectMode", () => {
     });
   });
 
-  it("says honestly that Live isn't available yet", () => {
+  it("says honestly that Live isn't part of this build", () => {
     expect(selectMode({ ...base, liveImplemented: false })).toEqual({
       mode: "sample",
-      reason: "live_not_available_yet",
+      reason: "live_not_included",
     });
   });
 
-  it("ships with Live mode off until Phase 10", () => {
+  it("ships with Live mode off ($0 rule)", () => {
     expect(LIVE_MODE_IMPLEMENTED).toBe(false);
   });
 });

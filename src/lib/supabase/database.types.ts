@@ -492,6 +492,7 @@ export type Database = {
           sandbox_expires_at: string | null;
           stripe_customer_id: string | null;
           stripe_subscription_id: string | null;
+          subscription_cancel_at_period_end: boolean;
           subscription_status: string | null;
           ui_language: string;
           updated_at: string;
@@ -509,6 +510,7 @@ export type Database = {
           sandbox_expires_at?: string | null;
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
+          subscription_cancel_at_period_end?: boolean;
           subscription_status?: string | null;
           ui_language?: string;
           updated_at?: string;
@@ -525,6 +527,7 @@ export type Database = {
           sandbox_expires_at?: string | null;
           stripe_customer_id?: string | null;
           stripe_subscription_id?: string | null;
+          subscription_cancel_at_period_end?: boolean;
           subscription_status?: string | null;
           ui_language?: string;
           updated_at?: string;
@@ -764,6 +767,19 @@ export type Database = {
         Args: { p_error: string; p_event_id: string; p_status: string };
         Returns: Json;
       };
+      apply_stripe_subscription: {
+        Args: {
+          p_cancel_at_period_end: boolean;
+          p_current_period_end: string;
+          p_customer_id: string;
+          p_event_id: string;
+          p_event_type: string;
+          p_profile_id?: string;
+          p_status: string;
+          p_subscription_id: string;
+        };
+        Returns: Json;
+      };
       bot_accepts_conversations: { Args: { p_bot_id: string }; Returns: boolean };
       check_rate_limit: {
         Args: { p_key: string; p_limit: number; p_window_seconds: number };
@@ -794,6 +810,10 @@ export type Database = {
       digest_stats: { Args: { p_since: string }; Returns: Json };
       health_check: { Args: Record<PropertyKey, never>; Returns: string };
       is_valid_origin_list: { Args: { origins: string[] }; Returns: boolean };
+      link_stripe_customer: {
+        Args: { p_customer_id: string; p_profile_id: string };
+        Returns: string;
+      };
       match_faqs: {
         Args: {
           p_bot_id: string;
@@ -816,12 +836,14 @@ export type Database = {
           vector_rank: number;
         }[];
       };
+      my_usage: { Args: Record<PropertyKey, never>; Returns: Json };
       owner_reply: {
         Args: { p_content: string; p_conversation_id: string; p_reply_email: Json };
         Returns: Json;
       };
       plan_bot_limit: { Args: { p_plan: string }; Returns: number };
       plan_conversation_limit: { Args: { p_plan: string }; Returns: number };
+      plan_for_subscription_status: { Args: { p_status: string }; Returns: string };
       purge_expired_data: { Args: Record<PropertyKey, never>; Returns: Json };
       record_bot_reply: {
         Args: {

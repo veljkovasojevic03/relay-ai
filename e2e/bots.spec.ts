@@ -186,6 +186,7 @@ test.describe("bots", () => {
         `${bot}/playground`,
         "/en/dashboard/bots",
         "/en/dashboard",
+        "/en/dashboard/billing",
       ]) {
         await page.goto(path);
         await expect(page.getByRole("heading", { level: 1 })).toBeVisible();

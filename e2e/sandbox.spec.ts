@@ -36,6 +36,9 @@ test.describe("sandbox", () => {
     await page.getByRole("link", { name: "Knowledge" }).click();
     await expect(page.getByText("How long does delivery take?")).toBeVisible();
 
+    await page.goto("/en/dashboard/billing");
+    await expect(page.getByText("Billing is off in the sandbox.", { exact: false })).toBeVisible();
+
     // Ending the sandbox deletes the account right away.
     const { data: before } = await admin()
       .from("profiles")

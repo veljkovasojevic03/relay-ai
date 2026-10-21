@@ -11,6 +11,7 @@ import { getInboxCounts } from "@/lib/inbox/queries";
 import { DashboardNav } from "./dashboard-nav";
 import { DashboardSkeleton } from "./dashboard-skeleton";
 import { SandboxBanner } from "./sandbox-banner";
+import { UsageBanner } from "./usage-banner";
 import { UserMenu } from "./user-menu";
 
 /**
@@ -53,6 +54,9 @@ export default function DashboardLayout({ children }: LayoutProps<"/[locale]/das
         <main className="min-w-0">
           <Suspense fallback={null}>
             <SandboxBanner />
+          </Suspense>
+          <Suspense fallback={null}>
+            <UsageBanner />
           </Suspense>
           <Suspense fallback={<DashboardSkeleton />}>
             <AuthGate>{children}</AuthGate>

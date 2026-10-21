@@ -68,9 +68,12 @@ export default async function DashboardOverview() {
           </h1>
           <p className="text-muted-foreground">{t("lead")}</p>
         </div>
-        <p className="rounded-full bg-accent px-3 py-1 text-sm font-medium text-accent-foreground">
+        <Link
+          href="/dashboard/billing"
+          className="rounded-full bg-accent px-3 py-1 text-sm font-medium text-accent-foreground underline-offset-4 hover:underline"
+        >
           {t("plan")}: {t(`plans.${profile.plan}`)}
-        </p>
+        </Link>
       </div>
 
       <section aria-labelledby="next-steps" className="grid gap-3">

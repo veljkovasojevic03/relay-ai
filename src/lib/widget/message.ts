@@ -168,7 +168,7 @@ export async function handleMessage(request: Request, deps: MessageDeps): Promis
   const env = serverEnv();
   const mode = selectMode({
     hasApiKey: hasLiveLlm(env),
-    // Live replies aren't counted until Live mode exists (Phase 10).
+    // No Live engine is built (Phase 10 skipped), so there are no Live replies to count.
     liveMessagesToday: 0,
     dailyCap: env.DAILY_REAL_MESSAGE_CAP,
     liveImplemented: LIVE_MODE_IMPLEMENTED,

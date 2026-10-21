@@ -143,7 +143,8 @@
       "inbox": "Inbox",
       "unread": "{count} unread",
       "events": "Event log",
-      "analytics": "Analytics"
+      "analytics": "Analytics",
+      "billing": "Plan & billing"
     },
     "signOut": "Sign out",
     "loading": "Loading your dashboard…",
@@ -717,6 +718,63 @@
         "waking": "The demo is waking up: its free database sleeps after a quiet week. Try again in a minute.",
         "retry": "Try again"
       }
+    }
+  },
+  "Billing": {
+    "metaTitle": "Plan & billing",
+    "title": "Plan & billing",
+    "subtitle": "Your plan, this month's usage, and upgrades.",
+    "testMode": "Demo — test mode, no real charges",
+    "usage": {
+      "title": "This month on {plan}",
+      "resets": "Resets on {date}",
+      "conversations": "Conversations",
+      "bots": "Bots",
+      "of": "{used} of {limit}",
+      "botsOver": "You have more bots than this plan allows. They keep working, but you can't add new ones."
+    },
+    "subscription": {
+      "renews": "Your Pro subscription renews on {date}.",
+      "ends": "Your Pro subscription is cancelled and ends on {date}. You keep Pro until then.",
+      "ended": "Your Pro subscription has ended.",
+      "pastDue": "Your last payment didn't go through. Stripe will try again; update your card under \"Manage subscription\"."
+    },
+    "plansTitle": "Plans",
+    "current": "Your plan",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "$0, forever"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "$19 a month (test mode)"
+      },
+      "bots": "{count, plural, one {# bot} other {# bots}}",
+      "conversations": "{count, plural, one {# conversation} other {# conversations}} a month",
+      "everything": "FAQ answers, handoff, inbox, actions and analytics"
+    },
+    "upgrade": "Upgrade to Pro",
+    "manage": "Manage subscription",
+    "invoices": "See past invoices",
+    "testCard": "Stripe test mode: pay with card 4242 4242 4242 4242, any future date and any CVC. No money moves.",
+    "checkout": {
+      "pending": "Thanks! Your plan switches to Pro as soon as Stripe confirms the payment, usually within seconds. Refresh this page in a moment.",
+      "active": "Thanks! You're on Pro now.",
+      "cancelled": "Checkout cancelled. Nothing was charged."
+    },
+    "errors": {
+      "notConfigured": "Billing isn't set up on this deployment.",
+      "sandbox": "Billing is off in the sandbox. Create an account to try upgrading.",
+      "rateLimited": "Too many attempts. Please wait a few minutes.",
+      "stripe": "Stripe couldn't be reached. Please try again in a moment.",
+      "noCustomer": "There's no subscription to manage yet."
+    },
+    "banner": {
+      "label": "Monthly limit",
+      "near": "You've used {used} of {limit} conversations this month. The counter resets on {date}.",
+      "reached": "You've used all {limit} conversations this month. Until {date}, visitors see \"chat unavailable\" instead of your bot.",
+      "upgrade": "See plans"
     }
   }
 }

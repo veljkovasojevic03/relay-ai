@@ -143,7 +143,8 @@
       "inbox": "Prijemno sanduče",
       "unread": "{count} nepročitano",
       "events": "Event log",
-      "analytics": "Analitika"
+      "analytics": "Analitika",
+      "billing": "Plan i naplata"
     },
     "signOut": "Odjavi se",
     "loading": "Učitavam kontrolnu tablu…",
@@ -717,6 +718,63 @@
         "waking": "Demo se budi: njegova besplatna baza spava posle mirne nedelje. Pokušaj ponovo za minut.",
         "retry": "Pokušaj ponovo"
       }
+    }
+  },
+  "Billing": {
+    "metaTitle": "Plan i naplata",
+    "title": "Plan i naplata",
+    "subtitle": "Tvoj plan, potrošnja ovog meseca i nadogradnja.",
+    "testMode": "Demo — test režim, bez pravih naplata",
+    "usage": {
+      "title": "Ovog meseca na planu {plan}",
+      "resets": "Brojač kreće ispočetka {date}",
+      "conversations": "Razgovori",
+      "bots": "Botovi",
+      "of": "{used} od {limit}",
+      "botsOver": "Imaš više botova nego što ovaj plan dozvoljava. Nastavljaju da rade, ali ne možeš da dodaš nove."
+    },
+    "subscription": {
+      "renews": "Pro pretplata se obnavlja {date}.",
+      "ends": "Pro pretplata je otkazana i ističe {date}. Do tada ostaješ na Pro planu.",
+      "ended": "Pro pretplata je istekla.",
+      "pastDue": "Poslednja uplata nije prošla. Stripe će pokušati ponovo; promeni karticu pod „Upravljaj pretplatom“."
+    },
+    "plansTitle": "Planovi",
+    "current": "Tvoj plan",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "0 $, zauvek"
+      },
+      "pro": {
+        "name": "Pro",
+        "price": "19 $ mesečno (test režim)"
+      },
+      "bots": "{count, plural, one {# bot} few {# bota} other {# botova}}",
+      "conversations": "{count, plural, one {# razgovor} few {# razgovora} other {# razgovora}} mesečno",
+      "everything": "FAQ odgovori, predaja osobi, inboks, akcije i analitika"
+    },
+    "upgrade": "Pređi na Pro",
+    "manage": "Upravljaj pretplatom",
+    "invoices": "Pogledaj ranije račune",
+    "testCard": "Stripe test režim: plati karticom 4242 4242 4242 4242, bilo kojim budućim datumom i bilo kojim CVC-om. Novac se ne prenosi.",
+    "checkout": {
+      "pending": "Hvala! Plan prelazi na Pro čim Stripe potvrdi uplatu, obično za nekoliko sekundi. Osveži stranicu za trenutak.",
+      "active": "Hvala! Sada si na Pro planu.",
+      "cancelled": "Plaćanje je otkazano. Ništa nije naplaćeno."
+    },
+    "errors": {
+      "notConfigured": "Naplata nije podešena na ovoj instalaciji.",
+      "sandbox": "Naplata je isključena u sandboxu. Napravi nalog da isprobaš nadogradnju.",
+      "rateLimited": "Previše pokušaja. Sačekaj nekoliko minuta.",
+      "stripe": "Stripe trenutno nije dostupan. Pokušaj ponovo za trenutak.",
+      "noCustomer": "Još nema pretplate kojom bi se upravljalo."
+    },
+    "banner": {
+      "label": "Mesečni limit",
+      "near": "Ovog meseca je iskorišćeno {used} od {limit} razgovora. Brojač kreće ispočetka {date}.",
+      "reached": "Iskorišćeno je svih {limit} razgovora ovog meseca. Do {date} posetioci vide „čet nije dostupan“ umesto tvog bota.",
+      "upgrade": "Pogledaj planove"
     }
   }
 }
