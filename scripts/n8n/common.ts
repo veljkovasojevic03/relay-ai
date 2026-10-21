@@ -65,14 +65,21 @@ const NASTY = '<script>alert("x")</script> & <b>bold</b>\nBcc: victim@example.co
 
 export function sampleEvent(
   type: SampleType,
-  opts: { to: string; appUrl: string; nasty: boolean; order: string; orderEmail: string },
+  opts: {
+    to: string;
+    appUrl: string;
+    nasty: boolean;
+    order: string;
+    orderEmail: string;
+    language: "en" | "sr";
+  },
 ): Envelope {
   const eventId = randomUUID();
   const conversationId = randomUUID();
   const text = (plain: string) => (opts.nasty ? `${plain} ${NASTY}` : plain);
   const parts = {
     bot: { id: randomUUID(), name: "Kroj Support" },
-    owner: { notificationEmail: opts.to, language: "sr" as const },
+    owner: { notificationEmail: opts.to, language: opts.language },
   };
   const data: Record<SampleType, Record<string, unknown>> = {
     escalation: {
@@ -98,7 +105,7 @@ export function sampleEvent(
       visitorEmail: opts.to,
       replyText: text("Broj 52 trenutno nemamo, ali stiže u ponedeljak.\nJavićemo ti se!"),
       shopName: "Kroj — moda i obuća",
-      language: "sr",
+      language: opts.language,
     },
     order_status: {
       actionRunId: randomUUID(),
@@ -137,6 +144,6 @@ export function parseArgs(argv: string[]) {
   return { flags, values, positional };
 }
 
-const VALUE_FLAGS = new Set(["to", "base", "app", "order", "email"]);
+const VALUE_FLAGS = new Set(["to", "base", "app", "order", "email", "lang"]);
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

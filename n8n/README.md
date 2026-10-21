@@ -75,6 +75,7 @@ pnpm n8n:send order_status --no-signature     # must be bad_request (400)
 pnpm n8n:send create_ticket --nasty --to you@gmail.com
 pnpm n8n:send escalation --to you@gmail.com   # also waits for the callback
 pnpm n8n:send reply_email --to you@gmail.com
+pnpm n8n:send reply_email --lang en           # English email
 pnpm n8n:verify                               # the app's callback rejection rules
 ```
 

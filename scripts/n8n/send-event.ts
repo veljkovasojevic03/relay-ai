@@ -7,6 +7,7 @@
  *   --stale           timestamp 10 minutes old (must be refused: stale_timestamp)
  *   --no-signature    leave out the signature header (must be refused: bad_request)
  *   --nasty           put <script>, & and a newline into visitor text (escaping test)
+ *   --lang en         English owner/visitor language (default sr)
  *   --test            use n8n's test URL (/webhook-test/...) instead of the production one
  *   --to <email>      owner / visitor email for the mails (default N8N_TEST_EMAIL)
  *   --order <no>      order number for order_status (default KR-10482)
@@ -60,6 +61,7 @@ async function main() {
     to,
     appUrl,
     nasty: flags.has("nasty"),
+    language: values.lang === "en" ? "en" : "sr",
     order: values.order ?? "KR-10482",
     orderEmail: values.email ?? "marko@example.com",
   });
