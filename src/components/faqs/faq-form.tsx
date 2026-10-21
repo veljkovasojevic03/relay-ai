@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { LANGUAGES, type Language } from "@/lib/bots/schema";
+import type { FaqDraft } from "@/lib/analytics/summary";
 import type { Faq } from "@/lib/faqs/queries";
 import { ANSWER_MAX, QUESTION_MAX } from "@/lib/faqs/schema";
 import { idle, type FormState } from "@/lib/forms";
@@ -21,13 +22,15 @@ import { idle, type FormState } from "@/lib/forms";
 type Props = {
   botId: string;
   faq?: Faq;
+  /** A new FAQ prefilled from an unknown question (Analytics → Add to FAQ). */
+  draft?: FaqDraft;
   defaultLanguage: Language;
   onDone: (state: FormState & { status: "success" }) => void;
   onCancel: () => void;
 };
 
 /** Create or edit one FAQ. Uncontrolled fields; values come back from the action on error. */
-export function FaqForm({ botId, faq, defaultLanguage, onDone, onCancel }: Props) {
+export function FaqForm({ botId, faq, draft, defaultLanguage, onDone, onCancel }: Props) {
   const t = useTranslations("Knowledge");
   const tLocale = useTranslations("Locale");
   const tErrors = useTranslations("Errors");
@@ -53,6 +56,7 @@ export function FaqForm({ botId, faq, defaultLanguage, onDone, onCancel }: Props
       <input type="hidden" name="locale" value={locale} />
       <input type="hidden" name="botId" value={botId} />
       {faq && <input type="hidden" name="faqId" value={faq.id} />}
+      {draft && <input type="hidden" name="unknownIds" value={draft.unknownIds.join(",")} />}
       <FormError error={state.status === "error" ? state.error : undefined} />
 
       <FormField
@@ -60,7 +64,7 @@ export function FaqForm({ botId, faq, defaultLanguage, onDone, onCancel }: Props
         name="question"
         required
         maxLength={QUESTION_MAX}
-        defaultValue={values?.question ?? faq?.question ?? ""}
+        defaultValue={values?.question ?? faq?.question ?? draft?.question ?? ""}
         hint={t("fields.questionHint")}
         error={errors?.question}
         autoFocus
@@ -74,7 +78,7 @@ export function FaqForm({ botId, faq, defaultLanguage, onDone, onCancel }: Props
           required
           rows={4}
           maxLength={ANSWER_MAX}
-          defaultValue={values?.answer ?? faq?.answer ?? ""}
+          defaultValue={values?.answer ?? faq?.answer ?? draft?.answer ?? ""}
           aria-invalid={errors?.answer ? true : undefined}
           aria-describedby={`${ids.answer}-hint`}
         />
@@ -93,7 +97,7 @@ export function FaqForm({ botId, faq, defaultLanguage, onDone, onCancel }: Props
           <select
             id={ids.language}
             name="language"
-            defaultValue={values?.language ?? faq?.language ?? defaultLanguage}
+            defaultValue={values?.language ?? faq?.language ?? draft?.language ?? defaultLanguage}
             className="h-9 w-fit rounded-md border border-input bg-card px-3 text-sm"
           >
             {LANGUAGES.map((l) => (

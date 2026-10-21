@@ -64,9 +64,29 @@ export async function createFaqAction(_prev: FormState, formData: FormData): Pro
     return { status: "error", error: "generic", values };
   }
 
+  await markUnknownAdded(supabase, botId, values.unknownIds);
   const result = await indexFaqs(botId, [data.id]);
   refresh();
   return { status: "success", values: { action: "created", outcome: embeddingOutcome(result) } };
+}
+
+const unknownIds = z.array(uuid).max(300);
+
+/**
+ * An FAQ created from Analytics answers these unknown questions: they leave the open list.
+ * RLS (and the bot filter) keep it to this owner's own rows.
+ */
+async function markUnknownAdded(supabase: OwnerClient, botId: string, raw: string | undefined) {
+  const ids = unknownIds.safeParse(raw ? raw.split(",") : []);
+  if (!ids.success || ids.data.length === 0) return;
+  const { error } = await supabase
+    .from("unknown_questions")
+    .update({ status: "added" })
+    .eq("bot_id", botId)
+    .eq("status", "open")
+    .in("id", ids.data);
+  if (error) log.error("unknown.mark_added_failed", { code: error.code });
+  revalidatePath("/[locale]/dashboard/analytics", "page");
 }
 
 export async function updateFaqAction(_prev: FormState, formData: FormData): Promise<FormState> {

@@ -144,6 +144,6 @@ export function parseArgs(argv: string[]) {
   return { flags, values, positional };
 }
 
-const VALUE_FLAGS = new Set(["to", "base", "app", "order", "email", "lang"]);
+const VALUE_FLAGS = new Set(["to", "base", "app", "order", "email", "lang", "days"]);
 
 export const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));

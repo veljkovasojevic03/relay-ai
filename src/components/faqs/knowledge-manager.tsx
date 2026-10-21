@@ -25,6 +25,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { LANGUAGES, type Language } from "@/lib/bots/schema";
+import type { FaqDraft } from "@/lib/analytics/summary";
 import type { EmbeddingStatus, Faq } from "@/lib/faqs/queries";
 import { idle, type FormState } from "@/lib/forms";
 import { cn } from "@/lib/utils";
@@ -32,7 +33,7 @@ import { cn } from "@/lib/utils";
 import { FaqForm } from "./faq-form";
 import { FaqImport } from "./faq-import";
 
-type Props = { botId: string; defaultLanguage: Language; faqs: Faq[] };
+type Props = { botId: string; defaultLanguage: Language; faqs: Faq[]; draft?: FaqDraft | null };
 type Panel = "none" | "add" | "import";
 type Filter = "all" | Language;
 type NoticeKey =
@@ -82,10 +83,12 @@ function useReportingAction(action: Action, onDone: (state: FormState) => void) 
   return [state, dispatch] as const;
 }
 
-export function KnowledgeManager({ botId, defaultLanguage, faqs }: Props) {
+export function KnowledgeManager({ botId, defaultLanguage, faqs, draft }: Props) {
   const t = useTranslations("Knowledge");
   const tLocale = useTranslations("Locale");
-  const [panel, setPanel] = useState<Panel>("none");
+  // Coming from Analytics → Add to FAQ: the prefilled form is open.
+  const [panel, setPanel] = useState<Panel>(draft ? "add" : "none");
+  const [usedDraft, setUsedDraft] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [filter, setFilter] = useState<Filter>("all");
   const [notice, setNotice] = useState<Notice>(null);
@@ -94,10 +97,12 @@ export function KnowledgeManager({ botId, defaultLanguage, faqs }: Props) {
     setNotice(noticeFrom(state));
     setPanel("none");
     setEditing(null);
+    setUsedDraft(true);
   }, []);
   const close = useCallback(() => {
     setPanel("none");
     setEditing(null);
+    setUsedDraft(true);
   }, []);
   const starters = useReportingAction(addStarterFaqsAction, done);
   const remove = useReportingAction(deleteFaqAction, done);
@@ -154,7 +159,13 @@ export function KnowledgeManager({ botId, defaultLanguage, faqs }: Props) {
 
       {panel === "add" && (
         <Panel title={t("add")}>
-          <FaqForm botId={botId} defaultLanguage={defaultLanguage} onDone={done} onCancel={close} />
+          <FaqForm
+            botId={botId}
+            draft={usedDraft ? undefined : (draft ?? undefined)}
+            defaultLanguage={defaultLanguage}
+            onDone={done}
+            onCancel={close}
+          />
         </Panel>
       )}
       {panel === "import" && (

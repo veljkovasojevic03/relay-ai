@@ -759,6 +759,7 @@ export type Database = {
         };
         Returns: Json;
       };
+      analytics_summary: { Args: { p_bot_id?: string; p_days?: number }; Returns: Json };
       apply_n8n_callback: {
         Args: { p_error: string; p_event_id: string; p_status: string };
         Returns: Json;

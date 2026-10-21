@@ -37,8 +37,15 @@ export default async function DashboardOverview() {
         <StepLink href="/dashboard/bots/new">{t("start")}</StepLink>
       ),
     },
-    // FAQ editing arrives with the knowledge base (Phase 3).
-    { icon: BookOpenText, label: t("next.faq"), status: t("comingNext") },
+    {
+      icon: BookOpenText,
+      label: t("next.faq"),
+      status: firstBot ? (
+        <StepLink href={`/dashboard/bots/${firstBot.id}/knowledge`}>{t("open")}</StepLink>
+      ) : (
+        t("afterBot")
+      ),
+    },
     {
       icon: Code,
       label: t("next.embed"),

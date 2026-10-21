@@ -30,6 +30,7 @@ export async function updateProfileAction(
       display_name: parsed.data.displayName,
       ui_language: parsed.data.uiLanguage,
       notification_email: parsed.data.notificationEmail,
+      weekly_digest: parsed.data.weeklyDigest,
     })
     .eq("id", user.id);
   if (error) {

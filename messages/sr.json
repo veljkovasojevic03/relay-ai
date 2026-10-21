@@ -135,7 +135,8 @@
       "bots": "Botovi",
       "inbox": "Prijemno sanduče",
       "unread": "{count} nepročitano",
-      "events": "Event log"
+      "events": "Event log",
+      "analytics": "Analitika"
     },
     "signOut": "Odjavi se",
     "loading": "Učitavam kontrolnu tablu…",
@@ -160,7 +161,6 @@
         "faq": "Dodaj pitanja koja kupci najčešće postavljaju",
         "embed": "Nalepi jedan script tag na svoju prodavnicu"
       },
-      "comingNext": "Stiže u sledećem ažuriranju",
       "accountLink": "Proveri podatke naloga",
       "done": "Gotovo",
       "start": "Počni ovde",
@@ -179,7 +179,9 @@
     "notificationHint": "Ovde stižu obaveštenja kad razgovor pređe na tebe. Na početku je to tvoj email za prijavu.",
     "plan": "Plan",
     "save": "Sačuvaj izmene",
-    "saved": "Sačuvano."
+    "saved": "Sačuvano.",
+    "weeklyDigest": "Nedeljni izveštaj mejlom",
+    "weeklyDigestHint": "Svakog ponedeljka ujutru: razgovori, koliko je bot rešio sam i najčešća pitanja bez odgovora."
   },
   "Bots": {
     "metaTitle": "Botovi",
@@ -555,5 +557,54 @@
     "lastError": "Poslednja greška: {error}",
     "empty": "Još nema događaja. Pojavljuju se kad se čet prebaci tebi, kad odgovoriš posetiocu koji je otišao ili kad se pokrene akcija.",
     "emptyFiltered": "Nema događaja sa ovim statusom."
+  },
+  "Analytics": {
+    "metaTitle": "Analitika",
+    "title": "Analitika",
+    "subtitle": "Kako tvoj bot radi i pitanja na koja još nema odgovor.",
+    "noBots": "Prvo napravi bota. Njegovi razgovori se prikazuju ovde.",
+    "createBot": "Napravi bota",
+    "filters": {
+      "bot": "Bot",
+      "allBots": "Svi botovi",
+      "range": "Period",
+      "days": "{days} dana"
+    },
+    "stats": {
+      "conversations": "Razgovori",
+      "resolvedByBot": "Bot rešio sam",
+      "handedOff": "{count, plural, =0 {Nijedan nije prebačen tebi} one {# prebačen tebi} few {# prebačena tebi} other {# prebačeno tebi}}",
+      "firstResponse": "Prosečan prvi odgovor",
+      "seconds": "{value} s",
+      "thumbsUp": "Ocenjeno kao korisno",
+      "ratings": "{up} 👍 · {down} 👎",
+      "noRatings": "Još nema ocena"
+    },
+    "chart": {
+      "title": "Razgovori po danu",
+      "subtitle": "Poslednjih {days} dana, {bot}. Dani po UTC vremenu.",
+      "byBot": "Odgovorio bot",
+      "handedOff": "Prebačeno tebi",
+      "day": "Dan",
+      "table": "Prikaži kao tabelu",
+      "caption": "Razgovori po danu: koje je bot rešio sam i koji su prebačeni tebi",
+      "empty": "U ovom periodu još nema razgovora. Pojaviće se čim posetioci počnu da pišu.",
+      "allBots": "svi botovi"
+    },
+    "unknown": {
+      "title": "Pitanja na koja bot nije znao odgovor",
+      "subtitle": "Pretvori ih u FAQ, da bot sledeći put zna. Ako si kupcu odgovorio sam, tvoj odgovor je nacrt.",
+      "asked": "{count, plural, one {Pitano # put} few {Pitano # puta} other {Pitano # puta}}",
+      "source": {
+        "human_reply": "Nacrt iz tvog odgovora",
+        "ai": "Predloženi nacrt",
+        "none": "Nacrt"
+      },
+      "noDraft": "Još nema nacrta: odgovor ćeš napisati u FAQ formi.",
+      "add": "Dodaj u FAQ",
+      "dismiss": "Odbaci",
+      "dismissLabel": "Odbaci „{question}“",
+      "empty": "Ništa ovde: bot je do sada imao odgovor na sve."
+    }
   }
 }

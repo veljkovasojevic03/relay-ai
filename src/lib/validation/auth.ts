@@ -53,4 +53,9 @@ export const profileSchema = z.object({
   displayName,
   uiLanguage: z.enum(["en", "sr"], { error: "required" }),
   notificationEmail: email,
+  // A checkbox: present ("on") when ticked, absent otherwise.
+  weeklyDigest: z
+    .string()
+    .optional()
+    .transform((v) => v === "on"),
 });

@@ -50,7 +50,21 @@ describe("auth schemas", () => {
   it("validates the profile form", () => {
     expect(
       profileSchema.parse({ displayName: "", uiLanguage: "sr", notificationEmail: "x@y.rs" }),
-    ).toEqual({ displayName: null, uiLanguage: "sr", notificationEmail: "x@y.rs" });
+    ).toEqual({
+      displayName: null,
+      uiLanguage: "sr",
+      notificationEmail: "x@y.rs",
+      weeklyDigest: false,
+    });
+    // The digest checkbox sends "on" only when ticked.
+    expect(
+      profileSchema.parse({
+        displayName: "",
+        uiLanguage: "en",
+        notificationEmail: "x@y.rs",
+        weeklyDigest: "on",
+      }).weeklyDigest,
+    ).toBe(true);
     expect(
       errorsOf(profileSchema, {
         displayName: "n".repeat(81),

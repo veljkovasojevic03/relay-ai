@@ -17,6 +17,7 @@ export function AccountForm({ profile }: { profile: OwnerProfile }) {
   const t = useTranslations();
   const locale = useLocale();
   const languageId = useId();
+  const digestId = useId();
   const [state, action] = useActionState(updateProfileAction, idle);
   const errors = state.status === "error" ? state.fieldErrors : undefined;
   // After an error, show what the owner typed; otherwise the saved profile.
@@ -59,6 +60,22 @@ export function AccountForm({ profile }: { profile: OwnerProfile }) {
         defaultValue={values?.notificationEmail ?? profile.notificationEmail ?? ""}
         error={errors?.notificationEmail}
       />
+      <div className="flex items-start gap-3">
+        <input
+          id={digestId}
+          type="checkbox"
+          name="weeklyDigest"
+          defaultChecked={values ? values.weeklyDigest === "on" : profile.weeklyDigest}
+          aria-describedby={`${digestId}-hint`}
+          className="mt-0.5 size-4 accent-primary"
+        />
+        <div className="grid gap-1">
+          <Label htmlFor={digestId}>{t("Account.weeklyDigest")}</Label>
+          <p id={`${digestId}-hint`} className="text-sm text-muted-foreground">
+            {t("Account.weeklyDigestHint")}
+          </p>
+        </div>
+      </div>
       <div className="flex items-center gap-4">
         <SubmitButton>{t("Account.save")}</SubmitButton>
         {state.status === "success" && <FormSuccess>{t("Account.saved")}</FormSuccess>}

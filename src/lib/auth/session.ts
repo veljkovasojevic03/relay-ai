@@ -35,6 +35,8 @@ export type OwnerProfile = {
   displayName: string | null;
   uiLanguage: "en" | "sr";
   notificationEmail: string | null;
+  /** Weekly numbers by email, sent by n8n (spec §4.8 digest). */
+  weeklyDigest: boolean;
   plan: "free" | "pro";
 };
 
@@ -43,7 +45,7 @@ export const getOwnerProfile = cache(async (): Promise<OwnerProfile> => {
   const supabase = (await createSupabaseServerClient())!;
   const { data, error } = await supabase
     .from("profiles")
-    .select("display_name, ui_language, notification_email, plan")
+    .select("display_name, ui_language, notification_email, weekly_digest, plan")
     .eq("id", user.id)
     .single();
   if (error) throw new Error("Could not load profile");
@@ -51,6 +53,7 @@ export const getOwnerProfile = cache(async (): Promise<OwnerProfile> => {
     displayName: data.display_name,
     uiLanguage: data.ui_language === "sr" ? "sr" : "en",
     notificationEmail: data.notification_email,
+    weeklyDigest: data.weekly_digest === true,
     plan: data.plan === "pro" ? "pro" : "free",
   };
 });

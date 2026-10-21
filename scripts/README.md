@@ -10,4 +10,6 @@ Developer scripts run through `pnpm` (TypeScript via `tsx`):
 - `n8n/verify.ts` → `pnpm n8n:verify`: the app's callback endpoint against its rejection rules
 - `demo/mark-demo-bot.ts` → `pnpm demo:mark-bot <public_key>`: lets one of your bots offer
   `order_status` before Phase 9 seeds the real demo bot
+- `demo/seed-analytics.ts` → `pnpm demo:seed-analytics <public_key> [--days 30] [--clear]`:
+  30 days of plausible conversation history for Analytics (removable with `--clear`)
 - later: the adversarial eval (**Phase 10**)

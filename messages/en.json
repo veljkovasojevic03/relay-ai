@@ -135,7 +135,8 @@
       "bots": "Bots",
       "inbox": "Inbox",
       "unread": "{count} unread",
-      "events": "Event log"
+      "events": "Event log",
+      "analytics": "Analytics"
     },
     "signOut": "Sign out",
     "loading": "Loading your dashboard…",
@@ -160,7 +161,6 @@
         "faq": "Add the questions your customers ask most",
         "embed": "Paste one script tag on your shop"
       },
-      "comingNext": "Coming in the next update",
       "accountLink": "Review your account details",
       "done": "Done",
       "start": "Start here",
@@ -179,7 +179,9 @@
     "notificationHint": "Handoff alerts go here. It starts as your sign-in email.",
     "plan": "Plan",
     "save": "Save changes",
-    "saved": "Saved."
+    "saved": "Saved.",
+    "weeklyDigest": "Weekly summary email",
+    "weeklyDigestHint": "Every Monday morning: conversations, how many the bot answered alone, and the top unanswered questions."
   },
   "Bots": {
     "metaTitle": "Bots",
@@ -555,5 +557,54 @@
     "lastError": "Last error: {error}",
     "empty": "No events yet. They appear when a chat is handed to you, when you reply to a visitor who left, or when an action runs.",
     "emptyFiltered": "No events with this status."
+  },
+  "Analytics": {
+    "metaTitle": "Analytics",
+    "title": "Analytics",
+    "subtitle": "How your bot is doing, and the questions it couldn't answer yet.",
+    "noBots": "Create a bot first. Its conversations show up here.",
+    "createBot": "Create your bot",
+    "filters": {
+      "bot": "Bot",
+      "allBots": "All bots",
+      "range": "Period",
+      "days": "{days} days"
+    },
+    "stats": {
+      "conversations": "Conversations",
+      "resolvedByBot": "Answered by the bot alone",
+      "handedOff": "{count, plural, =0 {None handed to you} one {# handed to you} other {# handed to you}}",
+      "firstResponse": "Average first response",
+      "seconds": "{value} s",
+      "thumbsUp": "Rated helpful",
+      "ratings": "{up} 👍 · {down} 👎",
+      "noRatings": "No ratings yet"
+    },
+    "chart": {
+      "title": "Conversations per day",
+      "subtitle": "Last {days} days, {bot}. Days in UTC.",
+      "byBot": "Answered by the bot",
+      "handedOff": "Handed to you",
+      "day": "Day",
+      "table": "Show as a table",
+      "caption": "Conversations per day: answered by the bot alone, and handed to you",
+      "empty": "No conversations in this period yet. They appear here as soon as visitors start chatting.",
+      "allBots": "all bots"
+    },
+    "unknown": {
+      "title": "Questions your bot couldn't answer",
+      "subtitle": "Turn them into FAQ entries so the bot knows next time. If you answered the customer yourself, your reply is the draft.",
+      "asked": "{count, plural, one {Asked once} other {Asked # times}}",
+      "source": {
+        "human_reply": "Draft from your reply",
+        "ai": "Suggested draft",
+        "none": "Draft"
+      },
+      "noDraft": "No draft yet: you'll write the answer in the FAQ form.",
+      "add": "Add to FAQ",
+      "dismiss": "Dismiss",
+      "dismissLabel": "Dismiss “{question}”",
+      "empty": "Nothing here: your bot had an answer for everything so far."
+    }
   }
 }

@@ -26,7 +26,8 @@
     "e2e:local": "node scripts/local-supabase.mjs -- pnpm build && node scripts/local-supabase.mjs -- pnpm test:e2e",
     "n8n:send": "tsx scripts/n8n/send-event.ts",
     "n8n:verify": "tsx scripts/n8n/verify.ts",
-    "demo:mark-bot": "tsx scripts/demo/mark-demo-bot.ts"
+    "demo:mark-bot": "tsx scripts/demo/mark-demo-bot.ts",
+    "demo:seed-analytics": "tsx scripts/demo/seed-analytics.ts"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",
@@ -39,6 +40,7 @@
     "radix-ui": "^1.8.1",
     "react": "19.3.0",
     "react-dom": "19.3.0",
+    "recharts": "^3.10.1",
     "server-only": "^0.0.1",
     "zod": "^4.6.7"
   },
