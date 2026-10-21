@@ -135,3 +135,32 @@
     }
   }
 }
+
+/*
+ * Landing page scroll reveals (src/components/landing/reveal.tsx). CSS scroll-driven
+ * animations: no JavaScript, and without support or with reduced motion the content is
+ * simply there.
+ */
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: view()) {
+    [data-reveal] {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 60%;
+    }
+    [data-reveal="late"] {
+      animation-range: entry 15% entry 75%;
+    }
+  }
+}

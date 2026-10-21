@@ -1,22 +1,28 @@
 import type { Metadata } from "next";
 import { hasLocale, NextIntlClientProvider } from "next-intl";
-import { getTranslations } from "next-intl/server";
+import { getMessages, getTranslations } from "next-intl/server";
 import { Fraunces, Instrument_Sans } from "next/font/google";
 import { notFound } from "next/navigation";
 
+import { PUBLIC_CLIENT_MESSAGES, pickMessages } from "@/i18n/client-messages";
 import { routing } from "@/i18n/routing";
+import { serverEnv } from "@/lib/env.server";
 
 import "../globals.css";
 
+// One static weight: every heading is semibold, and the variable font with its SOFT/opsz axes
+// cost ~220 KB of preloaded font on every page (Lighthouse mobile LCP, Phase 12).
+// `subsets` only picks what is preloaded: the latin-ext faces (č, ć, š, ž, đ) are still
+// declared and load on demand on Serbian pages.
 const display = Fraunces({
   variable: "--font-fraunces",
-  subsets: ["latin", "latin-ext"],
-  axes: ["SOFT", "opsz"],
+  subsets: ["latin"],
+  weight: "600",
 });
 
 const sans = Instrument_Sans({
   variable: "--font-instrument-sans",
-  subsets: ["latin", "latin-ext"],
+  subsets: ["latin"],
 });
 
 export function generateStaticParams() {
@@ -28,8 +34,16 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
   if (!hasLocale(routing.locales, locale)) return {};
   const t = await getTranslations({ locale, namespace: "Metadata" });
   return {
+    // Absolute URLs for the Open Graph image and links (spec Phase 12).
+    metadataBase: new URL(serverEnv().NEXT_PUBLIC_APP_URL),
     title: { default: t("title"), template: `%s · ${t("title")}` },
     description: t("description"),
+    openGraph: {
+      type: "website",
+      siteName: "Relay AI",
+      locale: locale === "sr" ? "sr_RS" : "en_US",
+    },
+    twitter: { card: "summary_large_image" },
   };
 }
 
@@ -40,7 +54,11 @@ export default async function LocaleLayout({ children, params }: LayoutProps<"/[
   return (
     <html lang={locale} className={`${display.variable} ${sans.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider
+          messages={pickMessages(await getMessages(), PUBLIC_CLIENT_MESSAGES)}
+        >
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

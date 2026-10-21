@@ -36,13 +36,12 @@ export const KROJ_BOT = {
     en: "Hi! I'm Kroj's assistant. Ask me about delivery, returns, sizes or your order.",
     sr: "Zdravo! Ja sam Krojev asistent. Pitaj me za dostavu, povraćaj, veličine ili porudžbinu.",
   },
+  // No "Track my order" here: the widget adds a chip for each enabled action itself.
   featuredQuestions: [
     { language: "en", text: "How long does delivery take?" },
     { language: "en", text: "How long do I have to return an item?" },
-    { language: "en", text: "Track my order" },
     { language: "sr", text: "Koliko traje dostava?" },
     { language: "sr", text: "Koji je rok za povraćaj robe?" },
-    { language: "sr", text: "Prati moju porudžbinu" },
   ] satisfies { language: Lang; text: string }[],
 } as const;
 

@@ -7,33 +7,144 @@
     "home": "Relay AI home",
     "language": "Language",
     "signIn": "Sign in",
-    "dashboard": "Dashboard"
+    "dashboard": "Dashboard",
+    "demo": "Demo store",
+    "pricing": "Pricing",
+    "signUp": "Sign up",
+    "nav": "Main"
   },
   "Locale": {
     "en": "English",
     "sr": "Srpski"
   },
   "Home": {
-    "badge": "Under construction",
-    "title": "Answers first. Humans when it matters.",
-    "lead": "Add your FAQ, paste one line of code on your shop, and your visitors get instant answers. When the bot doesn't know, the chat comes to you.",
-    "preview": {
-      "label": "Example conversation",
-      "visitor": "How long do I have to return shoes?",
-      "bot": "You can return unworn shoes within 14 days of delivery. The return label is in your parcel.",
-      "source": "Answered from: Returns policy",
-      "handoff": "Talk to a person"
-    },
-    "steps": {
-      "title": "How it works",
-      "faq": "Write your answers once",
-      "embed": "Paste one script tag",
-      "handoff": "Step in when it matters"
+    "hero": {
+      "eyebrow": "Support chat for small web shops",
+      "title": "Answers first. Humans when it matters.",
+      "lead": "Add your FAQ, paste one line of code on your shop, and visitors get instant answers in your own words. When the bot doesn't know, the chat comes to you.",
+      "demo": {
+        "shopTagline": "Demo store",
+        "caption": "This is the real chat on our demo shop. Ask it something, or try:",
+        "q1": "How much does shipping cost?",
+        "q2": "Track my order",
+        "q3": "Can I talk to a person?",
+        "greeting": "Hi! I'm Kroj's assistant. Ask me about delivery, returns, sizes or your order.",
+        "loading": "Loading the live chat…",
+        "failed": "The live chat is resting right now. The demo store has it too."
+      }
     },
     "cta": {
       "demo": "Open the demo store",
       "sandbox": "Explore the dashboard",
-      "note": "No sign-up needed for either."
+      "signup": "Sign up free",
+      "note": "No sign-up needed for the demo store or the dashboard tour."
+    },
+    "video": {
+      "title": "See it in two minutes"
+    },
+    "steps": {
+      "title": "How it works",
+      "lead": "Set it up in an afternoon. Change answers whenever you like.",
+      "faq": {
+        "title": "Write your answers once",
+        "text": "Add the questions your customers ask every day, or paste a whole list. In English, Serbian or both.",
+        "example1": "How long does delivery take?",
+        "example2": "Can I return sale items?",
+        "example3": "Do you ship abroad?"
+      },
+      "embed": {
+        "title": "Paste one line on your shop",
+        "text": "It works on any site where you can add a script. Only the websites you list can use your bot.",
+        "codeLabel": "The embed code"
+      },
+      "handoff": {
+        "title": "Step in when it matters",
+        "text": "When the bot isn't sure, or a visitor asks for a person, the chat lands in your inbox and you reply live.",
+        "question": "Do you have size 47?",
+        "reply": "I'm not sure, and I'd rather not guess. Shall I get a person?",
+        "you": "You"
+      }
+    },
+    "features": {
+      "title": "Made for a shop run by one person",
+      "lead": "Everything you need to stop answering the same questions, and nothing you have to babysit.",
+      "answers": {
+        "title": "Answers in your own words",
+        "text": "The bot replies with your FAQ text and shows which entry it used. If nothing fits, it says so and offers you instead of making something up."
+      },
+      "inbox": {
+        "title": "A live inbox",
+        "text": "Handed-off chats arrive in real time. Your reply appears in the visitor's chat, or reaches their email if they left one."
+      },
+      "actions": {
+        "title": "Orders and tickets",
+        "text": "Visitors can check an order or open a ticket right in the chat, always with a confirmation step first."
+      },
+      "languages": {
+        "title": "English and Serbian",
+        "text": "The dashboard, the chat and the answers work in both. The bot replies in the visitor's language."
+      },
+      "unknown": {
+        "title": "Learns what's missing",
+        "text": "Questions it couldn't answer are collected. Your reply becomes a ready-made FAQ draft."
+      },
+      "light": {
+        "title": "Light, isolated, private",
+        "text": "The chat is about 13 KB and lives in its own Shadow DOM, so your site's styles can't break it. The only thing it keeps in the visitor's browser is their own chat token."
+      }
+    },
+    "pricing": {
+      "title": "Simple plans",
+      "lead": "Start free. Upgrade when your shop needs more.",
+      "testMode": "Demo — test mode, no real charges",
+      "free": {
+        "name": "Free",
+        "for": "For trying it on your shop",
+        "price": "$0",
+        "per": "forever",
+        "cta": "Start free"
+      },
+      "pro": {
+        "name": "Pro",
+        "for": "For a busy shop",
+        "price": "$19",
+        "per": "a month",
+        "cta": "Start with Pro"
+      },
+      "bots": "{count, plural, one {# bot} other {# bots}}",
+      "conversations": "{count, plural, one {# conversation} other {# conversations}} a month",
+      "everything": "FAQ answers, live inbox, actions and analytics"
+    },
+    "faq": {
+      "title": "Questions you might have",
+      "credits": {
+        "q": "Do I need an AI subscription or API key?",
+        "a": "No. Relay finds the FAQ entry that matches the question by meaning and answers with your text, so there's nothing to pay per message."
+      },
+      "unknown": {
+        "q": "What happens when the bot doesn't know?",
+        "a": "It says so instead of guessing and offers a person. After two misses in a row it hands the chat to your inbox, and the question is saved so you can add it to your FAQ."
+      },
+      "platform": {
+        "q": "Will it work on my shop?",
+        "a": "If your shop lets you add a script tag to its pages, yes. You decide which websites may use your bot."
+      },
+      "data": {
+        "q": "What do you store about my visitors?",
+        "a": "Their messages, and their email only if they choose to leave it. IP addresses are stored only as a salted hash for rate limiting, and you can delete any conversation."
+      },
+      "try": {
+        "q": "Can I try it without signing up?",
+        "a": "Yes. Chat with the demo store, or open a sandbox dashboard with sample data. The sandbox is deleted after 7 days."
+      },
+      "billing": {
+        "q": "Is the Pro plan real?",
+        "a": "This is a portfolio project. Payments run in Stripe's test mode: upgrading uses a test card and nothing is ever charged."
+      }
+    },
+    "final": {
+      "title": "Try it on the demo shop, then make it yours.",
+      "lead": "Ask the demo bot a question, look around the dashboard, and add your own FAQ when you're ready."
     }
   },
   "Footer": {

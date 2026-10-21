@@ -53,10 +53,10 @@ toggles) uses `input` plus a label, and focus always uses `ring`.
 
 ## Typography
 
-| Role    | Family                    | Token          | Notes                                  |
-| ------- | ------------------------- | -------------- | -------------------------------------- |
-| Display | **Fraunces** (soft serif) | `font-display` | Headings, wordmark. `SOFT`/`opsz` axes |
-| UI/body | **Instrument Sans**       | `font-sans`    | Default for everything else            |
+| Role    | Family                    | Token          | Notes                                                         |
+| ------- | ------------------------- | -------------- | ------------------------------------------------------------- |
+| Display | **Fraunces** (soft serif) | `font-display` | Headings, wordmark. Static 600 only (see DECISIONS, Phase 12) |
+| UI/body | **Instrument Sans**       | `font-sans`    | Default for everything else                                   |
 
 Both load through `next/font/google` with `latin` + `latin-ext` (needed for č ć š ž đ).
 Scale: h1 `text-4xl → sm:text-6xl`, h2 `text-3xl`, body `text-base`/`text-lg` lead, captions

@@ -7,33 +7,144 @@
     "home": "Relay AI početna",
     "language": "Jezik",
     "signIn": "Prijava",
-    "dashboard": "Kontrolna tabla"
+    "dashboard": "Kontrolna tabla",
+    "demo": "Demo prodavnica",
+    "pricing": "Cene",
+    "signUp": "Registracija",
+    "nav": "Glavna navigacija"
   },
   "Locale": {
     "en": "English",
     "sr": "Srpski"
   },
   "Home": {
-    "badge": "U izradi",
-    "title": "Prvo odgovor. Čovek kad je bitno.",
-    "lead": "Dodaj česta pitanja, nalepi jednu liniju koda na svoju prodavnicu i posetioci odmah dobijaju odgovore. Kad bot ne zna, razgovor stiže do tebe.",
-    "preview": {
-      "label": "Primer razgovora",
-      "visitor": "Koliko imam vremena da vratim cipele?",
-      "bot": "Nenošene cipele možeš da vratiš u roku od 14 dana od isporuke. Nalepnica za povraćaj je u paketu.",
-      "source": "Odgovor iz: Pravila povraćaja",
-      "handoff": "Razgovaraj sa osobom"
-    },
-    "steps": {
-      "title": "Kako radi",
-      "faq": "Napiši odgovore jednom",
-      "embed": "Nalepi jedan script tag",
-      "handoff": "Uključi se kad je bitno"
+    "hero": {
+      "eyebrow": "Chat podrška za male online prodavnice",
+      "title": "Prvo odgovor. Čovek kad je bitno.",
+      "lead": "Dodaj svoja česta pitanja, nalepi jednu liniju koda na prodavnicu i posetioci dobijaju trenutne odgovore tvojim rečima. Kad bot ne zna, razgovor stiže tebi.",
+      "demo": {
+        "shopTagline": "Demo prodavnica",
+        "caption": "Ovo je pravi chat naše demo prodavnice. Pitaj ga nešto ili probaj:",
+        "q1": "Koliko košta dostava?",
+        "q2": "Prati moju porudžbinu",
+        "q3": "Mogu li da razgovaram sa osobom?",
+        "greeting": "Zdravo! Ja sam Krojev asistent. Pitaj me za dostavu, povraćaj, veličine ili porudžbinu.",
+        "loading": "Učitava se chat uživo…",
+        "failed": "Chat uživo se trenutno odmara. Imaš ga i u demo prodavnici."
+      }
     },
     "cta": {
       "demo": "Otvori demo prodavnicu",
       "sandbox": "Istraži kontrolnu tablu",
-      "note": "Ni za jedno ne treba registracija."
+      "signup": "Registruj se besplatno",
+      "note": "Za demo prodavnicu i obilazak kontrolne table ne treba registracija."
+    },
+    "video": {
+      "title": "Pogledaj za dva minuta"
+    },
+    "steps": {
+      "title": "Kako radi",
+      "lead": "Podesiš za jedno popodne. Odgovore menjaš kad god poželiš.",
+      "faq": {
+        "title": "Napiši odgovore jednom",
+        "text": "Dodaj pitanja koja kupci postavljaju svaki dan ili nalepi celu listu. Na engleskom, srpskom ili oba.",
+        "example1": "Koliko traje dostava?",
+        "example2": "Mogu li da vratim robu sa popusta?",
+        "example3": "Da li šaljete u inostranstvo?"
+      },
+      "embed": {
+        "title": "Nalepi jednu liniju na prodavnicu",
+        "text": "Radi na svakom sajtu na koji možeš da dodaš skriptu. Bota mogu da koriste samo sajtovi koje navedeš.",
+        "codeLabel": "Kod za ugradnju"
+      },
+      "handoff": {
+        "title": "Uključi se kad je bitno",
+        "text": "Kad bot nije siguran ili posetilac zatraži osobu, razgovor stiže u tvoj inboks i odgovaraš uživo.",
+        "question": "Imate li broj 47?",
+        "reply": "Nisam siguran i ne bih da nagađam. Da pozovem osobu?",
+        "you": "Ti"
+      }
+    },
+    "features": {
+      "title": "Napravljeno za prodavnicu koju vodi jedna osoba",
+      "lead": "Sve što ti treba da prestaneš da odgovaraš na ista pitanja, i ništa o čemu moraš stalno da brineš.",
+      "answers": {
+        "title": "Odgovori tvojim rečima",
+        "text": "Bot odgovara tekstom iz tvojih čestih pitanja i pokazuje koji je unos koristio. Ako ništa ne odgovara, kaže to i nudi tebe umesto da izmišlja."
+      },
+      "inbox": {
+        "title": "Inboks uživo",
+        "text": "Predati razgovori stižu u realnom vremenu. Tvoj odgovor se pojavljuje u chatu posetioca ili stiže na njegov email ako ga je ostavio."
+      },
+      "actions": {
+        "title": "Porudžbine i tiketi",
+        "text": "Posetioci mogu da provere porudžbinu ili otvore tiket u samom chatu, uvek uz korak potvrde."
+      },
+      "languages": {
+        "title": "Engleski i srpski",
+        "text": "Kontrolna tabla, chat i odgovori rade na oba jezika. Bot odgovara na jeziku posetioca."
+      },
+      "unknown": {
+        "title": "Uči šta nedostaje",
+        "text": "Pitanja na koja nije znao da odgovori se sakupljaju. Tvoj odgovor postaje gotov nacrt za FAQ."
+      },
+      "light": {
+        "title": "Lagan, izolovan, privatan",
+        "text": "Chat ima oko 13 KB i živi u sopstvenom Shadow DOM-u, pa stilovi tvog sajta ne mogu da ga pokvare. U browseru posetioca čuva samo njegov token razgovora."
+      }
+    },
+    "pricing": {
+      "title": "Jednostavni planovi",
+      "lead": "Počni besplatno. Pređi na veći plan kad prodavnici zatreba.",
+      "testMode": "Demo — test režim, bez pravih naplata",
+      "free": {
+        "name": "Free",
+        "for": "Za isprobavanje na tvojoj prodavnici",
+        "price": "0 $",
+        "per": "zauvek",
+        "cta": "Počni besplatno"
+      },
+      "pro": {
+        "name": "Pro",
+        "for": "Za prodavnicu sa puno posla",
+        "price": "19 $",
+        "per": "mesečno",
+        "cta": "Počni sa Pro planom"
+      },
+      "bots": "{count, plural, one {# bot} few {# bota} other {# botova}}",
+      "conversations": "{count, plural, one {# razgovor} few {# razgovora} other {# razgovora}} mesečno",
+      "everything": "FAQ odgovori, inboks uživo, akcije i analitika"
+    },
+    "faq": {
+      "title": "Pitanja koja možda imaš",
+      "credits": {
+        "q": "Da li mi treba AI pretplata ili API ključ?",
+        "a": "Ne. Relay po značenju pronalazi unos iz čestih pitanja koji odgovara pitanju i odgovara tvojim tekstom, pa nema plaćanja po poruci."
+      },
+      "unknown": {
+        "q": "Šta se dešava kad bot ne zna?",
+        "a": "Kaže to umesto da nagađa i nudi osobu. Posle dva promašaja zaredom predaje razgovor u tvoj inboks, a pitanje se čuva da ga dodaš u česta pitanja."
+      },
+      "platform": {
+        "q": "Da li radi na mojoj prodavnici?",
+        "a": "Ako ti prodavnica dozvoljava da dodaš script tag na stranice, radi. Ti biraš koji sajtovi smeju da koriste tvog bota."
+      },
+      "data": {
+        "q": "Šta čuvate o mojim posetiocima?",
+        "a": "Njihove poruke, a email samo ako ga sami ostave. IP adrese se čuvaju samo kao hash sa solju, za ograničavanje broja zahteva, a svaki razgovor možeš da obrišeš."
+      },
+      "try": {
+        "q": "Mogu li da probam bez registracije?",
+        "a": "Možeš. Razgovaraj sa demo prodavnicom ili otvori sandbox kontrolnu tablu sa primer podacima. Sandbox se briše posle 7 dana."
+      },
+      "billing": {
+        "q": "Da li je Pro plan pravi?",
+        "a": "Ovo je portfolio projekat. Plaćanja rade u Stripe test režimu: nadogradnja koristi test karticu i ništa se nikad ne naplaćuje."
+      }
+    },
+    "final": {
+      "title": "Probaj na demo prodavnici, pa napravi svoj.",
+      "lead": "Postavi pitanje demo botu, razgledaj kontrolnu tablu i dodaj svoja česta pitanja kad ti odgovara."
     }
   },
   "Footer": {

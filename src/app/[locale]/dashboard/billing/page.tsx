@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { asLocale } from "@/i18n/routing";
 import { getOwnerProfile } from "@/lib/auth/session";
+import { PLANS } from "@/lib/billing/plans";
 import { getUsage, periodResetsAt, type Usage } from "@/lib/billing/usage";
 import { hasStripe } from "@/lib/env";
 import { serverEnv } from "@/lib/env.server";
@@ -22,10 +23,6 @@ export async function generateMetadata({
 }
 
 const ERRORS = ["notConfigured", "sandbox", "rateLimited", "stripe", "noCustomer"] as const;
-const PLANS = {
-  free: { bots: 1, conversations: 50 },
-  pro: { bots: 3, conversations: 1000 },
-} as const;
 
 /** Plan, usage and Stripe test-mode Checkout/Portal (spec §4.9, Phase 11). */
 export default async function BillingPage({

@@ -39,8 +39,7 @@ describe("Kroj demo data", () => {
     }
   });
 
-  it("starts the order flow from the order quick question in both languages", () => {
-    const chips = KROJ_BOT.featuredQuestions.filter((q) => actionIntent(q.text) === "order_status");
-    expect(chips.map((q) => q.language).sort()).toEqual(["en", "sr"]);
+  it("doesn't repeat an action as a quick question (the widget adds action chips itself)", () => {
+    expect(KROJ_BOT.featuredQuestions.filter((q) => actionIntent(q.text))).toEqual([]);
   });
 });

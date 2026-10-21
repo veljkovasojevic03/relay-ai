@@ -3,6 +3,7 @@ import { randomUUID } from "node:crypto";
 import Stripe from "stripe";
 import { describe, expect, it } from "vitest";
 
+import { PLANS } from "@/lib/billing/plans";
 import {
   handleStripeWebhook,
   type SubscriptionSnapshot,
@@ -267,5 +268,15 @@ describe("billing functions and columns", () => {
       .eq("id", owner.id);
     expect(column.error?.code).toBe("42501");
     expect((await profileOf(owner)).plan).toBe("free");
+  });
+});
+
+describe("plan limits", () => {
+  it("match what the pricing pages show", async () => {
+    for (const plan of ["free", "pro"] as const) {
+      const bots = await db().rpc("plan_bot_limit", { p_plan: plan });
+      const conversations = await db().rpc("plan_conversation_limit", { p_plan: plan });
+      expect({ bots: bots.data, conversations: conversations.data }).toEqual(PLANS[plan]);
+    }
   });
 });

@@ -12,6 +12,9 @@ import { foregroundFor, RelayWidget } from "./widget";
  *
  * The host page may call window.RelayAI.ask("question") (e.g. from a "Help" link): it opens
  * the chat and sends the question. Returns false while no widget is mounted yet.
+ *
+ * window.RelayAI.mount(container, { bot, lang }) renders a live chat inside the page instead
+ * of a launcher (Relay's own landing page uses it for the demo store's bot).
  */
 
 declare global {
@@ -19,6 +22,7 @@ declare global {
     RelayAI?: {
       preview: (container: HTMLElement, settings: PreviewSettings) => PreviewHandle;
       ask: (text: string, bot?: string) => boolean;
+      mount: (container: HTMLElement, options: { bot: string; lang?: Lang }) => Promise<boolean>;
       mounted: Set<string>;
     };
   }
@@ -51,8 +55,14 @@ const toConfig = (s: PreviewSettings): WidgetConfig => ({
   mode: "sample",
 });
 
-/** Widgets mounted from script tags, by bot key (previews aren't listed). */
+/** Live widgets (script tags and mount()), by bot key; previews aren't listed. */
 const widgets = new Map<string, RelayWidget>();
+
+// Where this script was loaded from: the API lives on the same origin.
+const scriptOrigin =
+  document.currentScript instanceof HTMLScriptElement && document.currentScript.src
+    ? new URL(document.currentScript.src).origin
+    : location.origin;
 
 const api: NonNullable<Window["RelayAI"]> = window.RelayAI ?? {
   mounted: new Set(),
@@ -60,6 +70,25 @@ const api: NonNullable<Window["RelayAI"]> = window.RelayAI ?? {
     const widget = bot ? widgets.get(bot) : widgets.values().next().value;
     if (!widget || typeof text !== "string" || !text.trim()) return false;
     void widget.ask(text);
+    return true;
+  },
+  async mount(container, { bot, lang }) {
+    if (!/^[A-Za-z0-9_-]{16,64}$/.test(bot) || widgets.has(bot)) return false;
+    const client = new Api(scriptOrigin, bot);
+    let config: WidgetConfig;
+    try {
+      config = await client.config();
+    } catch {
+      return false;
+    }
+    widgets.set(
+      bot,
+      new RelayWidget(container, config, {
+        api: client,
+        lang: pickLanguage(lang ?? null, config.defaultLanguage),
+        inline: true,
+      }),
+    );
     return true;
   },
   preview(container, settings) {

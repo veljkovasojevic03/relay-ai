@@ -103,6 +103,7 @@ export class RelayWidget {
     const t = this.t;
 
     const style = h(doc, "style", { text: CSS });
+    const embedded = Boolean(options.inline && options.api);
     this.title = h(doc, "h2");
     this.subtitle = h(doc, "p", { text: t.subtitle });
     this.avatar = h(doc, "span", { class: "avatar", "aria-hidden": "true" });
@@ -162,7 +163,8 @@ export class RelayWidget {
         { class: "head" },
         this.avatar,
         h(doc, "div", { class: "who" }, this.title, this.subtitle),
-        minimize,
+        // A live chat embedded in a page (RelayAI.mount) can't be minimized.
+        ...(embedded ? [] : [minimize]),
       ),
       this.log,
       this.foot,
@@ -188,7 +190,7 @@ export class RelayWidget {
       "div",
       { class: "root", lang: options.lang },
       this.panel,
-      this.launcher,
+      ...(embedded ? [] : [this.launcher]),
       this.live,
     );
     shadow.replaceChildren(style, this.root);
@@ -307,7 +309,7 @@ export class RelayWidget {
    * for a resumed conversation's history first, so the question lands after it.
    */
   async ask(text: string) {
-    if (this.options.inline) return;
+    if (!this.options.api) return;
     this.open();
     await this.loadHistory();
     await this.submit(text);

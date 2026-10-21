@@ -12,7 +12,7 @@ test.describe("sandbox", () => {
     test.setTimeout(90_000);
 
     await page.goto("/en");
-    await page.getByRole("link", { name: "Explore the dashboard" }).click();
+    await page.getByRole("link", { name: "Explore the dashboard" }).first().click();
     await expect(page).toHaveURL(/\/sandbox$/);
     await page.getByRole("button", { name: "Start exploring" }).click();
 

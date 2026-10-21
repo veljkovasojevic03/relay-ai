@@ -1,10 +1,8 @@
-"use client";
+import { useTranslations } from "next-intl";
 
-import { useLocale, useTranslations } from "next-intl";
+import type { Locale } from "@/i18n/routing";
 
-import { usePathname } from "@/i18n/navigation";
-import { routing } from "@/i18n/routing";
-import { cn } from "@/lib/utils";
+import { LocaleLinks } from "./locale-links";
 
 /**
  * Plain links on purpose: a client-side navigation between locales keeps the old
@@ -16,35 +14,11 @@ import { cn } from "@/lib/utils";
  */
 export function LocaleSwitcher() {
   const t = useTranslations();
-  const current = useLocale();
-  const pathname = usePathname();
-
+  // Labels come from the server, so the client part needs no message formatting code.
   return (
-    <nav aria-label={t("Header.language")}>
-      <ul className="flex items-center gap-1 rounded-full border bg-card p-1 text-sm">
-        {routing.locales.map((locale) => (
-          <li key={locale}>
-            <a
-              href={`/${locale}${pathname === "/" ? "" : pathname}`}
-              hrefLang={locale}
-              lang={locale}
-              aria-current={locale === current ? "true" : undefined}
-              className={cn(
-                "inline-flex min-h-8 items-center rounded-full px-2.5 font-medium transition-colors sm:px-3",
-                locale === current
-                  ? "bg-foreground text-background"
-                  : "text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {/* Short code on narrow screens; the accessible name stays the full language. */}
-              <span aria-hidden="true" className="uppercase sm:hidden">
-                {locale}
-              </span>
-              <span className="max-sm:sr-only">{t(`Locale.${locale}`)}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </nav>
+    <LocaleLinks
+      label={t("Header.language")}
+      names={{ en: t("Locale.en"), sr: t("Locale.sr") } satisfies Record<Locale, string>}
+    />
   );
 }
