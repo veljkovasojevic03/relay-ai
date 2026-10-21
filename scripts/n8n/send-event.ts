@@ -92,6 +92,7 @@ async function main() {
     const { data, error } = await db
       .from("n8n_outbox")
       .insert({
+        event_id: event.eventId,
         type: event.type,
         payload: { bot: event.bot, owner: event.owner, data: event.data },
         status: "delivered",
