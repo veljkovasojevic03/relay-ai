@@ -9,12 +9,16 @@ import { foregroundFor, RelayWidget } from "./widget";
  *
  * Optional: data-lang="en|sr" forces the widget language (otherwise <html lang>, then the
  * browser). The dashboard uses window.RelayAI.preview() instead of a script tag.
+ *
+ * The host page may call window.RelayAI.ask("question") (e.g. from a "Help" link): it opens
+ * the chat and sends the question. Returns false while no widget is mounted yet.
  */
 
 declare global {
   interface Window {
     RelayAI?: {
       preview: (container: HTMLElement, settings: PreviewSettings) => PreviewHandle;
+      ask: (text: string, bot?: string) => boolean;
       mounted: Set<string>;
     };
   }
@@ -47,8 +51,17 @@ const toConfig = (s: PreviewSettings): WidgetConfig => ({
   mode: "sample",
 });
 
+/** Widgets mounted from script tags, by bot key (previews aren't listed). */
+const widgets = new Map<string, RelayWidget>();
+
 const api: NonNullable<Window["RelayAI"]> = window.RelayAI ?? {
   mounted: new Set(),
+  ask(text, bot) {
+    const widget = bot ? widgets.get(bot) : widgets.values().next().value;
+    if (!widget || typeof text !== "string" || !text.trim()) return false;
+    void widget.ask(text);
+    return true;
+  },
   preview(container, settings) {
     let widget = new RelayWidget(container, toConfig(settings), {
       api: null,
@@ -103,10 +116,13 @@ async function boot(script: HTMLScriptElement) {
 
   const host = createHost(document);
   document.body.appendChild(host);
-  new RelayWidget(host, config, {
-    api: client,
-    lang: pickLanguage(script.dataset.lang ?? null, config.defaultLanguage),
-  });
+  widgets.set(
+    bot,
+    new RelayWidget(host, config, {
+      api: client,
+      lang: pickLanguage(script.dataset.lang ?? null, config.defaultLanguage),
+    }),
+  );
 }
 
 const script = document.currentScript;

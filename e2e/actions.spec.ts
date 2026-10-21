@@ -6,7 +6,7 @@ import { newCredentials, requireSupabase, signUp } from "./support/auth";
 const APP = "http://localhost:3100";
 const HOST = "http://localhost:3101";
 
-/** Owners can't set `is_demo`; Phase 9 seeds the demo bot, here the test marks one. */
+/** Owners can't set `is_demo`; the test marks its own bot, as `pnpm demo:mark-bot` does. */
 async function markDemo(publicKey: string) {
   const db = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

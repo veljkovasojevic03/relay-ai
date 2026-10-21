@@ -1,9 +1,14 @@
-import { useTranslations } from "next-intl";
-import { BookOpenText, Code, UserRound } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
+import { BookOpenText, Code, LayoutDashboard, Store, UserRound } from "lucide-react";
+
+import { buttonVariants } from "@/components/ui/button";
+import { Link } from "@/i18n/navigation";
+import { localizedPath } from "@/lib/auth/redirects";
 
 // Styled placeholder. Replaced by the real landing page in Phase 12.
 export default function Home() {
   const t = useTranslations("Home");
+  const locale = useLocale();
 
   const steps = [
     { icon: BookOpenText, label: t("steps.faq") },
@@ -21,6 +26,19 @@ export default function Home() {
           {t("title")}
         </h1>
         <p className="max-w-xl text-lg text-pretty text-muted-foreground">{t("lead")}</p>
+
+        <div className="flex flex-wrap items-center gap-3">
+          {/* A full page load: the demo's widget must not follow client navigation back here. */}
+          <a href={localizedPath(locale, "/demo")} className={buttonVariants({ size: "lg" })}>
+            <Store aria-hidden="true" />
+            {t("cta.demo")}
+          </a>
+          <Link href="/sandbox" className={buttonVariants({ size: "lg", variant: "outline" })}>
+            <LayoutDashboard aria-hidden="true" />
+            {t("cta.sandbox")}
+          </Link>
+          <p className="w-full text-sm text-muted-foreground">{t("cta.note")}</p>
+        </div>
 
         <div className="mt-4">
           <h2 className="text-sm font-semibold tracking-wide text-muted-foreground uppercase">

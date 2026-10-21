@@ -8,8 +8,11 @@ Developer scripts run through `pnpm` (TypeScript via `tsx`):
   a signed sample event at your n8n workflows (`--bad-signature`, `--stale`, `--no-signature`,
   `--nasty`, `--test`, `--to`; see `n8n/README.md`)
 - `n8n/verify.ts` → `pnpm n8n:verify`: the app's callback endpoint against its rejection rules
-- `demo/mark-demo-bot.ts` → `pnpm demo:mark-bot <public_key>`: lets one of your bots offer
-  `order_status` before Phase 9 seeds the real demo bot
+- `demo/seed.ts` → `pnpm demo:seed [--email you@example.com]`: creates or updates the demo
+  store's bot (fixed key `kroj-demo-store-bot`, 50 FAQs with embeddings, both actions on).
+  `/demo` embeds it and every sandbox copies its vectors. Run once per Supabase project
+- `demo/mark-demo-bot.ts` → `pnpm demo:mark-bot <public_key>`: lets one of your own bots offer
+  `order_status` against the demo orders
 - `demo/seed-analytics.ts` → `pnpm demo:seed-analytics <public_key> [--days 30] [--clear]`:
   30 days of plausible conversation history for Analytics (removable with `--clear`)
 - later: the adversarial eval (**Phase 10**)

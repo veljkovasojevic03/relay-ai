@@ -36,6 +36,8 @@ export const ERROR_KEYS = [
   "importEmpty",
   "importTooMany",
   "conversationClosed",
+  "captchaFailed",
+  "sandboxUnavailable",
   "generic",
 ] as const;
 export type ErrorKey = (typeof ERROR_KEYS)[number];

@@ -18,6 +18,13 @@ export const AUTH_RATE_LIMITS = {
   passwordEmail: { name: "auth:password-email", limit: 5, windowSeconds: 3600 },
 } satisfies Record<string, RateLimitRule>;
 
+/** New sandboxes per visitor IP (each is a seeded account for 7 days). */
+export const SANDBOX_RATE_LIMIT: RateLimitRule = {
+  name: "sandbox:create",
+  limit: 3,
+  windowSeconds: 3600,
+};
+
 /** Per signed-in owner; each playground question calls the embed function. */
 export const PLAYGROUND_RATE_LIMIT: RateLimitRule = {
   name: "playground",

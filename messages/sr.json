@@ -29,6 +29,11 @@
       "faq": "Napiši odgovore jednom",
       "embed": "Nalepi jedan script tag",
       "handoff": "Uključi se kad je bitno"
+    },
+    "cta": {
+      "demo": "Otvori demo prodavnicu",
+      "sandbox": "Istraži kontrolnu tablu",
+      "note": "Ni za jedno ne treba registracija."
     }
   },
   "Footer": {
@@ -125,7 +130,9 @@
     "embedUnavailable": "Indeksiranje za pretragu trenutno nije dostupno. Pitanja su sačuvana; probaj „Indeksiraj sve“ za minut.",
     "importEmpty": "Još nema šta da se uveze. Nalepi bar jedan par P:/O: ili Q:/A:.",
     "importTooMany": "Uvezi najviše 100 pitanja odjednom.",
-    "conversationClosed": "Ovaj čet je rešen, pa ne prima nove odgovore."
+    "conversationClosed": "Ovaj čet je rešen, pa ne prima nove odgovore.",
+    "captchaFailed": "Nismo uspeli da potvrdimo da si osoba. Pokušaj proveru ponovo.",
+    "sandboxUnavailable": "Sandbox trenutno ne može da se pokrene. Pokušaj ponovo za minut."
   },
   "Dashboard": {
     "nav": {
@@ -181,7 +188,8 @@
     "save": "Sačuvaj izmene",
     "saved": "Sačuvano.",
     "weeklyDigest": "Nedeljni izveštaj mejlom",
-    "weeklyDigestHint": "Svakog ponedeljka ujutru: razgovori, koliko je bot rešio sam i najčešća pitanja bez odgovora."
+    "weeklyDigestHint": "Svakog ponedeljka ujutru: razgovori, koliko je bot rešio sam i najčešća pitanja bez odgovora.",
+    "sandboxNoEmail": "Nema (sandbox)"
   },
   "Bots": {
     "metaTitle": "Botovi",
@@ -605,6 +613,110 @@
       "dismiss": "Odbaci",
       "dismissLabel": "Odbaci „{question}“",
       "empty": "Ništa ovde: bot je do sada imao odgovor na sve."
+    }
+  },
+  "Sandbox": {
+    "metaTitle": "Istraži kontrolnu tablu",
+    "title": "Istraži kontrolnu tablu",
+    "lead": "Dobij svoju kopiju radnog prostora demo prodavnice Kroj i istraži ga kao vlasnik. Bez emaila i lozinke.",
+    "inside": {
+      "bot": "Bot za podršku sa 50 odgovorenih pitanja na engleskom i srpskom",
+      "inbox": "Dva posetioca te čekaju u inboksu",
+      "analytics": "30 dana razgovora, ocena i neodgovorenih pitanja"
+    },
+    "rulesTitle": "Sandbox, ne nalog",
+    "rules": "Sve u njemu su primer podaci i vidiš ih samo ti. Briše se posle 7 dana, nema naplate i nikome se ništa ne šalje emailom.",
+    "start": "Počni istraživanje",
+    "captchaLabel": "Sigurnosna provera",
+    "captchaWaiting": "Završavamo kratku sigurnosnu proveru…",
+    "expired": "Tvoj prethodni sandbox je istekao i obrisan je. Možeš da pokreneš novi.",
+    "notConfigured": "Sandbox nije dostupan na ovoj instalaciji.",
+    "alternatives": "Želiš samo da vidiš chat? <demo>Otvori demo prodavnicu</demo>. Želiš da sačuvaš svoj rad? <signup>Napravi besplatan nalog</signup>.",
+    "banner": {
+      "label": "Sandbox",
+      "text": "Istražuješ sandbox sa primer podacima. Briše se {date}.",
+      "signUp": "Završi sandbox i registruj se"
+    }
+  },
+  "Demo": {
+    "metaTitle": "Kroj — moda i obuća (demo prodavnica)",
+    "metaDescription": "Izmišljena prodavnica odeće i obuće koja pokazuje Relay AI chat u radu.",
+    "bar": {
+      "text": "Demo prodavnica: Kroj je izmišljen i ovde se ništa ne prodaje. Chat u uglu je Relay AI.",
+      "back": "Nazad na Relay AI"
+    },
+    "nav": {
+      "label": "Prodavnica",
+      "new": "Novo",
+      "store": "Naša radnja",
+      "help": "Pomoć",
+      "language": "Jezik"
+    },
+    "hero": {
+      "eyebrow": "Jesenja kolekcija",
+      "title": "Sašiveno u Srbiji. Nosi se svuda.",
+      "lead": "Odeća i obuća iz malih radionica, sa dostavom širom Srbije za 1–3 radna dana.",
+      "cta": "Pogledaj novitete"
+    },
+    "perks": {
+      "label": "Kupovina u Kroju",
+      "shipping": "Besplatna dostava za porudžbine preko 5.000 RSD",
+      "returns": "14 dana za povraćaj nenošene robe",
+      "payment": "Kartica, uplata na račun ili pouzećem"
+    },
+    "products": {
+      "title": "Novo",
+      "note": "Cene sadrže PDV.",
+      "category": {
+        "shoes": "Obuća",
+        "women": "Žene",
+        "men": "Muškarci",
+        "accessories": "Aksesoari"
+      }
+    },
+    "store": {
+      "title": "Poseti nas u Beogradu",
+      "text": "Isprobaj sve u našoj radnji, od ponedeljka do subote od 10 do 20 časova.",
+      "address": "Kralja Petra 21, dva minuta hoda od Knez Mihailove"
+    },
+    "help": {
+      "title": "Treba ti pomoć?",
+      "text": "Pitaj chat u uglu za dostavu, povraćaj, veličine ili porudžbinu. Ako ne zna, uključiće osobu iz našeg tima."
+    },
+    "footer": {
+      "contact": "podrska@kroj.example",
+      "fictional": "Kroj je izmišljena prodavnica napravljena za Relay AI demo."
+    },
+    "try": {
+      "title": "Probaj ovo",
+      "questions": "Pitanja",
+      "questionLanguage": "Jezik pitanja",
+      "questionsHint": "Klikni na pitanje i chat će ga postaviti.",
+      "orders": "Demo porudžbine",
+      "ordersHint": "Napiši „Prati moju porudžbinu“, pa unesi jedan od ovih brojeva i njegov email.",
+      "copyOrder": "Kopiraj broj porudžbine {order}",
+      "copyEmail": "Kopiraj email {email}",
+      "copied": "Kopirano.",
+      "copyFailed": "Kopiranje ovde ne radi; ukucaj ručno.",
+      "chatLoading": "Chat se još učitava. Pitanje je kopirano, pa ga možeš nalepiti tamo.",
+      "status": {
+        "processing": "U obradi",
+        "shipped": "Poslato",
+        "delivered": "Isporučeno",
+        "cancelled": "Otkazano"
+      },
+      "kind": {
+        "faq": "FAQ",
+        "action": "Akcija",
+        "unknown": "Nepoznato",
+        "human": "Osoba"
+      },
+      "bot": {
+        "missing": "Demo chat još nije podešen na ovoj instalaciji.",
+        "unavailable": "Demo chat je potrošio razgovore za ovaj mesec. Svrati ponovo kasnije.",
+        "waking": "Demo se budi: njegova besplatna baza spava posle mirne nedelje. Pokušaj ponovo za minut.",
+        "retry": "Pokušaj ponovo"
+      }
     }
   }
 }

@@ -29,6 +29,11 @@
       "faq": "Write your answers once",
       "embed": "Paste one script tag",
       "handoff": "Step in when it matters"
+    },
+    "cta": {
+      "demo": "Open the demo store",
+      "sandbox": "Explore the dashboard",
+      "note": "No sign-up needed for either."
     }
   },
   "Footer": {
@@ -125,7 +130,9 @@
     "embedUnavailable": "Search indexing isn't reachable right now. Your questions are saved; try “Re-index all” in a minute.",
     "importEmpty": "Nothing to import yet. Paste at least one Q:/A: pair.",
     "importTooMany": "Import up to 100 questions at a time.",
-    "conversationClosed": "This chat is resolved, so it can't take new replies."
+    "conversationClosed": "This chat is resolved, so it can't take new replies.",
+    "captchaFailed": "We couldn't confirm you're a person. Please try the check again.",
+    "sandboxUnavailable": "The sandbox can't start right now. Please try again in a minute."
   },
   "Dashboard": {
     "nav": {
@@ -181,7 +188,8 @@
     "save": "Save changes",
     "saved": "Saved.",
     "weeklyDigest": "Weekly summary email",
-    "weeklyDigestHint": "Every Monday morning: conversations, how many the bot answered alone, and the top unanswered questions."
+    "weeklyDigestHint": "Every Monday morning: conversations, how many the bot answered alone, and the top unanswered questions.",
+    "sandboxNoEmail": "None (sandbox)"
   },
   "Bots": {
     "metaTitle": "Bots",
@@ -605,6 +613,110 @@
       "dismiss": "Dismiss",
       "dismissLabel": "Dismiss “{question}”",
       "empty": "Nothing here: your bot had an answer for everything so far."
+    }
+  },
+  "Sandbox": {
+    "metaTitle": "Explore the dashboard",
+    "title": "Explore the dashboard",
+    "lead": "Get your own copy of the Kroj demo shop's workspace and click around as its owner. No email, no password.",
+    "inside": {
+      "bot": "A support bot with 50 answered questions in English and Serbian",
+      "inbox": "Two visitors waiting for you in the inbox",
+      "analytics": "30 days of chats, ratings and unanswered questions"
+    },
+    "rulesTitle": "A sandbox, not an account",
+    "rules": "Everything in it is sample data and only you can see it. It's deleted after 7 days, there is no billing, and nothing is emailed to anyone.",
+    "start": "Start exploring",
+    "captchaLabel": "Security check",
+    "captchaWaiting": "Finishing a quick security check…",
+    "expired": "Your previous sandbox has expired and was deleted. You can start a new one.",
+    "notConfigured": "The sandbox isn't available on this deployment.",
+    "alternatives": "Prefer to just watch the chat? <demo>Open the demo store</demo>. Want to keep your work? <signup>Create a free account</signup>.",
+    "banner": {
+      "label": "Sandbox",
+      "text": "You're exploring a sandbox with sample data. It's deleted on {date}.",
+      "signUp": "End sandbox and sign up"
+    }
+  },
+  "Demo": {
+    "metaTitle": "Kroj — moda i obuća (demo store)",
+    "metaDescription": "A fictional clothing and footwear shop that shows Relay AI's chat widget at work.",
+    "bar": {
+      "text": "Demo store: Kroj is fictional and nothing here is for sale. The chat in the corner is Relay AI.",
+      "back": "Back to Relay AI"
+    },
+    "nav": {
+      "label": "Shop",
+      "new": "New in",
+      "store": "Our store",
+      "help": "Help",
+      "language": "Language"
+    },
+    "hero": {
+      "eyebrow": "Autumn collection",
+      "title": "Sewn in Serbia. Worn everywhere.",
+      "lead": "Clothes and shoes made in small workshops, delivered across Serbia in 1–3 working days.",
+      "cta": "Shop new arrivals"
+    },
+    "perks": {
+      "label": "Shopping with Kroj",
+      "shipping": "Free delivery on orders over 5,000 RSD",
+      "returns": "14 days to return unworn items",
+      "payment": "Card, bank transfer or cash on delivery"
+    },
+    "products": {
+      "title": "New in",
+      "note": "Prices include VAT.",
+      "category": {
+        "shoes": "Shoes",
+        "women": "Women",
+        "men": "Men",
+        "accessories": "Accessories"
+      }
+    },
+    "store": {
+      "title": "Visit us in Belgrade",
+      "text": "Try everything on in our store, Monday to Saturday from 10 am to 8 pm.",
+      "address": "Kralja Petra 21, a two-minute walk from Knez Mihailova street"
+    },
+    "help": {
+      "title": "Need help?",
+      "text": "Ask the chat in the corner about delivery, returns, sizes or your order. If it doesn't know, it brings in a person from our team."
+    },
+    "footer": {
+      "contact": "podrska@kroj.example",
+      "fictional": "Kroj is a fictional shop made for the Relay AI demo."
+    },
+    "try": {
+      "title": "Try these",
+      "questions": "Questions",
+      "questionLanguage": "Question language",
+      "questionsHint": "Click one to ask the chat.",
+      "orders": "Demo orders",
+      "ordersHint": "Type “Track my order”, then give one of these numbers and its email.",
+      "copyOrder": "Copy order number {order}",
+      "copyEmail": "Copy email {email}",
+      "copied": "Copied.",
+      "copyFailed": "Copying didn't work here; please type it instead.",
+      "chatLoading": "The chat is still loading. The question is copied, so you can paste it there.",
+      "status": {
+        "processing": "Processing",
+        "shipped": "Shipped",
+        "delivered": "Delivered",
+        "cancelled": "Cancelled"
+      },
+      "kind": {
+        "faq": "FAQ",
+        "action": "Action",
+        "unknown": "Unknown",
+        "human": "Person"
+      },
+      "bot": {
+        "missing": "The demo chat isn't set up on this deployment yet.",
+        "unavailable": "The demo chat has used up this month's conversations. Please come back later.",
+        "waking": "The demo is waking up: its free database sleeps after a quiet week. Try again in a minute.",
+        "retry": "Try again"
+      }
     }
   }
 }

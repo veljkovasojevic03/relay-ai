@@ -26,6 +26,7 @@
     "e2e:local": "node scripts/local-supabase.mjs -- pnpm build && node scripts/local-supabase.mjs -- pnpm test:e2e",
     "n8n:send": "tsx scripts/n8n/send-event.ts",
     "n8n:verify": "tsx scripts/n8n/verify.ts",
+    "demo:seed": "tsx scripts/demo/seed.ts",
     "demo:mark-bot": "tsx scripts/demo/mark-demo-bot.ts",
     "demo:seed-analytics": "tsx scripts/demo/seed-analytics.ts"
   },

@@ -38,6 +38,9 @@ export type OwnerProfile = {
   /** Weekly numbers by email, sent by n8n (spec §4.8 digest). */
   weeklyDigest: boolean;
   plan: "free" | "pro";
+  /** Anonymous explore-the-dashboard account (Phase 9), deleted at `sandboxExpiresAt`. */
+  isSandbox: boolean;
+  sandboxExpiresAt: string | null;
 };
 
 export const getOwnerProfile = cache(async (): Promise<OwnerProfile> => {
@@ -45,7 +48,9 @@ export const getOwnerProfile = cache(async (): Promise<OwnerProfile> => {
   const supabase = (await createSupabaseServerClient())!;
   const { data, error } = await supabase
     .from("profiles")
-    .select("display_name, ui_language, notification_email, weekly_digest, plan")
+    .select(
+      "display_name, ui_language, notification_email, weekly_digest, plan, is_sandbox, sandbox_expires_at",
+    )
     .eq("id", user.id)
     .single();
   if (error) throw new Error("Could not load profile");
@@ -55,5 +60,7 @@ export const getOwnerProfile = cache(async (): Promise<OwnerProfile> => {
     notificationEmail: data.notification_email,
     weeklyDigest: data.weekly_digest === true,
     plan: data.plan === "pro" ? "pro" : "free",
+    isSandbox: data.is_sandbox === true,
+    sandboxExpiresAt: data.sandbox_expires_at,
   };
 });

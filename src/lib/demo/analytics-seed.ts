@@ -2,11 +2,13 @@ import { createHash, randomBytes, randomUUID } from "node:crypto";
 
 import type { SupabaseClient } from "@supabase/supabase-js";
 
+import { KROJ_FAQS, type Lang } from "./kroj";
+
 /**
  * Plausible conversation history for one bot, so Analytics has something to show: daily
  * chats, some handed to the owner, ratings, first-response times, and unknown questions
  * (a few asked repeatedly, some answered by the owner). Used by `pnpm demo:seed-analytics`
- * now and by the sandbox seed in Phase 9. Deterministic for a given seed.
+ * and by every new sandbox. Deterministic for a given seed.
  *
  * Seeded rows are marked with `ip_hash = SEED_MARK`, so they can be removed again.
  */
@@ -25,21 +27,18 @@ export function prng(seed: number): () => number {
   };
 }
 
-type Lang = "en" | "sr";
-
+/** Questions the bot answered: the featured entries of the Kroj FAQ set. */
 const ANSWERED: Record<Lang, [string, string][]> = {
-  en: [
-    ["How long does delivery take?", "Delivery within Serbia takes 1–3 working days."],
-    ["Can I return shoes?", "Yes, unworn shoes can be returned within 14 days."],
-    ["Do you ship abroad?", "We ship to the EU and the region; delivery takes 5–10 days."],
-    ["What sizes do you have?", "Most models come in sizes 36–46. Check each product page."],
-  ],
-  sr: [
-    ["Koliko traje dostava?", "Dostava u Srbiji traje 1–3 radna dana."],
-    ["Mogu li da vratim patike?", "Da, nenošene patike možeš vratiti u roku od 14 dana."],
-    ["Da li mogu da platim pouzećem?", "Da, plaćanje pouzećem je dostupno za celu Srbiju."],
-  ],
+  en: answered("en"),
+  sr: answered("sr"),
 };
+
+function answered(language: Lang): [string, string][] {
+  return KROJ_FAQS.filter((f) => f.language === language && f.featured).map((f) => [
+    f.question,
+    f.answer,
+  ]);
+}
 
 /** Questions the bot doesn't know; some get a human reply that becomes the FAQ draft. */
 const UNKNOWN: Record<Lang, { q: string; reply: string | null; weight: number }[]> = {

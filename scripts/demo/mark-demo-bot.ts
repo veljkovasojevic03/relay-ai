@@ -1,6 +1,6 @@
 /**
- * Marks one of your bots as the demo store's bot, so it may offer `order_status` (which reads
- * the seeded demo orders). Phase 9 seeds the real demo bot; this is for trying the flow now.
+ * Marks one of your own bots as a demo bot, so it may offer `order_status` (which reads the
+ * seeded demo orders). The demo store's own bot comes from `pnpm demo:seed`.
  *
  *   pnpm demo:mark-bot <public_key>          # mark
  *   pnpm demo:mark-bot <public_key> --off    # unmark

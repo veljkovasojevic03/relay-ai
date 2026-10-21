@@ -1,6 +1,6 @@
 /**
  * Fills one of your bots with plausible conversation history, so Analytics has something
- * to show before real visitors arrive. Phase 9's sandbox uses the same generator.
+ * to show before real visitors arrive. Every new sandbox uses the same generator.
  *
  *   pnpm demo:seed-analytics <public_key>            # 30 days of history
  *   pnpm demo:seed-analytics <public_key> --days 90

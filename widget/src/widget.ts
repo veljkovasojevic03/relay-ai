@@ -88,6 +88,7 @@ export class RelayWidget {
   private socketJoined = false;
   private lastPoll = 0;
   private polling = false;
+  private historyRequest: Promise<void> = Promise.resolve();
 
   constructor(
     host: HTMLElement,
@@ -301,12 +302,30 @@ export class RelayWidget {
     this.renderRow();
   }
 
-  private async loadHistory() {
+  /**
+   * Opens the panel and sends `text` as if the visitor typed it (window.RelayAI.ask). Waits
+   * for a resumed conversation's history first, so the question lands after it.
+   */
+  async ask(text: string) {
+    if (this.options.inline) return;
+    this.open();
+    await this.loadHistory();
+    await this.submit(text);
+  }
+
+  private loadHistory(): Promise<void> {
     const api = this.options.api;
-    if (!api || !this.token || this.historyLoaded) return;
-    this.historyLoaded = true;
+    if (!api || !this.token) return Promise.resolve();
+    if (!this.historyLoaded) {
+      this.historyLoaded = true;
+      this.historyRequest = this.fetchHistory(api, this.token);
+    }
+    return this.historyRequest;
+  }
+
+  private async fetchHistory(api: Api, token: string) {
     try {
-      const history = await api.history(this.token);
+      const history = await api.history(token);
       this.status = history.status;
       this.channel = history.channel;
       this.hasEmail = history.hasEmail;

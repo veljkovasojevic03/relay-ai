@@ -1,14 +1,16 @@
 import { useTranslations } from "next-intl";
+import { getLocale } from "next-intl/server";
 import { Suspense } from "react";
 
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Wordmark } from "@/components/logo";
-import { Link } from "@/i18n/navigation";
-import { requireUser } from "@/lib/auth/session";
+import { Link, redirect } from "@/i18n/navigation";
+import { getOwnerProfile, requireUser } from "@/lib/auth/session";
 import { getInboxCounts } from "@/lib/inbox/queries";
 
 import { DashboardNav } from "./dashboard-nav";
 import { DashboardSkeleton } from "./dashboard-skeleton";
+import { SandboxBanner } from "./sandbox-banner";
 import { UserMenu } from "./user-menu";
 
 /**
@@ -49,6 +51,9 @@ export default function DashboardLayout({ children }: LayoutProps<"/[locale]/das
           </Suspense>
         </aside>
         <main className="min-w-0">
+          <Suspense fallback={null}>
+            <SandboxBanner />
+          </Suspense>
           <Suspense fallback={<DashboardSkeleton />}>
             <AuthGate>{children}</AuthGate>
           </Suspense>
@@ -60,8 +65,20 @@ export default function DashboardLayout({ children }: LayoutProps<"/[locale]/das
 
 // Defense in depth: the proxy already redirects signed-out visitors, but rendering never
 // depends on it.
+// An expired sandbox ends here even before the cron tick deletes it.
 async function AuthGate({ children }: { children: React.ReactNode }) {
   await requireUser();
+  const profile = await getOwnerProfile();
+  if (
+    profile.isSandbox &&
+    profile.sandboxExpiresAt &&
+    new Date(profile.sandboxExpiresAt).getTime() < Date.now()
+  ) {
+    return redirect({
+      href: { pathname: "/sandbox", query: { expired: "1" } },
+      locale: await getLocale(),
+    });
+  }
   return children;
 }
 

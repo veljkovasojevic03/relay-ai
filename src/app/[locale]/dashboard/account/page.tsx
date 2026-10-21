@@ -31,7 +31,9 @@ export default async function AccountPage() {
       <dl className="grid max-w-lg gap-4 rounded-xl border bg-card p-4 sm:grid-cols-2">
         <div className="grid gap-1">
           <dt className="text-sm text-muted-foreground">{t("Account.signInEmail")}</dt>
-          <dd className="truncate font-medium">{user.email}</dd>
+          <dd className="truncate font-medium">
+            {user.email ?? (profile.isSandbox ? t("Account.sandboxNoEmail") : "–")}
+          </dd>
         </div>
         <div className="grid gap-1">
           <dt className="text-sm text-muted-foreground">{t("Account.plan")}</dt>
