@@ -12,6 +12,7 @@ export const PUBLIC_CLIENT_MESSAGES = [
   "Auth",
   "Sandbox",
   "Demo",
+  "PageError",
 ] as const;
 
 /** Copies the given top-level namespaces or dotted sub-paths out of a catalog. */

@@ -50,10 +50,18 @@ export async function generateMetadata({ params }: LayoutProps<"/[locale]">): Pr
 export default async function LocaleLayout({ children, params }: LayoutProps<"/[locale]">) {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale)) notFound();
+  const t = await getTranslations({ locale, namespace: "Header" });
 
   return (
     <html lang={locale} className={`${display.variable} ${sans.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col">
+        {/* Every page's <main> has id="main" and tabIndex={-1}, so focus moves there too. */}
+        <a
+          href="#main"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:rounded-md focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:shadow-md"
+        >
+          {t("skipToContent")}
+        </a>
         <NextIntlClientProvider
           messages={pickMessages(await getMessages(), PUBLIC_CLIENT_MESSAGES)}
         >

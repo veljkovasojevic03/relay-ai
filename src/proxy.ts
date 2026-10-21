@@ -1,5 +1,5 @@
 import createMiddleware from "next-intl/middleware";
-import { NextResponse, type NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 
 import {
   DEFAULT_AFTER_LOGIN,
@@ -8,6 +8,8 @@ import {
   localizedPath,
   splitLocale,
 } from "./lib/auth/redirects";
+import { serverEnv } from "./lib/env.server";
+import { createNonce, ownerPagesCsp } from "./lib/security/csp";
 import { refreshSession } from "./lib/supabase/proxy";
 import { routing } from "./i18n/routing";
 
@@ -21,12 +23,32 @@ function redirectKeepingCookies(url: URL, from: NextResponse) {
   return response;
 }
 
-export default async function proxy(request: NextRequest) {
-  const response = intl(request);
-  const { locale, path } = splitLocale(request.nextUrl.pathname);
+/** The owner's pages: strict CSP and a session check. Marketing pages stay static. */
+const isOwnerPage = (path: string) =>
+  isProtectedPath(path) || isGuestOnlyPath(path) || path === "/reset-password";
 
-  // Only auth-aware routes pay for a session check; marketing pages stay static.
-  if (!isProtectedPath(path) && !isGuestOnlyPath(path)) return response;
+/**
+ * Puts a fresh-nonce CSP on the request (Next.js reads the nonce from there for its own
+ * scripts) and on the response (where the browser enforces it).
+ */
+function withCsp(request: NextRequest): { request: NextRequest; csp: string } {
+  const csp = ownerPagesCsp({
+    nonce: createNonce(),
+    supabaseUrl: serverEnv().NEXT_PUBLIC_SUPABASE_URL,
+    dev: process.env.NODE_ENV === "development",
+  });
+  const headers = new Headers(request.headers);
+  headers.set("Content-Security-Policy", csp);
+  return { request: new NextRequest(request, { headers }), csp };
+}
+
+export default async function proxy(incoming: NextRequest) {
+  const { locale, path } = splitLocale(incoming.nextUrl.pathname);
+  if (!isOwnerPage(path)) return intl(incoming);
+
+  const { request, csp } = withCsp(incoming);
+  const response = intl(request);
+  response.headers.set("Content-Security-Policy", csp);
 
   const { signedIn } = await refreshSession(request, response);
 

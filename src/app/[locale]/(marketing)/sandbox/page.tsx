@@ -35,7 +35,11 @@ export default function SandboxPage() {
   ];
 
   return (
-    <main className="mx-auto grid w-full max-w-3xl gap-8 px-4 py-14 sm:px-6 lg:py-20">
+    <main
+      id="main"
+      tabIndex={-1}
+      className="mx-auto grid w-full max-w-3xl gap-8 px-4 py-14 sm:px-6 lg:py-20"
+    >
       <div className="grid gap-3">
         <h1 className="font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
           {t("title")}

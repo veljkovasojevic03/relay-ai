@@ -74,40 +74,47 @@ export default async function InboxPage({ searchParams }: PageProps<"/[locale]/d
           {conversations.map((c) => {
             const who = c.visitorEmail ?? t("anonymous");
             return (
-              <li key={c.id}>
-                <Link
-                  href={`/dashboard/inbox/${c.id}`}
-                  aria-label={t("open", { who })}
-                  className={cn(
-                    "grid gap-1.5 rounded-xl border bg-card p-4 transition-colors hover:border-primary",
-                    c.unread && "border-primary/50",
+              <li
+                key={c.id}
+                className={cn(
+                  "relative grid gap-1.5 rounded-xl border bg-card p-4 transition-colors focus-within:border-primary hover:border-primary",
+                  c.unread && "border-primary/50",
+                )}
+              >
+                <div className="flex flex-wrap items-center gap-2">
+                  {c.unread && (
+                    <span className="size-2.5 rounded-full bg-primary" aria-hidden="true" />
                   )}
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    {c.unread && (
-                      <span className="size-2.5 rounded-full bg-primary" aria-hidden="true" />
+                  {/* The link's name is "Open the chat with <who>"; its ::after covers the card. */}
+                  <Link
+                    href={`/dashboard/inbox/${c.id}`}
+                    className={cn(
+                      "min-w-0 truncate rounded-sm after:absolute after:inset-0 after:rounded-xl",
+                      c.unread && "font-semibold",
                     )}
-                    <span className={cn("min-w-0 truncate", c.unread && "font-semibold")}>
-                      {who}
+                  >
+                    {t.rich("open", {
+                      who,
+                      hidden: (chunks) => <span className="sr-only">{chunks}</span>,
+                    })}
+                  </Link>
+                  <StatusBadge status={c.status} />
+                  {c.unread && <span className="sr-only">{t("unread")}</span>}
+                  <span className="ml-auto text-xs text-muted-foreground">
+                    <time dateTime={c.lastMessageAt}>
+                      {format.relativeTime(new Date(c.lastMessageAt), now)}
+                    </time>
+                  </span>
+                </div>
+                <p className="line-clamp-1 text-sm break-words text-muted-foreground">
+                  {c.previewRole && (
+                    <span className="font-medium text-foreground">
+                      {t(`roles.${c.previewRole}`)}:{" "}
                     </span>
-                    <StatusBadge status={c.status} />
-                    {c.unread && <span className="sr-only">{t("unread")}</span>}
-                    <span className="ml-auto text-xs text-muted-foreground">
-                      <time dateTime={c.lastMessageAt}>
-                        {format.relativeTime(new Date(c.lastMessageAt), now)}
-                      </time>
-                    </span>
-                  </div>
-                  <p className="line-clamp-1 text-sm break-words text-muted-foreground">
-                    {c.previewRole && (
-                      <span className="font-medium text-foreground">
-                        {t(`roles.${c.previewRole}`)}:{" "}
-                      </span>
-                    )}
-                    {c.preview}
-                  </p>
-                  <p className="text-xs text-muted-foreground">{c.botName}</p>
-                </Link>
+                  )}
+                  {c.preview}
+                </p>
+                <p className="text-xs text-muted-foreground">{c.botName}</p>
               </li>
             );
           })}

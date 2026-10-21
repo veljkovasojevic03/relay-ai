@@ -28,7 +28,9 @@ export function Wordmark({ className }: { className?: string }) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
       <LogoMark />
-      <span className="font-display text-xl font-semibold tracking-tight">Relay</span>
+      {/* The space makes the text "Relay AI" for screen readers and for the link labels that
+          must contain it; flex layout doesn't draw it, the gap does. */}
+      <span className="font-display text-xl font-semibold tracking-tight">Relay</span>{" "}
       <span className="rounded-md bg-primary px-1.5 py-0.5 text-[0.6875rem] leading-none font-semibold text-primary-foreground">
         AI
       </span>

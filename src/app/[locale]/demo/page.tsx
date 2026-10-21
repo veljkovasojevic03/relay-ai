@@ -133,7 +133,7 @@ export default function DemoStorePage() {
           <header className="border-b border-[#e5e2dc] bg-[#f7f5f1]">
             <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-4 sm:px-6">
               <a
-                href="#top"
+                href="#main"
                 className="font-[family-name:var(--font-kroj-serif)] text-3xl font-semibold tracking-[0.18em] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#1f3d36]"
               >
                 KROJ
@@ -165,7 +165,7 @@ export default function DemoStorePage() {
             </div>
           </header>
 
-          <main id="top" className="flex-1">
+          <main id="main" tabIndex={-1} className="flex-1">
             <section className="mx-auto grid max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:py-20">
               <div className="grid gap-6">
                 <p className="text-xs font-bold tracking-[0.25em] text-[#1f3d36] uppercase">

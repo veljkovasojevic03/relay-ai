@@ -1,5 +1,6 @@
 import { NextIntlClientProvider, useTranslations } from "next-intl";
 import { getLocale } from "next-intl/server";
+import { connection } from "next/server";
 import { Suspense } from "react";
 
 import { LocaleSwitcher } from "@/components/locale-switcher";
@@ -14,11 +15,18 @@ import { SandboxBanner } from "./sandbox-banner";
 import { UsageBanner } from "./usage-banner";
 import { UserMenu } from "./user-menu";
 
-/**
- * The chrome is static and prerendered; everything that reads the session streams in
- * behind Suspense (required with Cache Components, and it keeps navigation instant).
- */
-export default function DashboardLayout({ children }: LayoutProps<"/[locale]/dashboard">) {
+// Rendered per request, never from a prerendered shell: the strict CSP's nonce (src/proxy.ts)
+// can only reach scripts rendered after the request arrived. Client-side navigation inside
+// the dashboard still streams; only the first load waits for the server.
+export const instant = false;
+
+export default async function DashboardLayout(props: LayoutProps<"/[locale]/dashboard">) {
+  await connection();
+  return <DashboardChrome {...props} />;
+}
+
+/** Everything that reads the session streams in behind Suspense. */
+function DashboardChrome({ children }: LayoutProps<"/[locale]/dashboard">) {
   const t = useTranslations("Header");
 
   return (
@@ -54,7 +62,7 @@ export default function DashboardLayout({ children }: LayoutProps<"/[locale]/das
               <NavWithCounts />
             </Suspense>
           </aside>
-          <main className="min-w-0">
+          <main id="main" tabIndex={-1} className="min-w-0">
             <Suspense fallback={null}>
               <SandboxBanner />
             </Suspense>

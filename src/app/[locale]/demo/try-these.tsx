@@ -125,12 +125,13 @@ function PanelBody({
                 key={l}
                 type="button"
                 aria-pressed={lang === l}
-                aria-label={LANGUAGE_NAMES[l]}
                 lang={l}
                 onClick={() => setLang(l)}
                 className="rounded-full border border-[#d4d0c8] px-2 py-0.5 text-xs font-semibold uppercase focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#1f3d36] aria-pressed:border-[#1f3d36] aria-pressed:bg-[#1f3d36] aria-pressed:text-white"
               >
-                {l}
+                {/* Shows "EN"/"SR"; screen readers hear "English"/"Srpski". */}
+                <span aria-hidden="true">{l}</span>
+                <span className="sr-only">{LANGUAGE_NAMES[l]}</span>
               </button>
             ))}
           </div>

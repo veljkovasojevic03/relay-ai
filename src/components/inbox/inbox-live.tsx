@@ -95,10 +95,7 @@ export function InboxLive({ realtime, conversationId }: Props) {
   if (!realtime) return null;
   return (
     <span
-      className={cn(
-        "inline-flex items-center gap-1.5 text-xs text-muted-foreground",
-        !connected && "opacity-60",
-      )}
+      className="inline-flex items-center gap-1.5 text-xs text-muted-foreground"
       data-live={connected ? "on" : "off"}
     >
       <span

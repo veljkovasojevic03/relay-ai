@@ -37,7 +37,7 @@ export default function Home() {
 
   return (
     <>
-      <main>
+      <main id="main" tabIndex={-1}>
         <Hero demoHref={demoHref} locale={locale} />
         {/* Separate boundaries let React hydrate below-the-fold sections in smaller steps
             instead of one long main-thread task (Lighthouse TBT, Phase 12). */}

@@ -4,10 +4,11 @@
     "description": "Prvo odgovor. Čovek kad je bitno. Chatbot za podršku malim internet prodavnicama."
   },
   "Header": {
+    "skipToContent": "Pređi na sadržaj",
     "home": "Relay AI početna",
     "language": "Jezik",
     "signIn": "Prijava",
-    "dashboard": "Kontrolna tabla",
+    "dashboard": "Relay AI kontrolna tabla",
     "demo": "Demo prodavnica",
     "pricing": "Cene",
     "signUp": "Registracija",
@@ -149,6 +150,12 @@
   },
   "Footer": {
     "note": "Portfolio projekat. Radi na besplatnim planovima, bez stvarnih naplata."
+  },
+  "PageError": {
+    "title": "Nešto nije u redu",
+    "body": "Nismo uspeli da učitamo stranicu. Pokušaj ponovo za trenutak.",
+    "retry": "Pokušaj ponovo",
+    "back": "Nazad na početnu"
   },
   "NotFound": {
     "title": "Ova stranica ne postoji",
@@ -564,7 +571,7 @@
       "bot": "Nema četova koje bot vodi sam.",
       "resolved": "Još nema rešenih četova."
     },
-    "open": "Otvori čet sa: {who}",
+    "open": "<hidden>Otvori čet sa: </hidden>{who}",
     "live": "Osvežava se uživo",
     "back": "Prijemno sanduče",
     "detail": {

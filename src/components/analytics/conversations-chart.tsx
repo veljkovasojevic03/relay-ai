@@ -55,7 +55,13 @@ export function ConversationsChart({ daily }: { daily: Day[] }) {
 
       <div className="h-64 w-full" aria-hidden="true">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={daily} margin={{ top: 4, right: 4, bottom: 0, left: -16 }}>
+          {/* No keyboard layer: it would put a focusable element inside aria-hidden. The
+              "Show as a table" view is the accessible version of this chart. */}
+          <BarChart
+            accessibilityLayer={false}
+            data={daily}
+            margin={{ top: 4, right: 4, bottom: 0, left: -16 }}
+          >
             <CartesianGrid vertical={false} stroke="var(--border)" strokeWidth={1} />
             <XAxis
               dataKey="day"

@@ -4,10 +4,11 @@
     "description": "Answers first. Humans when it matters. A support chatbot for small web shops."
   },
   "Header": {
+    "skipToContent": "Skip to content",
     "home": "Relay AI home",
     "language": "Language",
     "signIn": "Sign in",
-    "dashboard": "Dashboard",
+    "dashboard": "Relay AI dashboard",
     "demo": "Demo store",
     "pricing": "Pricing",
     "signUp": "Sign up",
@@ -149,6 +150,12 @@
   },
   "Footer": {
     "note": "Portfolio project. Runs on free tiers, with no real charges."
+  },
+  "PageError": {
+    "title": "Something went wrong",
+    "body": "We couldn't load this page. Try again in a moment.",
+    "retry": "Try again",
+    "back": "Back to the home page"
   },
   "NotFound": {
     "title": "This page doesn't exist",
@@ -564,7 +571,7 @@
       "bot": "No chats the bot is handling on its own.",
       "resolved": "No resolved chats yet."
     },
-    "open": "Open the chat with {who}",
+    "open": "<hidden>Open the chat with </hidden>{who}",
     "live": "Updates live",
     "back": "Inbox",
     "detail": {

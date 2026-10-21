@@ -53,13 +53,14 @@ test.describe("handoff and live inbox", () => {
     await expect(chat.getByText("Thanks! The answer will reach your inbox too.")).toBeVisible();
 
     // The owner's inbox updates by itself: the chat appears, waiting and unread.
-    const row = owner.getByRole("link", { name: "Open the chat with visitor@kroj.test" });
+    const link = owner.getByRole("link", { name: "Open the chat with visitor@kroj.test" });
+    const row = owner.getByRole("listitem").filter({ has: link });
     await expect(row).toBeVisible();
     await expect(row).toContainText("Waiting");
     await expect(owner.getByRole("link", { name: /^Inbox/ })).toContainText("1");
 
     // The owner answers; the visitor sees it without reloading.
-    await row.click();
+    await link.click();
     await expect(owner.getByRole("heading", { name: "visitor@kroj.test" })).toBeVisible();
     await expect(owner.locator('[data-live="on"]:visible')).toBeVisible();
     await owner.getByLabel("Your reply").fill("Hi! Mila here. Your parcel ships today.");

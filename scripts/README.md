@@ -15,4 +15,5 @@ Developer scripts run through `pnpm` (TypeScript via `tsx`):
   `order_status` against the demo orders
 - `demo/seed-analytics.ts` → `pnpm demo:seed-analytics <public_key> [--days 30] [--clear]`:
   30 days of plausible conversation history for Analytics (removable with `--clear`)
-- later: the adversarial eval (**Phase 10**)
+- `db-hardening.sql`: catalog checks CI runs with `psql` after the migrations (RLS on every
+  table, pinned `search_path` on every `SECURITY DEFINER` function)
